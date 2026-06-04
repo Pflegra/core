@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}{{ _("antraege.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📄 {{ _("antraege.titel") }}</h1>
+</div>
+
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+{% if ok %}
+<div class="alert alert-ok">✓ {{ ok }}</div>
+{% endif %}
+
+{% if not konfig.absender_name or not konfig.absender_adresse %}
+<div class="alert alert-warnung" style="margin-bottom:1.5rem">
+    ⚠️ Absender-Daten fehlen –
+    bitte zuerst unter <a href="{{ request.app.state.ingress_entry }}/einstellungen/">Einstellungen → Absender</a> ausfüllen.
+</div>
+{% endif %}
+
+<div class="alert alert-info" style="margin-bottom:1.5rem">
+    ℹ️ Alle Dokumente werden mit Pflegra als Vorlage erstellt. Bitte prüfen Sie alle Angaben vor dem Versand.
+    Anträge und Widersprüche per <strong>Einschreiben mit Rückschein</strong> versenden und eine Kopie aufbewahren.
+</div>
+
+<div class="dok-galerie">
+
+    {# ── Antrag VP ── #}
+    <div class="dok-karte">
+        <div class="dok-badge dok-badge-antrag">{{ _("antraege.badge_antrag") }}</div>
+        <div class="dok-icon">📋</div>
+        <h3 class="dok-titel">{{ _("antraege.antrag_vp_titel") }}</h3>
+        <p class="dok-beschreibung">
+            {{ _("antraege.antrag_vp_desc") }}
+            Vorsorglich für das laufende Jahr oder für einen konkreten Zeitraum.
+        </p>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/antraege/vp/erstellen" class="dok-form">
+            <div class="form-group" style="margin-bottom:.5rem">
+                <label>Person</label>
+                <select name="person" required>
+                    <option value="">{{ _("common.bitte_waehlen") }}</option>
+                    {% for p in personen %}
+                    <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:.5rem">
+                <label>Jahr</label>
+                <select name="jahr">
+                    {% for j in jahre %}
+                    <option value="{{ j }}" {% if loop.last %}selected{% endif %}>{{ j }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="dok-modus">
+                <label class="dok-radio">
+                    <input type="radio" name="modus" value="vorsorglich" checked
+                           onchange="document.getElementById('vp-monate').style.display='none'">
+                    <span>{{ _("antraege.vorsorglich") }}</span>
+                </label>
+                <label class="dok-radio">
+                    <input type="radio" name="modus" value="manuell"
+                           onchange="document.getElementById('vp-monate').style.display='flex'">
+                    <span>{{ _("antraege.manuell") }}</span>
+                </label>
+            </div>
+            <div id="vp-monate" style="display:none; flex-wrap:wrap; gap:.3rem; margin-top:.4rem">
+                {% for nr, name in monate %}
+                <label class="monat-chip">
+                    <input type="checkbox" name="monate" value="{{ nr }}">
+                    <span>{{ name }}</span>
+                </label>
+                {% endfor %}
+                <div class="monat-picker-actions" style="width:100%">
+                    <button type="button" class="btn btn-ghost btn-sm"
+                            onclick="alleChips('vp-monate',true)">Alle</button>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                            onclick="alleChips('vp-monate',false)">Keine</button>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                            onclick="quartal('vp-monate',1)">Q1</button>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                            onclick="quartal('vp-monate',2)">Q2</button>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                            onclick="quartal('vp-monate',3)">Q3</button>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                            onclick="quartal('vp-monate',4)">Q4</button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary dok-btn">⬇ {{ _("antraege.antrag_generieren") }}</button>
+        </form>
+    </div>
+
+    {# ── Ausfüllhilfe VP ── #}
+    <div class="dok-karte">
+        <div class="dok-badge dok-badge-antrag">{{ _("antraege.badge_ausfuellhilfe") }}</div>
+        <div class="dok-icon">📝</div>
+        <h3 class="dok-titel">{{ _("antraege.ausfuellhilfe_titel") }}</h3>
+        <p class="dok-beschreibung">
+            KK-unabhängiges Datenblatt zum Ausfüllen des Formulars Ihrer Pflegekasse.
+            Enthält alle Stammdaten und Einzelnachweise für den gewählten Zeitraum.
+        </p>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/antraege/ausfuellhilfe/erstellen" class="dok-form">
+            <div class="form-group" style="margin-bottom:.5rem">
+                <label>Person</label>
+                <select name="person" id="ausfuell-person-select" required>
+                    <option value="">{{ _("common.bitte_waehlen") }}</option>
+                    {% for p in personen %}
+                    <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+                <div class="form-group" style="flex:1">
+                    <label>Zeitraum von</label>
+                    <input type="date" name="zeitraum_von" required>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>bis</label>
+                    <input type="date" name="zeitraum_bis" required>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:.5rem">
+                <label>Grund der Beantragung</label>
+                <select name="grund">
+                    <option value="">{{ _("common.bitte_waehlen") }}</option>
+                    <option value="Erholungsurlaub">Erholungsurlaub</option>
+                    <option value="Krankheit">Krankheit</option>
+                    <option value="Sonstiger Grund">Sonstiger Grund</option>
+                </select>
+            </div>
+
+            <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .75rem;margin-bottom:.5rem">
+                <div style="font-size:.8rem;font-weight:600;color:var(--primary);margin-bottom:.4rem">
+                    {{ _("antraege.ersatz_verhinderungspflegekraft") }}
+                </div>
+                <div class="form-group" style="margin-bottom:.3rem">
+                    <label>Name <span style="color:var(--error)">*</span></label>
+                    <select name="ersatz_name" id="ausfuell-ersatz-select">
+                        <option value="">{{ _("antraege.bitte_person_waehlen") }}</option>
+                    </select>
+                    <input type="text" name="ersatz_name_freitext" id="ausfuell-ersatz-freitext"
+                           placeholder="Name der Ersatzpflegekraft eingeben"
+                           style="display:none; margin-top:.35rem"
+                           class="form-control">
+                    <div id="ausfuell-ersatz-hinweis" style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">
+                        {{ _("antraege.bitte_person") }}
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var ersatzDaten = {{ ersatz_je_person | tojson | safe }};
+                var personSel   = document.getElementById('ausfuell-person-select');
+                var ersatzSel   = document.getElementById('ausfuell-ersatz-select');
+                var ersatzFrei  = document.getElementById('ausfuell-ersatz-freitext');
+                var hinweis     = document.getElementById('ausfuell-ersatz-hinweis');
+                if (!personSel || !ersatzSel) return;
+
+                function aktualisiere() {
+                    var person = personSel.value;
+                    var liste  = ersatzDaten[person] || [];
+                    ersatzSel.innerHTML = '';
+
+                    if (!person) {
+                        var opt = document.createElement('option');
+                        opt.value = '';
+                        opt.textContent = '{{ _("antraege.bitte_person_waehlen") }}';
+                        ersatzSel.appendChild(opt);
+                        ersatzSel.style.display = '';
+                        ersatzFrei.style.display = 'none';
+                        hinweis.textContent = '{{ _("antraege.bitte_person") }}';
+                        hinweis.style.color = 'var(--text-muted)';
+                    } else if (liste.length === 0) {
+                        // Keine Ersatzkräfte → Freitext
+                        ersatzSel.style.display = 'none';
+                        ersatzFrei.style.display = '';
+                        ersatzFrei.required = true;
+                        hinweis.innerHTML = 'Noch keine Ersatzpflegekräfte hinterlegt — <a href="{{ request.app.state.ingress_entry }}/versicherte/?person=' + encodeURIComponent(person) + '">jetzt anlegen</a> oder Namen direkt eingeben.';
+                        hinweis.style.color = 'var(--warning, #d97706)';
+                    } else {
+                        ersatzSel.style.display = '';
+                        ersatzFrei.style.display = 'none';
+                        ersatzFrei.required = false;
+                        liste.forEach(function(e) {
+                            var opt = document.createElement('option');
+                            opt.value = e.name;
+                            opt.textContent = e.name + ' (' + e.art + ')';
+                            ersatzSel.appendChild(opt);
+                        });
+                        hinweis.textContent = liste.length + ' Ersatzpflegekraft' + (liste.length > 1 ? 'kräfte' : '') + ' verfügbar.';
+                        hinweis.style.color = 'var(--text-muted)';
+                    }
+                }
+
+                personSel.addEventListener('change', aktualisiere);
+                aktualisiere(); // direkt beim Laden ausführen
+            });
+            </script>
+
+            <button type="submit" class="btn btn-primary" style="width:100%">
+                📝 {{ _("antraege.ausfuellhilfe_erstellen") }}
+            </button>
+        </form>
+    </div>
+
+    {# ── Widerspruch ── #}
+    <div class="dok-karte">
+        <div class="dok-badge" style="background:#fff5f5;color:#c53030;border:1px solid #fc8181">⚖️ WIDERSPRUCH</div>
+        <div class="dok-icon">⚖️</div>
+        <h3 class="dok-titel">{{ _('widerspruch.titel') }}</h3>
+        <p class="dok-beschreibung">
+            {{ _('widerspruch.untertitel') }}.
+            Fristsichernd oder mit detaillierter NBA-Modul-Begründung.
+        </p>
+        <div style="margin-top:auto;padding-top:1rem">
+            <a href="{{ request.app.state.ingress_entry }}/widerspruch/" class="btn btn-primary" style="width:100%;text-align:center">
+                ⚖️ {{ _('widerspruch.titel') }}
+            </a>
+        </div>
+    </div>
+
+    {# ── Vollmacht ── #}
+    <div class="dok-karte">
+        <div class="dok-badge dok-badge-vollmacht">{{ _("antraege.badge_vollmacht") }}</div>
+        <div class="dok-icon">✍️</div>
+        <h3 class="dok-titel">{{ _("antraege.vollmacht_titel") }}</h3>
+        <p class="dok-beschreibung">
+            Vollmacht zur Vertretung in allen Angelegenheiten der Kranken- und
+            {{ _("antraege.vollmacht_desc_short") }}
+        </p>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/antraege/vollmacht/erstellen" class="dok-form">
+            <div class="form-group" style="margin-bottom:.5rem">
+                <label>Person</label>
+                <select name="person" required>
+                    <option value="">{{ _("common.bitte_waehlen") }}</option>
+                    {% for p in personen %}
+                    <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary dok-btn">⬇ {{ _("antraege.vollmacht_generieren") }}</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+function alleChips(blockId, an) {
+    document.querySelectorAll('#' + blockId + ' input[type=checkbox]')
+        .forEach(cb => cb.checked = an);
+}
+function quartal(blockId, q) {
+    alleChips(blockId, false);
+    ({1:[1,2,3],2:[4,5,6],3:[7,8,9],4:[10,11,12]})[q].forEach(n => {
+        const cb = document.querySelector('#' + blockId + ' input[value="' + n + '"]');
+        if (cb) cb.checked = true;
+    });
+}
+</script>
+{% endblock %}

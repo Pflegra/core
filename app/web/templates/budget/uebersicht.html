@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{{ _('budget.titel') }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💶 {{ _('budget.titel') }}</h1>
+    <form method="get" style="display:flex;gap:.5rem;align-items:center">
+        <label>{{ _('budget.jahr') }}:</label>
+        <select name="jahr" onchange="this.form.submit()">
+            {% for j in jahre %}
+            <option value="{{ j }}" {% if j == aktuelles_jahr %}selected{% endif %}>{{ j }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+{% if warnungen %}
+<div class="section">
+    {% for w in warnungen %}
+    <div class="alert alert-warnung">⚠️ {{ w }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not berichte %}
+<p class="text-muted">{{ _('budget.keine_eintraege', jahr=aktuelles_jahr) }}</p>
+{% endif %}
+
+{% for b in berichte %}
+<div class="budget-card ampel-{{ b.ampel }}">
+    <div class="budget-card-header">
+        <h2><a href="{{ request.app.state.ingress_entry }}/budget/person/{{ b.person }}?jahr={{ aktuelles_jahr }}">{{ b.person }}</a></h2>
+        <span class="ampel-badge ampel-{{ b.ampel }}">
+            {% if b.ampel == 'gruen' %}✅ {{ _('budget.im_budget') }}
+            {% elif b.ampel == 'gelb' %}⚠️ {{ _('budget.achtung') }}
+            {% else %}🔴 {{ _('budget.ueberschritten') }}{% endif %}
+        </span>
+    </div>
+
+    <div class="budget-progress">
+        <div class="progress-bar">
+            <div class="progress-fill ampel-fill-{{ b.ampel }}"
+                 style="width: {{ [b.budget.ausgeschoepft_prozent, 100] | min }}%"></div>
+        </div>
+        <span class="progress-label">{{ "%.1f"|format(b.budget.ausgeschoepft_prozent) }} %</span>
+    </div>
+
+    <div class="budget-stats">
+        <div class="stat">
+            <span class="stat-label">{{ _('budget.verbraucht') }}</span>
+            <span class="stat-value">{{ b.budget.verbraucht | eur }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">{{ _('budget.restbudget') }}</span>
+            <span class="stat-value">{{ b.budget.restbudget_gesamt | eur }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">{{ _('budget.gesamt') }}</span>
+            <span class="stat-value">{{ budget_gesamt | eur }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">{{ _('budget.tageweise') }}</span>
+            <span class="stat-value {% if b.budget.tage_grenze_erreicht %}text-fehler{% endif %}">
+                {{ b.budget.tage_tageweise }}/{{ max_tage_tageweise }} {{ _("budget.tage_label") }}
+            </span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">{{ _('budget.stunden') }}</span>
+            <span class="stat-value">{{ "%.1f"|format(b.budget.stunden_gesamt) }} h</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">{{ _('budget.rest_stunden') }}</span>
+            <span class="stat-value">≈ {{ "%.1f"|format(b.budget.restbudget_in_stunden) }} h</span>
+        </div>
+    </div>
+
+    {% if b.prognose.abgeschlossene_monate > 0 %}
+    <div class="prognose">
+        <span class="text-muted">{{ _('budget.prognose') }} ({{ b.prognose.abgeschlossene_monate }} {{ _('budget.monate') }}):</span>
+        <span class="{{ 'text-fehler' if b.prognose.budget_wird_ueüberschritten else '' }}">
+            {{ b.prognose.hochrechnung_kosten | eur }}
+            {% if b.prognose.differenz >= 0 %}+{% endif %}{{ b.prognose.differenz | eur }}
+        </span>
+    </div>
+    {% endif %}
+
+    {# ── Entlastungsbetrag ── #}
+    <div style="margin-top:.75rem;padding:.6rem .75rem;background:var(--card-bg);
+                border:1px solid var(--border);border-radius:var(--radius)">
+        <div style="font-size:.8rem;font-weight:700;color:#16a34a;margin-bottom:.4rem">
+            🌿 {{ _('nav.entlastungsbetrag') }} § 45b SGB XI
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:.75rem">
+            <div>
+                <div style="font-size:.72rem;color:var(--text-muted)">{{ _('budget.entlastung_monatlich') }}</div>
+                <div style="font-weight:600;font-size:.95rem">{{ entlastung_monatlich | eur }}</div>
+            </div>
+            <div>
+                <div style="font-size:.72rem;color:var(--text-muted)">{{ _('budget.entlastung_jahresmax') }}</div>
+                <div style="font-weight:600;font-size:.95rem">{{ entlastung_jahresmax | eur }}</div>
+            </div>
+            <div>
+                <div style="font-size:.72rem;color:var(--text-muted)">{{ _('budget.vorjahresguthaben') }} {{ vorjahr_jahr }}</div>
+                <div style="font-size:.85rem">
+                    {% if vorjahr_nutzbar %}
+                    <span style="color:#16a34a;font-weight:600">✓ {{ _('budget.nutzbar_bis') }} {{ aktuelles_jahr }}</span>
+                    {% else %}
+                    <span style="color:#b45309">⚠ {{ _('budget.abgelaufen') }} {{ aktuelles_jahr }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div style="font-size:.72rem;color:var(--text-muted)">{{ _('budget.max_uebertragbar') }}</div>
+                <div style="font-weight:600;font-size:.95rem">{{ entlastung_jahresmax | eur }}</div>
+            </div>
+        </div>
+        <div style="font-size:.72rem;color:var(--text-muted);margin-top:.4rem">
+            {{ _('budget.zweckgebunden') }}
+            {{ _('budget.vorjahr_nutzbar_hinweis', vorjahr_jahr=vorjahr_jahr, jahr=aktuelles_jahr) }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

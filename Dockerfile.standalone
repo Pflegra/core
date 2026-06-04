@@ -1,0 +1,54 @@
+# Pflegra — Standalone Docker Image
+# https://github.com/Pflegra/core
+#
+# Usage:
+#   docker run -d -p 8000:8000 -v pflegra_data:/data ghcr.io/pflegra/core:latest
+
+FROM python:3.11-slim
+
+LABEL org.opencontainers.image.title="Pflegra"
+LABEL org.opencontainers.image.description="Self-hosted care management for German care benefits (SGB XI)"
+LABEL org.opencontainers.image.url="https://github.com/Pflegra/core"
+LABEL org.opencontainers.image.source="https://github.com/Pflegra/core"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
+LABEL org.opencontainers.image.authors="Stefan Neu <s.l.neu@web.de>"
+
+# System-Abhängigkeiten
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python-Pakete
+COPY app/requirements_web.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
+    reportlab \
+    odfpy \
+    openpyxl \
+    xlrd
+
+# App-Code
+WORKDIR /app
+COPY app/ /app/
+
+# Datenverzeichnis
+RUN mkdir -p /data/Archiv /data/backups /data/logs
+
+# Umgebungsvariablen
+ENV PFLEGRA_DATA=/data
+ENV PORT=8000
+ENV TZ=Europe/Berlin
+ENV PFLEGRA_HTTPS=0
+
+# Port
+EXPOSE 8000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+# Start
+CMD ["python3", "-m", "uvicorn", "web.app:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--log-level", "warning", \
+     "--app-dir", "/app"]

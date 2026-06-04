@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Log – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📄 Anwendungslog</h1>
+    <a href="{{ request.app.state.ingress_entry }}/admin/" class="btn btn-ghost">← Admin</a>
+</div>
+
+<div style="margin-bottom:.75rem; display:flex; gap:.5rem; flex-wrap:wrap">
+    <a href="{{ request.app.state.ingress_entry }}/admin/log?zeilen=50" class="btn btn-ghost btn-sm {% if zeilen==50 %}active{% endif %}">50 Zeilen</a>
+    <a href="{{ request.app.state.ingress_entry }}/admin/log?zeilen=100" class="btn btn-ghost btn-sm {% if zeilen==100 %}active{% endif %}">100 Zeilen</a>
+    <a href="{{ request.app.state.ingress_entry }}/admin/log?zeilen=250" class="btn btn-ghost btn-sm {% if zeilen==250 %}active{% endif %}">250 Zeilen</a>
+    <a href="{{ request.app.state.ingress_entry }}/admin/log?zeilen=500" class="btn btn-ghost btn-sm {% if zeilen==500 %}active{% endif %}">500 Zeilen</a>
+</div>
+
+<div style="font-family:monospace; font-size:.78rem; background:#1a202c; color:#e2e8f0;
+            border-radius:8px; padding:1rem; max-height:75vh; overflow-y:auto" id="log-box">
+    {% if log_inhalt %}
+        {% for zeile in log_inhalt %}
+        <div class="log-zeile {% if 'ERROR' in zeile or 'CRITICAL' in zeile %}log-error
+             {% elif 'WARNING' in zeile %}log-warn
+             {% elif 'INFO' in zeile %}log-info{% endif %}">{{ zeile }}</div>
+        {% endfor %}
+    {% else %}
+        <div style="color:#718096">Kein Log vorhanden.</div>
+    {% endif %}
+</div>
+
+<style>
+.log-error { color: #fc8181; }
+.log-warn  { color: #f6ad55; }
+.log-info  { color: #e2e8f0; }
+.log-zeile { padding: .1rem 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+</style>
+
+<script>
+// Scroll to bottom
+const box = document.getElementById('log-box');
+if (box) box.scrollTop = box.scrollHeight;
+</script>
+{% endblock %}

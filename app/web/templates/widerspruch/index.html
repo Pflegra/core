@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}{{ _('widerspruch.titel') }} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>⚖️ {{ _('widerspruch.titel') }}</h1>
+  <p class="page-subtitle">{{ _('widerspruch.untertitel') }}</p>
+</div>
+
+<!-- Hinweis -->
+<div class="wb-hinweis-box">
+  ⚠️ {{ _('widerspruch.hinweis_frist') }}
+  <strong>{{ _('widerspruch.frist_1_monat') }}</strong>
+  {{ _('widerspruch.hinweis_einschreiben') }}
+</div>
+
+<!-- Info-Kacheln -->
+<div class="wb-info-row">
+  <div class="wb-info-card">
+    <div class="wb-info-icon">📅</div>
+    <div class="wb-info-titel">{{ _('widerspruch.frist_titel') }}</div>
+    <div class="wb-info-text">{{ _('widerspruch.frist_text') }}</div>
+  </div>
+  <div class="wb-info-card">
+    <div class="wb-info-icon">📊</div>
+    <div class="wb-info-titel">{{ _('widerspruch.erfolg_titel') }}</div>
+    <div class="wb-info-text">{{ _('widerspruch.erfolg_text') }}</div>
+  </div>
+  <div class="wb-info-card">
+    <div class="wb-info-icon">✉️</div>
+    <div class="wb-info-titel">{{ _('widerspruch.versand_titel') }}</div>
+    <div class="wb-info-text">{{ _('widerspruch.versand_text') }}</div>
+  </div>
+</div>
+
+<!-- Typ-Auswahl -->
+<div class="wb-typ-auswahl">
+  <div class="wb-typ-btn active" id="btn-frist" onclick="setTyp('fristsichernd')">
+    <div class="wb-typ-icon">🛡️</div>
+    <div class="wb-typ-titel">{{ _('widerspruch.typ_frist') }}</div>
+    <div class="wb-typ-desc">{{ _('widerspruch.typ_frist_desc') }}</div>
+  </div>
+  <div class="wb-typ-btn" id="btn-begruendet" onclick="setTyp('begruendet')">
+    <div class="wb-typ-icon">📝</div>
+    <div class="wb-typ-titel">{{ _('widerspruch.typ_begruendet') }}</div>
+    <div class="wb-typ-desc">{{ _('widerspruch.typ_begruendet_desc') }}</div>
+  </div>
+</div>
+
+<!-- Formular -->
+<form method="post" action="{{ request.app.state.ingress_entry }}/widerspruch/pdf">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="widerspruch_typ" id="widerspruch_typ" value="fristsichernd">
+
+  <div class="wb-form-card">
+
+    <!-- Grunddaten -->
+    <div class="wb-abschnitt-titel">{{ _('widerspruch.grunddaten') }}</div>
+    <div class="wb-form-row-3">
+      <div class="form-group">
+        <label>{{ _('widerspruch.person') }} *</label>
+        <select name="person" required class="form-control" onchange="ladePerson(this.value)">
+          <option value="">{{ _('common.bitte_waehlen') }}</option>
+          {% for p in personen %}
+          <option value="{{ p }}">{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>{{ _('widerspruch.bescheid_datum') }} *</label>
+        <input type="date" name="bescheid_datum" required class="form-control">
+      </div>
+      <div class="form-group">
+        <label>{{ _('widerspruch.aktenzeichen') }}</label>
+        <input type="text" name="bescheid_az" class="form-control"
+               placeholder="optional">
+      </div>
+    </div>
+
+    <div class="wb-form-row-2">
+      <div class="form-group">
+        <label>{{ _('widerspruch.aktueller_pg') }} *</label>
+        <select name="aktueller_pg" required class="form-control">
+          <option value="">—</option>
+          {% for pg in range(6) %}
+          <option value="{{ pg }}">{% if pg == 0 %}Kein Pflegegrad{% else %}Pflegegrad {{ pg }}{% endif %}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>{{ _('widerspruch.beantragter_pg') }}</label>
+        <select name="beantragter_pg" class="form-control">
+          <option value="">—</option>
+          {% for pg in range(1, 6) %}
+          <option value="{{ pg }}">Pflegegrad {{ pg }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Begründung (nur bei begründetem Widerspruch) -->
+    <div id="begruendung-bereich" style="display:none">
+      <div class="wb-abschnitt-titel" style="margin-top:1rem">{{ _('widerspruch.begruendung') }}</div>
+      <div class="form-group">
+        <label>{{ _('widerspruch.begruendung_text') }}</label>
+        <textarea name="begruendung" class="form-control" rows="5"
+                  placeholder="{{ _('widerspruch.begruendung_placeholder') }}"></textarea>
+      </div>
+
+      <!-- Modul-Kritik -->
+      <div class="wb-abschnitt-titel" style="margin-top:1rem">{{ _('widerspruch.modul_kritik') }}</div>
+      <div class="wb-modul-hinweis">{{ _('widerspruch.modul_kritik_hinweis') }}</div>
+      {% for mid, mname in modul_namen.items() %}
+      <div class="wb-modul-block">
+        <div class="wb-modul-header">
+          <span class="wb-modul-nr">Modul {{ mid }}</span>
+          <span class="wb-modul-name">{{ mname }}</span>
+          <button type="button" class="wb-vorlage-btn"
+                  onclick="ladeVorlage({{ mid }})">
+            💡 {{ _('widerspruch.vorlage_laden') }}
+          </button>
+        </div>
+        <textarea name="modul_{{ mid }}_kritik" id="modul_{{ mid }}_kritik"
+                  class="form-control" rows="3"
+                  placeholder="{{ _('widerspruch.modul_kritik_placeholder') }}"></textarea>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap">
+    <button type="submit" class="btn btn-primary btn-lg">
+      📄 {{ _('widerspruch.pdf_erstellen') }}
+    </button>
+    <a href="{{ request.app.state.ingress_entry }}/antraege/" class="btn btn-secondary">{{ _('widerspruch.weitere_antraege') }}</a>
+  </div>
+</form>
+
+<!-- Checkliste -->
+<div class="wb-checkliste" style="margin-top:2rem">
+  <div class="wb-check-titel">✅ {{ _('widerspruch.checkliste_titel') }}</div>
+  <div class="wb-check-item">☐ {{ _('widerspruch.check_1') }}</div>
+  <div class="wb-check-item">☐ {{ _('widerspruch.check_2') }}</div>
+  <div class="wb-check-item">☐ {{ _('widerspruch.check_3') }}</div>
+  <div class="wb-check-item">☐ {{ _('widerspruch.check_4') }}</div>
+  <div class="wb-check-item">☐ {{ _('widerspruch.check_5') }}</div>
+</div>
+
+<style>
+.wb-hinweis-box {
+  background: #fff5f5; border: 1px solid #fc8181; border-radius: 8px;
+  padding: .75rem 1rem; margin-bottom: 1.25rem; font-size: .9rem; color: #c53030;
+}
+.wb-info-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.wb-info-card {
+  flex: 1; min-width: 180px; background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 10px; padding: 1rem; text-align: center;
+}
+.wb-info-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+.wb-info-titel { font-weight: 700; font-size: .88rem; color: #2d3748; margin-bottom: .2rem; }
+.wb-info-text { font-size: .8rem; color: #718096; line-height: 1.45; }
+.wb-typ-auswahl { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.wb-typ-btn {
+  flex: 1; min-width: 220px; background: #fff; border: 2px solid #e2e8f0;
+  border-radius: 10px; padding: 1.1rem; cursor: pointer; transition: all .15s;
+}
+.wb-typ-btn:hover { border-color: #2C5F8A; }
+.wb-typ-btn.active { border-color: #2C5F8A; background: #ebf8ff; }
+.wb-typ-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+.wb-typ-titel { font-weight: 700; color: #2d3748; margin-bottom: .2rem; }
+.wb-typ-desc { font-size: .82rem; color: #718096; }
+.wb-form-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; }
+.wb-abschnitt-titel { font-size: .78rem; font-weight: 700; color: #718096;
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: .75rem; }
+.wb-form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: .75rem; }
+.wb-form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.wb-modul-hinweis { font-size: .8rem; color: #718096; margin-bottom: .75rem; }
+.wb-modul-block { margin-bottom: .75rem; }
+.wb-modul-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; flex-wrap: wrap; }
+.wb-modul-nr { font-size: .72rem; font-weight: 700; color: #718096; text-transform: uppercase; }
+.wb-modul-name { font-size: .88rem; font-weight: 600; color: #2d3748; flex: 1; }
+.wb-vorlage-btn {
+  font-size: .75rem; background: #f7fafc; border: 1px solid #e2e8f0;
+  border-radius: 5px; padding: .2rem .5rem; cursor: pointer; color: #2C5F8A;
+}
+.wb-vorlage-btn:hover { background: #ebf8ff; }
+.wb-checkliste { background: #f0fff4; border: 1px solid #68d391; border-radius: 10px; padding: 1rem 1.25rem; }
+.wb-check-titel { font-weight: 700; color: #276749; margin-bottom: .5rem; }
+.wb-check-item { font-size: .87rem; color: #2d3748; padding: .2rem 0; }
+@media (max-width: 640px) {
+  .wb-form-row-3 { grid-template-columns: 1fr; }
+  .wb-form-row-2 { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+const VORLAGEN = {{ haeufige_kritik | tojson | safe }};
+
+function setTyp(typ) {
+  document.getElementById('widerspruch_typ').value = typ;
+  document.getElementById('btn-frist').classList.toggle('active', typ === 'fristsichernd');
+  document.getElementById('btn-begruendet').classList.toggle('active', typ === 'begruendet');
+  document.getElementById('begruendung-bereich').style.display = typ === 'begruendet' ? '' : 'none';
+}
+
+function ladeVorlage(mid) {
+  const ta = document.getElementById('modul_' + mid + '_kritik');
+  if (ta && VORLAGEN[mid]) {
+    ta.value = VORLAGEN[mid];
+  }
+}
+</script>
+{% endblock %}

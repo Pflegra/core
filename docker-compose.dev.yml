@@ -1,0 +1,33 @@
+# Pflegra – Docker Compose für Entwicklung
+# Baut das Image lokal aus dem Quellcode
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up -d
+
+
+services:
+  pflegra:
+    build:
+      context: .
+      dockerfile: Dockerfile.standalone
+    image: pflegra-dev:latest
+    container_name: pflegra-dev
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - pflegra_dev_data:/data
+    environment:
+      - TZ=${TZ:-Europe/Berlin}
+      - PFLEGRA_DATA=/data
+      - PFLEGRA_HTTPS=0
+      - PFLEGRA_DEBUG=1
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  pflegra_dev_data:
+    driver: local

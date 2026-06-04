@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}{{ _('pflegegrad.verlauf_titel') }} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📈 {{ _('pflegegrad.verlauf_titel') }}</h1>
+  <a href="{{ request.app.state.ingress_entry }}/pflegegrad/" class="btn btn-primary">🧮 {{ _('pflegegrad.titel') }}</a>
+</div>
+
+{% if personen %}
+<div class="verlauf-filter">
+  <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" class="btn btn-sm {% if not aktueller_person_filter %}btn-primary{% else %}btn-secondary{% endif %}">
+    {{ _('pflegegrad.alle_personen') }}
+  </a>
+  {% for p in personen %}
+  <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf?person={{ p | urlencode }}"
+     class="btn btn-sm {% if aktueller_person_filter == p %}btn-primary{% else %}btn-secondary{% endif %}">
+    {{ p }}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if not eintraege %}
+<div class="empty-state">
+  <p>{{ _('pflegegrad.verlauf_leer') }}</p>
+  <a href="{{ request.app.state.ingress_entry }}/pflegegrad/" class="btn btn-primary">{{ _('pflegegrad.jetzt_berechnen') }}</a>
+</div>
+{% else %}
+
+<div class="verlauf-tabelle-wrap">
+  <table class="verlauf-tabelle">
+    <thead>
+      <tr>
+        <th>{{ _('pflegegrad.datum') }}</th>
+        <th>{{ _('pflegegrad.person_label') }}</th>
+        <th>{{ _('pflegegrad.pflegegrad_kurz') }}</th>
+        <th>{{ _('pflegegrad.gesamtpunkte') }}</th>
+        <th>{{ _('pflegegrad.notiz_label') }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in eintraege %}
+      <tr class="verlauf-zeile pg-farbe-{{ e.pflegegrad }}">
+        <td>{{ e.datum }}</td>
+        <td>{{ e.person or '—' }}</td>
+        <td>
+          <span class="pg-badge pg-badge-{{ e.pflegegrad }}">
+            {% if e.pflegegrad == 0 %}–{% else %}PG {{ e.pflegegrad }}{% endif %}
+          </span>
+        </td>
+        <td>{{ "%.1f"|format(e.gesamtpunkte) }}</td>
+        <td class="verlauf-notiz">{{ e.notiz or '' }}</td>
+        <td>
+          <button class="btn btn-sm btn-danger"
+                  onclick="loeschen({{ e.id }}, this)">🗑</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if eintraege | length > 1 %}
+<div class="verlauf-chart-wrap">
+  <h3>{{ _('pflegegrad.verlauf_diagramm') }}</h3>
+  <canvas id="verlauf-chart" height="120"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const labels = {{ eintraege | map(attribute='datum') | list | tojson | safe }}.reverse();
+const punkte = {{ eintraege | map(attribute='gesamtpunkte') | list | tojson | safe }}.reverse();
+const grade  = {{ eintraege | map(attribute='pflegegrad') | list | tojson | safe }}.reverse();
+
+new Chart(document.getElementById('verlauf-chart'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Gesamtpunkte',
+      data: punkte,
+      borderColor: '#2C5F8A',
+      backgroundColor: 'rgba(44,95,138,.1)',
+      tension: 0.3,
+      fill: true,
+      pointRadius: 6,
+      pointBackgroundColor: grade.map(g => ['#718096','#68d391','#f6ad55','#fc8181','#e53e3e','#9b2c2c'][g]),
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.parsed.y} Punkte — PG ${grade[ctx.dataIndex]}`
+        }
+      }
+    },
+    scales: {
+      y: {
+        min: 0, max: 100,
+        ticks: { stepSize: 10 },
+        grid: { color: '#e2e8f0' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+{% endif %}
+
+{% endif %}
+
+<style>
+.verlauf-filter { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.verlauf-tabelle-wrap { overflow-x: auto; }
+.verlauf-tabelle { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.verlauf-tabelle th {
+  background: #2C5F8A; color: #fff; padding: .5rem .75rem;
+  text-align: left; font-size: .8rem;
+}
+.verlauf-tabelle td { padding: .5rem .75rem; border-bottom: 1px solid #e2e8f0; }
+.verlauf-tabelle tbody tr:hover { background: #f7fafc; }
+.verlauf-notiz { font-size: .8rem; color: #718096; max-width: 200px; }
+.pg-badge {
+  display: inline-block; font-weight: 700; border-radius: 6px;
+  padding: .15rem .55rem; font-size: .82rem; color: #fff;
+}
+.pg-badge-0 { background: #718096; }
+.pg-badge-1 { background: #38a169; }
+.pg-badge-2 { background: #d69e2e; }
+.pg-badge-3 { background: #dd6b20; }
+.pg-badge-4 { background: #e53e3e; }
+.pg-badge-5 { background: #9b2c2c; }
+.verlauf-chart-wrap { margin-top: 1.5rem; }
+.verlauf-chart-wrap h3 { font-size: .95rem; color: #4a5568; margin-bottom: .5rem; }
+.empty-state { text-align: center; padding: 2rem; color: #718096; }
+</style>
+
+<script>
+async function loeschen(id, btn) {
+  if (!confirm('Eintrag löschen?')) return;
+  const fd = new FormData();
+  fd.append('csrf_token', '{{ csrf_token }}');
+  const r = await fetch(`/pflegegrad/verlauf/loeschen/${id}`, { method: 'POST', body: fd });
+  const d = await r.json();
+  if (d.ok) btn.closest('tr').remove();
+}
+</script>
+{% endblock %}

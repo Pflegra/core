@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ _("export.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>📄 Export</h1></div>
+
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+
+{# ── Globale Auswahl ── #}
+<div class="form-card" style="max-width:480px; margin-bottom:1.5rem; padding:.9rem 1rem">
+    <div class="form-row" style="margin:0; gap:.75rem">
+        <div class="form-group" style="margin:0; flex:2">
+            <label>{{ _("common.person") }}</label>
+            <select id="global-person" onchange="syncPersonen(this.value)">
+                {% for p in personen %}
+                <option value="{{ p }}" {% if loop.first %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="margin:0; flex:1">
+            <label>{{ _("common.jahr") }}</label>
+            <select id="global-jahr" onchange="syncJahre(this.value)">
+                {% for j in jahre %}
+                <option value="{{ j }}" {% if loop.last %}selected{% endif %}>{{ j }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="cards-grid-2">
+
+    {# ── Monats-PDF ── #}
+    <div class="form-card">
+        <h2>📅 {{ _("export.monatsnachweis") }}</h2>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/export/pdf/monate" id="form-monate">
+            <input type="hidden" name="person" id="monate-person">
+            <input type="hidden" name="jahr" id="monate-jahr">
+            <div class="form-group">
+                <label>Monate</label>
+                <div class="monat-picker" id="monat-picker">
+                    {% for nr, name in monate %}
+                    <label class="monat-chip">
+                        <input type="checkbox" name="monate" value="{{ nr }}">
+                        <span>{{ name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <div class="monat-picker-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="alleMonateWaehlen(true)">{{ _("export.alle") }}</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="alleMonateWaehlen(false)">{{ _("export.keine") }}</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="quartalWaehlen(1)">Q1</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="quartalWaehlen(2)">Q2</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="quartalWaehlen(3)">Q3</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="quartalWaehlen(4)">Q4</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="aktuellerMonat()">{{ _("export.aktuell") }}</button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">⬇ PDF herunterladen</button>
+        </form>
+    </div>
+
+    {# ── Jahres-PDF ── #}
+    <div class="form-card">
+        <h2>📆 {{ _("export.jahresuebersicht") }}</h2>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/export/pdf/jahr">
+            <input type="hidden" name="person" id="jahr-person">
+            <input type="hidden" name="jahr" id="jahr-jahr">
+            <div class="alert alert-info" style="font-size:.85rem; margin-bottom:1rem">
+                {{ _("export.jahresuebersicht_desc_pre") }}
+                für <strong id="jahr-person-label">–</strong> (<span id="jahr-jahr-label">–</span>).
+            </div>
+            <button type="submit" class="btn btn-primary">⬇ Jahres-PDF herunterladen</button>
+        </form>
+    </div>
+
+    {# ── CSV ── #}
+    <div class="form-card">
+        <h2>📊 {{ _("export.csv_export") }}</h2>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/export/csv">
+            <input type="hidden" name="person" id="csv-person">
+            <input type="hidden" name="jahr" id="csv-jahr">
+            <div class="alert alert-info" style="font-size:.85rem; margin-bottom:1rem">
+                {{ _("export.csv_desc_pre") }} <strong id="csv-person-label">–</strong>
+                (<span id="csv-jahr-label">–</span>) als CSV-Datei.
+            </div>
+            <div class="form-group">
+                <label style="font-size:.85rem">
+                    <input type="checkbox" id="csv-alle-personen" onchange="csvAlleToggle(this)">
+                    Alle Personen exportieren
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">⬇ CSV herunterladen</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+const MONATE = [,'Jan','Feb','Mrz','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+function syncPersonen(val) {
+    ['monate','jahr','csv'].forEach(id => {
+        const el = document.getElementById(id + '-person');
+        const lbl = document.getElementById(id + '-person-label');
+        if (el) el.value = val;
+        if (lbl) lbl.textContent = val;
+    });
+}
+function syncJahre(val) {
+    ['monate','jahr','csv'].forEach(id => {
+        const el = document.getElementById(id + '-jahr');
+        const lbl = document.getElementById(id + '-jahr-label');
+        if (el) el.value = val;
+        if (lbl) lbl.textContent = val;
+    });
+}
+
+function alleMonateWaehlen(an) {
+    document.querySelectorAll('#monat-picker input[type=checkbox]').forEach(cb => cb.checked = an);
+}
+function quartalWaehlen(q) {
+    alleMonateWaehlen(false);
+    ({1:[1,2,3],2:[4,5,6],3:[7,8,9],4:[10,11,12]})[q].forEach(m => {
+        const cb = document.querySelector(`#monat-picker input[value="${m}"]`);
+        if (cb) cb.checked = true;
+    });
+}
+function aktuellerMonat() {
+    alleMonateWaehlen(false);
+    const m = new Date().getMonth() + 1;
+    const cb = document.querySelector(`#monat-picker input[value="${m}"]`);
+    if (cb) cb.checked = true;
+}
+function csvAlleToggle(cb) {
+    const personEl = document.getElementById('csv-person');
+    const lbl = document.getElementById('csv-person-label');
+    if (cb.checked) {
+        if (personEl) personEl.value = '';
+        if (lbl) lbl.textContent = 'alle Personen';
+    } else {
+        syncPersonen(document.getElementById('global-person').value);
+    }
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+    const person = document.getElementById('global-person').value;
+    const jahr = document.getElementById('global-jahr').value;
+    syncPersonen(person);
+    syncJahre(jahr);
+    aktuellerMonat();
+});
+</script>
+{% endblock %}

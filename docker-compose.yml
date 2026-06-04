@@ -1,0 +1,40 @@
+# Pflegra – Docker Compose
+# Fuer VM/Server/Windows-Deployment (ohne Home Assistant)
+#
+# Quickstart:
+#   Windows: start.bat doppelklicken
+#   Linux/Mac: ./start.sh
+#   Manuell: docker compose up -d
+
+services:
+  pflegra:
+    image: ghcr.io/pflegra/core:latest
+    container_name: pflegra
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - pflegra_data:/data
+    environment:
+      - TZ=${TZ:-Europe/Berlin}
+      - PFLEGRA_DATA=/data
+      - PFLEGRA_HTTPS=${PFLEGRA_HTTPS:-0}
+      - PFLEGRA_SECRET=${PFLEGRA_SECRET:-}
+      - PFLEGRA_DEBUG=${PFLEGRA_DEBUG:-0}
+      - BACKUP_STUNDE=${BACKUP_STUNDE:-2}
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  pflegra_data:
+    driver: local

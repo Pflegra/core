@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ _("datenpflege.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>🧹 {{ _("datenpflege.titel") }}</h1></div>
+
+{% if ok %}
+<div class="alert alert-ok">✓ {{ ok | replace("_", " ") }}</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler | replace("_", " ") }}</div>
+{% endif %}
+
+{# ── Duplikate ── #}
+<div class="section">
+    <h2>🔍 {{ _("datenpflege.duplikate") }}
+        <span style="font-size:.8rem; font-weight:400; color:var(--text-muted); margin-left:.5rem">
+            {{ _("datenpflege.duplikate_desc") }}
+        </span>
+    </h2>
+
+    {% if not duplikate %}
+    <div class="alert alert-ok">✓ Keine Duplikate gefunden.</div>
+    {% else %}
+    <div class="alert alert-warnung" style="margin-bottom:1rem">
+        ⚠️ {{ _("datenpflege.duplikat_gruppe_warnung", n=duplikate|length) }}
+        Bitte prüfen und ggf. den neueren Eintrag löschen.
+    </div>
+
+    {% for gruppe in duplikate %}
+    <div class="form-card" style="margin-bottom:1rem">
+        <div style="font-size:.85rem; color:var(--text-muted); margin-bottom:.5rem">
+            <strong>{{ gruppe[0].person }}</strong> ·
+            {{ gruppe[0].datum.strftime('%d.%m.%Y') }} ·
+            {{ gruppe[0].von }} – {{ gruppe[0].bis }}
+            · {{ _("datenpflege.eintraege_count_n", n=gruppe|length) }}
+        </div>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/datenpflege/duplikat-loeschen">
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width:30px"></th>
+                            <th>ID</th>
+                            <th>{{ _("datenpflege.datum") }}</th>
+                            <th>{{ _("datenpflege.von") }}</th>
+                            <th>{{ _("datenpflege.bis") }}</th>
+                            <th>{{ _("datenpflege.stunden") }}</th>
+                            <th>{{ _("datenpflege.art") }}</th>
+                            <th>{{ _("datenpflege.notiz") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for e in gruppe %}
+                        <tr>
+                            <td><input type="checkbox" name="ids" value="{{ e.id }}"></td>
+                            <td class="text-muted">#{{ e.id }}</td>
+                            <td>{{ e.datum.strftime('%d.%m.%Y') }}</td>
+                            <td>{{ e.von }}</td>
+                            <td>{{ e.bis }}</td>
+                            <td>{{ "%.2f"|format(e.stunden) }} h</td>
+                            <td>{{ e.art }}</td>
+                            <td>{{ e.notiz or "–" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:.5rem">
+                <button type="submit" class="btn btn-ghost btn-sm"
+                        style="color:var(--error)"
+                        onclick="return confirm('{{ _("datenpflege.ausgewaehlte_loeschen_confirm") }}')">
+                    🗑 {{ _("datenpflege.ausgewaehlte_loeschen") }}
+                </button>
+                <a href="{{ request.app.state.ingress_entry }}/eintraege/?person={{ gruppe[0].person | urlencode }}"
+                   class="btn btn-ghost btn-sm">{{ _("datenpflege.in_eintraegen") }}</a>
+            </div>
+        </form>
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

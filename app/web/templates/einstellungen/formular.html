@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ _("einstellungen.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>⚙️ {{ _("einstellungen.titel") }}</h1></div>
+
+{% if request.query_params.get('ok') %}
+<div class="alert alert-ok">✓ {{ _("einstellungen.gespeichert") }}</div>
+{% endif %}
+
+<div class="form-card">
+    <form method="post" action="{{ request.app.state.ingress_entry }}/einstellungen/speichern">
+
+        <h2>🏥 {{ _("einstellungen.pflegedienst_section") }}</h2>
+        <div class="form-group">
+            <label>{{ _("einstellungen.name_pflegedienst_label") }}</label>
+            <input type="text" name="pflegedienst_name" value="{{ konfig.pflegedienst_name }}">
+        </div>
+        <div class="form-group">
+            <label>Adresse</label>
+            <textarea name="pflegedienst_adresse" rows="2">{{ konfig.pflegedienst_adresse }}</textarea>
+        </div>
+
+        <h2>✉️ {{ _("einstellungen.absender") }}</h2>
+        <small class="text-muted" style="display:block; margin-bottom:.75rem">
+            {{ _("einstellungen.absender_hinweis") }}
+        </small>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="absender_name" value="{{ settings.absender_name }}"
+                   placeholder="z.B. Vorname Nachname">
+        </div>
+        <div class="form-group">
+            <label>Adresse (mehrzeilig)</label>
+            <textarea name="absender_adresse" rows="3" placeholder="Straße Nr.&#10;PLZ Ort">{{ settings.absender_adresse }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>E-Mail (optional)</label>
+            <input type="email" name="absender_mail" value="{{ settings.absender_mail }}"
+                   placeholder="mail@beispiel.de">
+        </div>
+        <div class="form-group">
+            <label>Geburtsdatum (für Vollmacht)</label>
+            <input type="text" name="absender_geburtsdatum"
+                   value="{{ settings.absender_geburtsdatum }}"
+                   placeholder="TT.MM.JJJJ">
+        </div>
+
+        <h2>💶 {{ _("einstellungen.finanzen_section") }}</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Stundensatz (€)</label>
+                <input type="number" name="stundensatz" step="0.01" min="0"
+                       value="{{ settings.stundensatz }}">
+            </div>
+            {% if is_admin %}
+            <div class="form-group">
+                <label>Jahresbetrag § 39 SGB XI (€)</label>
+                <input type="number" name="budget_basis" step="0.01" min="0"
+                       value="{{ konfig.budget_basis }}">
+                <small class="text-muted">Ab 01.07.2025: 3.539 € (gemeinsamer Topf VP + KZP)</small>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if is_admin %}
+        <h2>📁 {{ _("einstellungen.pfade_section") }}</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Datenbankpfad</label>
+                <input type="text" name="datenbank_pfad" value="{{ konfig.datenbank_pfad }}">
+            </div>
+            <div class="form-group">
+                <label>Archiv-Basis</label>
+                <input type="text" name="archiv_basis" value="{{ konfig.archiv_basis }}">
+            </div>
+        </div>
+        {% endif %}
+
+        <h2>🔐 {{ _("einstellungen.zugang_section") }}</h2>
+        <small class="text-muted" style="display:block; margin-bottom:.75rem">
+            Passwort leer lassen um es nicht zu ändern.
+            Beim ersten Start kein Passwort nötig — danach hier setzen.
+        </small>
+        <div class="form-group">
+            <label>{{ _("einstellungen.neues_passwort") }}</label>
+            <input type="password" name="neues_passwort" autocomplete="new-password"
+                   placeholder="{{ _("einstellungen.leer_lassen") }}">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 {{ _("einstellungen.speichern") }}</button>
+        </div>
+    </form>
+</div>
+
+{% if is_admin %}
+<div class="form-card" style="margin-top:1rem">
+    <h2>ℹ️ {{ _("einstellungen.systeminfo_section") }}</h2>
+    <table class="data-table">
+        <tr><td>{{ _("einstellungen.version_label") }}</td><td>v2.2.1</td></tr>
+        <tr><td>{{ _("einstellungen.schema_label") }}</td><td>v{{ request.app.state.db.schema_version() }}</td></tr>
+        <tr><td>{{ _("einstellungen.datenbank_label") }}</td><td>pflegra.db</td></tr>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{{ _("backup_page.titel") }} – Pflegra<script>
+const now = new Date();
+const naechstes = new Date(now);
+naechstes.setHours(2, 0, 0, 0);
+if (naechstes <= now) naechstes.setDate(naechstes.getDate() + 1);
+const diff = naechstes - now;
+const h = Math.floor(diff / 3600000);
+const m = Math.floor((diff % 3600000) / 60000);
+document.getElementById('naechstes-backup').textContent =
+    `{{ _("backup_page.naechstes_zeit") }}`.replace("{h}", h).replace("{m}", m);
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💾 {{ _("backup_page.titel") }}</h1>
+</div>
+
+{% if ok == "erstellt" %}
+<div class="alert alert-ok">✓ Backup erfolgreich erstellt.</div>
+{% elif ok == "wiederhergestellt" %}
+<div class="alert alert-ok">✓ Datenbank erfolgreich wiederhergestellt. Bitte Seite neu laden.</div>
+{% elif ok == "geloescht" %}
+<div class="alert alert-ok">✓ Backup gelöscht.</div>
+{% endif %}
+
+{% if fehler == "db_nicht_gefunden" %}
+<div class="alert alert-fehler">✗ Datenbank nicht gefunden – kein Backup erstellt.</div>
+{% elif fehler == "nicht_gefunden" %}
+<div class="alert alert-fehler">✗ Backup-Datei nicht gefunden.</div>
+{% elif fehler == "wiederherstellung_fehlgeschlagen" %}
+<div class="alert alert-fehler">✗ Wiederherstellung fehlgeschlagen. Bitte Log prüfen.</div>
+{% elif fehler == "loeschen_fehlgeschlagen" %}
+<div class="alert alert-fehler">✗ Löschen fehlgeschlagen.</div>
+{% endif %}
+
+{# ── Manuelles Backup ── #}
+<div class="section">
+    <div class="form-card" style="max-width:480px">
+        <h2>{{ _("backup_page.erstellen") }}</h2>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:1rem;">
+            Erstellt eine Sicherungskopie der aktuellen Datenbank in
+            <code>/share/pflegra/backups/</code>.
+            Es werden maximal 10 Backups aufbewahrt (älteste werden automatisch gelöscht).
+        </p>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/backup/erstellen">
+            <button type="submit" class="btn btn-primary">💾 {{ _("backup_page.jetzt_erstellen") }}</button>
+        </form>
+    </div>
+</div>
+
+{# ── Backup-Liste ── #}
+<div class="section">
+    <h2>{{ _("backup_page.vorhandene") }}
+        {% if backups %}
+        <span style="font-size:.8rem; font-weight:400; color:var(--text-muted); margin-left:.5rem;">
+            {{ backups|length }} Datei(en) · {{ gesamt_kb }} KB gesamt
+        </span>
+        {% endif %}
+    </h2>
+
+    {% if not backups %}
+    <div class="alert alert-info">Noch keine Backups vorhanden. Erstelle jetzt das erste Backup.</div>
+    {% else %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>{{ _("backup_page.datum") }}</th>
+                    <th>{{ _("backup_page.uhrzeit") }}</th>
+                    <th>{{ _("backup_page.grund") }}</th>
+                    <th style="text-align:right">{{ _("backup_page.groesse") }}</th>
+                    <th class="actions">{{ _("backup_page.aktionen") }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in backups %}
+                <tr>
+                    <td>{{ b.datum }}</td>
+                    <td>{{ b.uhrzeit | replace("-", ":") }}</td>
+                    <td>
+                        {% if b.grund == "manuell" %}
+                            <span style="color:var(--primary)">manuell</span>
+                        {% elif b.grund == "auto" %}
+                            <span style="color:var(--text-muted)">auto</span>
+                        {% elif b.grund == "vor_wiederherstellung" %}
+                            <span style="color:var(--warning)">vor Restore</span>
+                        {% else %}
+                            {{ b.grund }}
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right; color:var(--text-muted)">{{ b.groesse_kb }} KB</td>
+                    <td class="actions">
+                        {# Herunterladen #}
+                        <a href="{{ request.app.state.ingress_entry }}/backup/herunterladen?pfad={{ b.pfad | urlencode }}"
+                           class="btn btn-ghost btn-sm" title="Herunterladen">&#8595; DL</a>
+
+                        {# Wiederherstellen #}
+                        <form method="post" action="{{ request.app.state.ingress_entry }}/backup/wiederherstellen" style="display:inline"
+                              onsubmit="return confirm('Datenbank wirklich aus diesem Backup wiederherstellen?\n\nDie aktuelle DB wird vorher gesichert.')">
+                            <input type="hidden" name="pfad" value="{{ b.pfad }}">
+                            <button type="submit" class="btn btn-secondary btn-sm" title="Wiederherstellen">↩ Restore</button>
+                        </form>
+
+                        {# Löschen #}
+                        <form method="post" action="{{ request.app.state.ingress_entry }}/backup/loeschen" style="display:inline"
+                              onsubmit="return confirm('Backup unwiderruflich löschen?')">
+                            <input type="hidden" name="pfad" value="{{ b.pfad }}">
+                            <button type="submit" class="btn-icon" title="Löschen"
+                                    style="color:var(--error)">🗑</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="table-info">{{ _("backup_page.neueste_zuerst") if _("backup_page.neueste_zuerst") != "backup_page.neueste_zuerst" else "Neueste Backups zuerst. Beim Restore wird die aktuelle DB automatisch gesichert." }}</p>
+    {% endif %}
+</div>
+
+{# ── Auto-Backup Status ── #}
+<div class="section">
+    <div class="form-card" style="max-width:480px">
+        <h2>⏰ {{ _("backup_page.automatisch") }}</h2>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:.75rem">
+            Täglich um <strong>02:00 Uhr</strong> wird automatisch ein Backup erstellt.
+            Manuelle Backups können jederzeit zusätzlich erstellt werden.
+        </p>
+        <div class="pk-daten">
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("backup_page.naechstes") }}</span>
+                <span class="pk-wert" id="naechstes-backup">wird berechnet…</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("backup_page.letztes") }}</span>
+                <span class="pk-wert">
+                    {% set auto_backups = backups | selectattr("grund", "equalto", "auto") | list %}
+                    {% if auto_backups %}
+                        {{ auto_backups[0].datum }} {{ auto_backups[0].uhrzeit | replace("-", ":") }}
+                    {% else %}
+                        noch keines erstellt
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Hinweis öffentlicher Zugriff ── #}
+<div class="section">
+    <div class="alert alert-info" style="font-size:.85rem;">
+        <strong>{{ _("backup_page.hinweis") }}:</strong> Für Produktivbetrieb empfiehlt sich zusätzlich ein externes Backup
+        des gesamten <code>/share/pflegra/</code>-Ordners (z.B. auf USB oder NAS),
+        unabhängig von dieser automatischen Rotation.
+    </div>
+</div>
+<script>
+const now = new Date();
+const naechstes = new Date(now);
+naechstes.setHours(2, 0, 0, 0);
+if (naechstes <= now) naechstes.setDate(naechstes.getDate() + 1);
+const diff = naechstes - now;
+const h = Math.floor(diff / 3600000);
+const m = Math.floor((diff % 3600000) / 60000);
+document.getElementById('naechstes-backup').textContent =
+    `{{ _("backup_page.naechstes_zeit") }}`.replace("{h}", h).replace("{m}", m);
+</script>
+{% endblock %}

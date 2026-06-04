@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Admin & System – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>⚙️ {{ _("admin_page.titel") }}</h1>
+    <span style="font-size:.8rem; color:var(--text-muted)">Stand: {{ jetzt }}</span>
+</div>
+
+<div class="cards-grid-2">
+
+    {# ── Systemstatus ── #}
+    <div class="form-card">
+        <h2>🖥 {{ _("admin_page.system") }}</h2>
+        <div class="pk-daten">
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.laufzeit") }}</span>
+                <span class="pk-wert">{{ uptime }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.datenbank") }}</span>
+                <span class="pk-wert">{{ db_groesse_kb }} KB</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.eintraege") }}</span>
+                <span class="pk-wert">{{ statistik.eintraege_gesamt }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.personen") }}</span>
+                <span class="pk-wert">{{ statistik.personen_anzahl }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.archiv") }}</span>
+                <span class="pk-wert">{{ archiv_dateien }} Dateien · {{ archiv_groesse_mb }} MB</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.log") }}</span>
+                <span class="pk-wert">{{ log_groesse_kb }} KB</span>
+            </div>
+        </div>
+    </div>
+
+    {# ── Backup-Status ── #}
+    <div class="form-card">
+        <h2>💾 {{ _("admin_page.backups") }}</h2>
+        <div class="pk-daten" style="margin-bottom:1rem">
+            <div class="pk-zeile">
+                <span class="pk-label">Anzahl</span>
+                <span class="pk-wert">{{ backup_anzahl }} Backups</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.gesamt") }}</span>
+                <span class="pk-wert">{{ backup_gesamt_kb }} KB</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Letztes</span>
+                <span class="pk-wert">{{ letztes_backup or "keines vorhanden" }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.auto_backup") }}</span>
+                <span class="pk-wert ampel ampel-gruen">täglich 02:00 Uhr</span>
+            </div>
+        </div>
+        <a href="{{ request.app.state.ingress_entry }}/backup/" class="btn btn-ghost btn-sm">{{ _("admin_page.backup_verwaltung") }}</a>
+        <form method="post" action="{{ request.app.state.ingress_entry }}/admin/vacuum" style="display:inline"
+              onsubmit="return confirm('{{ _("admin_page.datenbank") }} komprimieren? Kann einige Sekunden dauern.')">
+            <button type="submit" class="btn btn-ghost btn-sm">🗜 {{ _("admin_page.db_komprimieren") }}</button>
+        </form>
+    </div>
+
+    {# ── Benutzer ── #}
+    <div class="form-card">
+        <h2>👤 {{ _("admin_page.benutzer") }}</h2>
+        <div class="pk-daten" style="margin-bottom:1rem">
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.benutzername") }}</span>
+                <span class="pk-wert">{{ konfig.benutzer_name or "admin" }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.rolle") }}</span>
+                <span class="pk-wert">Administrator</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.passwort") }}</span>
+                <span class="pk-wert">
+                    {% if konfig.passwort_hash %}
+                    <span class="ampel ampel-gruen">gesetzt</span>
+                    {% else %}
+                    <span class="ampel ampel-rot">nicht gesetzt</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">{{ _("admin_page.modus") }}</span>
+                <span class="pk-wert">Einzelbenutzer</span>
+            </div>
+        </div>
+        <a href="{{ request.app.state.ingress_entry }}/einstellungen/" class="btn btn-primary btn-sm">🔐 {{ _("admin_page.passwort_aendern") }}</a>
+    </div>
+
+    {# ── Fehlerhistorie ── #}
+    <div class="form-card">
+        <h2>📋 {{ _("admin_page.letzte_fehler") }}</h2>
+        {% if letzte_fehler %}
+        <div style="font-size:.78rem; font-family:monospace; background:var(--bg);
+                    border-radius:6px; padding:.75rem; max-height:180px; overflow-y:auto">
+            {% for f in letzte_fehler %}
+            <div style="color:#b91c1c; margin-bottom:.3rem; word-break:break-all">{{ f }}</div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-ok" style="font-size:.85rem">✓ Keine Fehler im Log.</div>
+        {% endif %}
+        <div style="margin-top:.75rem">
+            <a href="{{ request.app.state.ingress_entry }}/admin/log" class="btn btn-ghost btn-sm">📄 Vollständiges Log</a>
+        </div>
+    </div>
+
+</div>
+
+{# ── Schnellzugriff ── #}
+<div class="quick-actions" style="margin-top:1rem">
+    <a href="{{ request.app.state.ingress_entry }}/backup/" class="btn btn-ghost">💾 Backup</a>
+    <a href="{{ request.app.state.ingress_entry }}/einstellungen/" class="btn btn-ghost">⚙ Einstellungen</a>
+    <a href="{{ request.app.state.ingress_entry }}/import/" class="btn btn-ghost">⬆ Import</a>
+</div>
+{% endblock %}

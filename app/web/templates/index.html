@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}{{ _('dashboard.titel') }} – Pflegra{% endblock %}
+
+{% block content %}
+
+{# ── Kopfzeile ── #}
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem">
+    <h1>{{ _('dashboard.titel') }}</h1>
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="btn btn-primary">{{ _('dashboard.neuer_eintrag') }}</a>
+</div>
+
+{# ── Statistik-Leiste ── #}
+<div class="stat-leiste">
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="stat-chip">
+        <span class="stat-chip-wert">{{ statistik.eintraege_gesamt }}</span>
+        <span class="stat-chip-label">{{ _('dashboard.eintraege') }}</span>
+    </a>
+    <a href="{{ request.app.state.ingress_entry }}/budget/" class="stat-chip">
+        <span class="stat-chip-wert">{{ "%.1f"|format(statistik.stunden_gesamt) }}</span>
+        <span class="stat-chip-label">{{ _('dashboard.stunden', jahr=aktuelles_jahr) }}</span>
+    </a>
+    <a href="{{ request.app.state.ingress_entry }}/versicherte/" class="stat-chip">
+        <span class="stat-chip-wert">{{ statistik.personen_anzahl }}</span>
+        <span class="stat-chip-label">{{ _('dashboard.personen') }}</span>
+    </a>
+    <a href="{{ request.app.state.ingress_entry }}/budget/" class="stat-chip">
+        <span class="stat-chip-wert">{{ statistik.jahre_anzahl }}</span>
+        <span class="stat-chip-label">{{ _('dashboard.abrechnungsjahre') }}</span>
+    </a>
+</div>
+
+{# ── Pflegegrad + Nicht ausgeschöpfte Leistungen ── #}
+{% if letzter_pg or nicht_ausgeschoepft %}
+<div class="dashboard-info-row">
+
+  {% if letzter_pg %}
+  <div class="dash-pg-box">
+    <div class="dash-pg-hauptwert">
+      <span class="dash-pg-badge-gross pg-farbe-{{ letzter_pg.pflegegrad }}">
+        {% if letzter_pg.pflegegrad == 0 %}Kein PG{% else %}Pflegegrad {{ letzter_pg.pflegegrad }}{% endif %}
+      </span>
+    </div>
+    <div class="dash-pg-punkte-zeile">{{ "%.1f"|format(letzter_pg.gesamtpunkte) }} {{ _('dashboard.gesamtpunkte') }}</div>
+    <div class="dash-pg-meta">
+      <span>{{ _('dashboard.zuletzt_berechnet') }}:</span>
+      <span>{{ letzter_pg.datum }}{% if letzter_pg.person %} · {{ letzter_pg.person }}{% endif %}</span>
+    </div>
+    <div class="dash-pg-links">
+      <a href="{{ request.app.state.ingress_entry }}/leistungsfinder/?pg={{ letzter_pg.pflegegrad }}" class="btn btn-sm btn-primary">💶 {{ _('dashboard.leistungen_anzeigen') }}</a>
+      <a href="{{ request.app.state.ingress_entry }}/pflegegrad/" class="btn btn-sm btn-secondary">🧮 {{ _('dashboard.neu_berechnen') }}</a>
+      <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" class="btn btn-sm btn-secondary">📈 {{ _('dashboard.verlauf_link') }}</a>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if leistungsvorschau %}
+  <div class="dash-leistungen-box">
+    <div class="dash-leistungen-titel">💶 Verfügbare Leistungen</div>
+    {% for l in leistungsvorschau %}
+    <div class="dash-leistung-zeile">
+      <span class="dash-leistung-name">{{ l.titel }}</span>
+      <span class="dash-leistung-betrag">{{ "%.0f"|format(l.betrag) }} {{ l.einheit }}</span>
+    </div>
+    {% endfor %}
+    <div style="margin-top:.6rem">
+      <a href="{{ request.app.state.ingress_entry }}/leistungsfinder/?pg={{ letzter_pg.pflegegrad }}" class="btn btn-sm btn-secondary" style="font-size:.78rem">
+        {{ _('dashboard.leistungen_anzeigen') }} →
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if nicht_ausgeschoepft %}
+  <div class="dash-hinweis-box">
+    <div class="dash-hinweis-titel">💡 {{ _('dashboard.nicht_ausgeschoepft') }}</div>
+    {% for h in nicht_ausgeschoepft %}
+    <div class="dash-hinweis-item">
+      <div class="dash-hinweis-info">
+        <span class="dash-hinweis-leistung">{{ h.leistung }}</span>
+        {% if h.person %}<span class="dash-hinweis-person">{{ h.person }}</span>{% endif %}
+      </div>
+      <span class="dash-hinweis-betrag">{{ "%.0f"|format(h.betrag) }} €/Mo</span>
+      <a href="{{ h.link }}" class="btn btn-sm btn-primary">{{ _('dashboard.jetzt_erfassen') }}</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+{% if fristen %}
+<div class="fristen-box">
+  <div class="fristen-titel">📅 Fristen &amp; Hinweise</div>
+  {% for f in fristen %}
+  <div class="frist-item frist-{{ f.dringlichkeit }}">
+    <div class="frist-info">
+      <div class="frist-haupttext">
+        {{ f.titel }}{% if f.person %} <span class="frist-person">· {{ f.person }}</span>{% endif %}
+      </div>
+      <div class="frist-beschreibung">{{ f.beschreibung }}</div>
+    </div>
+    <div class="frist-rechts">
+      <div class="frist-datum">
+        {% if f.tage_bis_faellig < 0 %}
+          <span class="frist-abgelaufen">abgelaufen</span>
+        {% elif f.tage_bis_faellig == 0 %}
+          <span class="frist-heute">heute</span>
+        {% elif f.tage_bis_faellig <= 7 %}
+          <span class="frist-bald">in {{ f.tage_bis_faellig }} Tagen</span>
+        {% else %}
+          {{ f.faellig_str }}
+        {% endif %}
+      </div>
+      {% if f.link %}
+      <a href="{{ f.link }}" class="btn btn-sm btn-primary">→</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── Personenkarten ── #}
+{% if karten %}
+<div class="personen-karten">
+    {% for k in karten %}
+    <div class="personen-karte">
+
+        {% if k.vers and k.vers.pflegegrad %}
+        <div class="pk-pg-banner">PFLEGEGRAD {{ k.vers.pflegegrad }}</div>
+        {% endif %}
+
+        <div class="pk-kopf">
+            <div class="pk-avatar pk-avatar-{{ loop.index }}">{{ k.initialen }}</div>
+            <div class="pk-name-block">
+                <div class="pk-name">{{ k.name }}</div>
+                {% if k.vers and k.vers.krankenkasse %}
+                <div class="pk-kk">{{ k.vers.krankenkasse }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="pk-daten">
+            {% if k.vers and k.vers.geburtsdatum or k.vers and k.vers.versicherungsnr %}
+            <div class="pk-inline-zeile">
+                {% if k.vers.geburtsdatum %}
+                <span class="pk-icon-item">📅 {{ k.vers.geburtsdatum }}</span>
+                {% endif %}
+                {% if k.vers.versicherungsnr %}
+                <span class="pk-icon-item">🪪 {{ k.vers.versicherungsnr }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if k.vers and k.vers.adresse %}
+            <div class="pk-icon-item">📍 {{ k.vers.adresse | replace("\r\n", ", ") | replace("\r", ", ") | replace("\n", ", ") }}</div>
+            {% endif %}
+        </div>
+
+        {% if k.budget %}
+        <div class="pk-budget">
+            <div class="pk-budget-zeile">
+                <span class="pk-label">{{ _('dashboard.budget_status', jahr=aktuelles_jahr) }}</span>
+                <span class="ampel ampel-{{ k.ampel }}">
+                    {% if k.ampel == "gruen" %}✓{% elif k.ampel == "gelb" %}⚠{% else %}✗{% endif %}
+                    {{ "%.2f"|format(k.budget.verbraucht) }} €
+                    / {{ "%.2f"|format(k.budget.budget_gesamt) }} €
+                </span>
+            </div>
+            <div class="pk-progress-bar">
+                <div class="pk-progress-fill pk-progress-{{ k.ampel }}"
+                     style="width: {{ [k.budget.ausgeschoepft_prozent, 100]|min }}%"></div>
+            </div>
+            <div class="pk-budget-rest">
+                {% set ueberschreitung = k.budget.verbraucht - k.budget.budget_gesamt %}
+                {% if ueberschreitung <= 0 %}
+                    {{ _('dashboard.noch_verfuegbar', betrag="%.2f"|format(k.budget.restbudget_gesamt)) }}
+                {% else %}
+                    {{ "%.2f"|format(ueberschreitung) }} € {{ _("dashboard.ueberschritten") }}
+                {% endif %}
+                · {{ k.eintraege_anzahl }} {{ _('dashboard.eintraege') }}
+            </div>
+        </div>
+        {% else %}
+        <div class="pk-budget">
+            <span class="text-muted" style="font-size:.85rem">{{ _("dashboard.keine_eintraege", jahr=aktuelles_jahr) }}</span>
+        </div>
+        {% endif %}
+
+        <div class="pk-aktionen">
+            <a href="{{ request.app.state.ingress_entry }}/eintraege/?person={{ k.name | urlencode }}&jahr={{ aktuelles_jahr }}"
+               class="btn btn-ghost btn-sm">📋 {{ _('dashboard.eintraege_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/budget/?person={{ k.name | urlencode }}&jahr={{ aktuelles_jahr }}"
+               class="btn btn-ghost btn-sm">💰 {{ _('dashboard.budget_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/budget/planung/?jahr={{ aktuelles_jahr }}"
+               class="btn btn-ghost btn-sm">📊 {{ _('dashboard.budgetplanung_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/export/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">⬇ {{ _('dashboard.export_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/antraege/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📝 {{ _('dashboard.antrag_link') }}</a>
+        </div>
+
+    </div>
+    {% endfor %}
+
+    <a href="{{ request.app.state.ingress_entry }}/versicherte/neu" class="personen-karte personen-karte-neu">
+        <div class="pk-neu-icon">+</div>
+        <div class="pk-neu-text">{{ _('versicherte.hinzufuegen') }}</div>
+    </a>
+</div>
+{% else %}
+<div class="form-card" style="text-align:center; padding:2.5rem">
+    <div style="font-size:3rem; margin-bottom:1rem">👤</div>
+    <h2>Noch keine Personen angelegt</h2>
+    <p class="text-muted" style="margin-bottom:1.5rem">{{ _("dashboard.keine_personen_hinweis") }}</p>
+    <a href="{{ request.app.state.ingress_entry }}/versicherte/neu" class="btn btn-primary">{{ _('versicherte.hinzufuegen') }}</a>
+</div>
+{% endif %}
+
+<div class="quick-actions" style="margin-top:1.5rem">
+    <a href="{{ request.app.state.ingress_entry }}/import/" class="btn btn-ghost">⬆ {{ _('nav.import') }}</a>
+    <a href="{{ request.app.state.ingress_entry }}/backup/" class="btn btn-ghost">💾 {{ _('nav.backup') }}</a>
+    <a href="{{ request.app.state.ingress_entry }}/einstellungen/" class="btn btn-ghost">⚙ {{ _('nav.einstellungen') }}</a>
+</div>
+
+<style>
+.dashboard-info-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.dash-pg-box {
+  background: #fff; border: 2px solid #2C5F8A; border-radius: 12px;
+  padding: 1.1rem 1.3rem; min-width: 220px; flex: 0 0 auto;
+  box-shadow: 0 2px 8px rgba(44,95,138,.1);
+}
+.dash-pg-hauptwert { margin-bottom: .5rem; }
+.dash-pg-badge-gross {
+  font-weight: 800; border-radius: 8px; padding: .35rem .9rem;
+  font-size: 1.25rem; color: #fff; display: inline-block;
+}
+.pg-farbe-0 { background: #718096; } .pg-farbe-1 { background: #38a169; }
+.pg-farbe-2 { background: #d69e2e; } .pg-farbe-3 { background: #dd6b20; }
+.pg-farbe-4 { background: #e53e3e; } .pg-farbe-5 { background: #9b2c2c; }
+.dash-pg-punkte-zeile { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: .25rem; }
+.dash-pg-meta { font-size: .75rem; color: #718096; margin-bottom: .65rem; display: flex; gap: .3rem; flex-wrap: wrap; }
+.dash-pg-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+.dash-hinweis-box {
+  background: #fffbeb; border: 1px solid #f6c64a; border-radius: 12px;
+  padding: 1rem 1.2rem; flex: 1; min-width: 260px;
+}
+.dash-hinweis-titel { font-size: .85rem; font-weight: 700; color: #7d5a00; margin-bottom: .6rem; }
+.dash-hinweis-item {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  padding: .35rem 0; border-bottom: 1px solid #fef3c7; font-size: .84rem;
+}
+.dash-hinweis-item:last-child { border-bottom: none; }
+.dash-hinweis-info { display: flex; flex-direction: column; flex: 1; }
+.dash-hinweis-leistung { font-weight: 600; color: #2d3748; }
+.dash-hinweis-person { font-size: .75rem; color: #718096; }
+.dash-hinweis-betrag { font-weight: 700; color: #7d5a00; white-space: nowrap; }
+/* Leistungsvorschau */
+.dash-leistungen-box {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 1rem 1.2rem; min-width: 200px; flex: 0 0 auto;
+}
+.dash-leistungen-titel { font-size: .82rem; font-weight: 700; color: #2C5F8A;
+  margin-bottom: .55rem; }
+.dash-leistung-zeile {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .25rem 0; border-bottom: 1px solid #f0f4f8; font-size: .82rem;
+}
+.dash-leistung-zeile:last-of-type { border-bottom: none; }
+.dash-leistung-name { color: #2d3748; }
+.dash-leistung-betrag { font-weight: 600; color: #2C5F8A; white-space: nowrap; margin-left: .5rem; }
+/* Fristenkalender */
+.fristen-box {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  margin-bottom: 1.25rem; overflow: hidden;
+}
+.fristen-titel {
+  font-size: .82rem; font-weight: 700; color: #4a5568;
+  padding: .6rem 1rem; background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.frist-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .6rem 1rem; border-bottom: 1px solid #f0f4f8;
+  border-left: 4px solid transparent;
+}
+.frist-item:last-child { border-bottom: none; }
+.frist-ok      { border-left-color: #68d391; }
+.frist-bald    { border-left-color: #f6c64a; background: #fffbeb; }
+.frist-kritisch { border-left-color: #e53e3e; background: #fff5f5; }
+.frist-info { flex: 1; }
+.frist-haupttext { font-size: .88rem; font-weight: 600; color: #2d3748; }
+.frist-person { font-weight: 400; color: #718096; }
+.frist-beschreibung { font-size: .78rem; color: #718096; margin-top: .1rem; line-height: 1.4; }
+.frist-rechts { display: flex; align-items: center; gap: .5rem; flex-shrink: 0; }
+.frist-datum { font-size: .82rem; font-weight: 600; color: #4a5568; white-space: nowrap; }
+.frist-abgelaufen { color: #e53e3e; }
+.frist-heute { color: #e53e3e; }
+.frist-bald { color: #d97706; }
+</style>
+
+{% endblock %}

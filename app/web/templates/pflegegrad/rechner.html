@@ -1,0 +1,577 @@
+{% extends "base.html" %}
+{% block title %}{{ _('pflegegrad.titel') }} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🧮 {{ _('pflegegrad.titel') }}</h1>
+  <p class="page-subtitle">{{ _('pflegegrad.untertitel') }}</p>
+</div>
+
+<div class="pg-hinweis-box">
+  ⚠️ {{ _('pflegegrad.hinweis_orientierung') }}
+</div>
+
+<form id="pg-form" method="post" action="{{ request.app.state.ingress_entry }}/pflegegrad/berechnen">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  {% for modul in module %}
+  <div class="pg-modul-card" id="modul-{{ modul.id }}">
+    <div class="pg-modul-header">
+      <span class="pg-modul-nr">{{ _('pflegegrad.modul') }} {{ modul.id }}</span>
+      <h2 class="pg-modul-titel">{{ modul.bezeichnung }}</h2>
+      {% if modul.id == 4 %}
+        <span class="pg-gewichtung-badge">40 % {{ _('pflegegrad.gewichtung') }}</span>
+      {% elif modul.id == 5 %}
+        <span class="pg-gewichtung-badge">20 % {{ _('pflegegrad.gewichtung') }}</span>
+      {% elif modul.id in (2, 3) %}
+        <span class="pg-gewichtung-badge">15 % {{ _('pflegegrad.gewichtung_kombiniert') }}</span>
+      {% elif modul.id == 1 %}
+        <span class="pg-gewichtung-badge">10 % {{ _('pflegegrad.gewichtung') }}</span>
+      {% elif modul.id == 6 %}
+        <span class="pg-gewichtung-badge">15 % {{ _('pflegegrad.gewichtung') }}</span>
+      {% endif %}
+    </div>
+
+    {% if modul.id == 2 %}
+    <div class="pg-modul-info">ℹ️ {{ _('pflegegrad.info_modul23') }}</div>
+    {% endif %}
+
+    <div class="pg-kriterien">
+      {% for k in modul.kriterien %}
+      <div class="pg-kriterium">
+        <div class="pg-kriterium-header">
+          <label class="pg-kriterium-label">
+            <span class="pg-kriterium-id">{{ k.id }}</span>
+            {{ k.bezeichnung }}
+            {% if k.hilfe %}
+            <button type="button" class="pg-hilfe-btn"
+                    onclick="toggleHilfe('hilfe-{{ k.id | replace('.', '-') }}')"
+                    title="{{ _('pflegegrad.hilfe_anzeigen') }}">
+              ℹ️
+            </button>
+            {% endif %}
+          </label>
+        </div>
+        {% if k.hilfe %}
+        <div class="pg-hilfe-text" id="hilfe-{{ k.id | replace('.', '-') }}">
+          {{ k.hilfe }}
+        </div>
+        {% endif %}
+        <div class="pg-optionen">
+          {% for wert, bez in k.optionen %}
+          <label class="pg-option {% if wert == 0 %}pg-option-selbst{% elif wert == 3 %}pg-option-unselbst{% endif %}">
+            <input type="radio" name="{{ k.id }}" value="{{ wert }}"
+                   {% if wert == 0 %}checked{% endif %}
+                   onchange="updateLiveScore()">
+            <span class="pg-option-wert">{{ wert }}</span>
+            <span class="pg-option-bez">{{ bez }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="pg-modul-summe">
+      {{ _('pflegegrad.rohpunkte') }}: <strong id="roh-{{ modul.id }}">0</strong>
+      &nbsp;·&nbsp;
+      {{ _('pflegegrad.gewichtete_punkte') }}: <strong id="gew-{{ modul.id }}">0.0</strong>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="pg-actions">
+    <button type="submit" class="btn btn-primary btn-lg" id="btn-berechnen">
+      🧮 {{ _('pflegegrad.berechnen') }}
+    </button>
+    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+      🔄 {{ _('pflegegrad.zuruecksetzen') }}
+    </button>
+  </div>
+</form>
+
+<!-- Ergebnis-Panel -->
+<div id="pg-ergebnis" class="pg-ergebnis-panel" style="display:none">
+
+  <!-- Header: Badge + Punkte + Bezeichnung -->
+  <div class="pg-ergebnis-header">
+    <div class="pg-grad-badge" id="pg-grad-badge">PG ?</div>
+    <div class="pg-ergebnis-info">
+      <div class="pg-punkte-anzeige">
+        <span id="pg-punkte">–</span>
+        <span class="pg-punkte-label">{{ _('pflegegrad.gesamtpunkte') }}</span>
+      </div>
+      <div id="pg-bezeichnung" class="pg-bezeichnung"></div>
+    </div>
+  </div>
+
+  <!-- Begründung -->
+  <div id="pg-begruendung" class="pg-begruendung"></div>
+
+  <!-- Haupttreiber -->
+  <div id="pg-haupttreiber-wrap" class="pg-section" style="display:none">
+    <h3 class="pg-section-titel">{{ _('pflegegrad.haupttreiber') }}</h3>
+    <div id="pg-haupttreiber"></div>
+  </div>
+
+  <!-- Modulübersicht -->
+  <div class="pg-section">
+    <h3 class="pg-section-titel">{{ _('pflegegrad.modul_uebersicht') }}</h3>
+    <div id="pg-modul-tabelle"></div>
+  </div>
+
+  <!-- Dokumentations-Tipps -->
+  <div id="pg-doku-wrap" class="pg-section" style="display:none">
+    <h3 class="pg-section-titel">📝 {{ _('pflegegrad.dokumentations_tipps') }}</h3>
+    <div id="pg-doku-tipps" class="pg-doku-liste"></div>
+    <div class="pg-doku-link">
+      💡 <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="pg-link">{{ _('pflegegrad.eintrag_anlegen') }}</a>
+    </div>
+  </div>
+
+  <!-- Leistungsübersicht -->
+  <div id="pg-leistungen-wrap" class="pg-section" style="display:none">
+    <h3 class="pg-section-titel">💶 {{ _('pflegegrad.leistungen_titel') }}</h3>
+    <p class="pg-leistungen-intro">{{ _('pflegegrad.leistungen_intro') }}</p>
+    <div id="pg-leistungen-liste"></div>
+  </div>
+
+  <!-- Hinweise -->
+  <div id="pg-hinweise" class="pg-hinweise-liste"></div>
+
+  <!-- PDF-Download -->
+  <div id="pg-pdf-wrap" style="margin-top:1rem; display:none">
+    <button type="button" class="btn btn-secondary" onclick="pdfHerunterladen()">
+      📄 {{ _('pflegegrad.pdf_herunterladen') }}
+    </button>
+  </div>
+
+  <!-- Verlauf speichern -->
+  <div id="pg-speichern-wrap" style="margin-top:.75rem; display:none">
+    <form id="pg-speichern-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center">
+        <input type="text" name="person" placeholder="{{ _('pflegegrad.person_placeholder') }}"
+               class="form-control" style="max-width:200px; font-size:.88rem">
+        <input type="text" name="notiz" placeholder="{{ _('pflegegrad.notiz_placeholder') }}"
+               class="form-control" style="max-width:250px; font-size:.88rem">
+        <button type="button" class="btn btn-secondary" onclick="verlaufSpeichern()">
+          💾 {{ _('pflegegrad.verlauf_speichern') }}
+        </button>
+        <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" class="btn btn-secondary">
+          📈 {{ _('pflegegrad.verlauf_anzeigen') }}
+        </a>
+      </div>
+      <div id="pg-speichern-status" style="margin-top:.4rem; font-size:.82rem"></div>
+    </form>
+  </div>
+
+  <!-- Weiterführen -->
+  <div id="pg-weiter-wrap" style="display:none; margin-top:1.25rem">
+    <div class="pg-weiter-box">
+      <div class="pg-weiter-titel">{{ _('pflegegrad.weiter_titel') }}</div>
+      <div class="pg-weiter-links" id="pg-weiter-links"></div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.pg-hinweis-box {
+  background: #fffbeb; border: 1px solid #f6c64a; border-radius: 8px;
+  padding: .75rem 1rem; margin-bottom: 1.5rem; font-size: .9rem; color: #7d5a00;
+}
+.pg-modul-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  margin-bottom: 1.25rem; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.pg-modul-header {
+  display: flex; align-items: center; gap: .75rem;
+  background: #f7fafc; padding: .75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.pg-modul-nr {
+  font-size: .75rem; font-weight: 700; color: #718096;
+  text-transform: uppercase; letter-spacing: .05em; white-space: nowrap;
+}
+.pg-modul-titel { font-size: 1rem; font-weight: 600; color: #1a202c; margin: 0; flex: 1; }
+.pg-gewichtung-badge {
+  font-size: .75rem; background: #ebf8ff; color: #2C5F8A;
+  border-radius: 20px; padding: .2rem .6rem; font-weight: 600; white-space: nowrap;
+}
+.pg-modul-info {
+  background: #ebf8ff; color: #2C5F8A; font-size: .82rem;
+  padding: .4rem 1rem; border-bottom: 1px solid #bee3f8;
+}
+.pg-kriterien { padding: .5rem 1rem; }
+.pg-kriterium { padding: .6rem 0; border-bottom: 1px solid #f0f4f8; }
+.pg-kriterium:last-child { border-bottom: none; }
+.pg-kriterium-header { margin-bottom: .35rem; }
+.pg-kriterium-label {
+  font-size: .88rem; color: #2d3748; font-weight: 500; line-height: 1.4;
+}
+.pg-kriterium-id { color: #718096; font-size: .75rem; margin-right: .35rem; }
+/* Hilfe-Button */
+.pg-hilfe-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: .85rem; padding: 0 .1rem; line-height: 1;
+  opacity: .55; transition: opacity .15s;
+  vertical-align: middle; display: inline;
+}
+.pg-hilfe-btn:hover { opacity: 1; }
+/* Hilfe-Text */
+.pg-hilfe-text {
+  display: none;
+  background: #f0fff4; border-left: 3px solid #38a169; border-radius: 0 6px 6px 0;
+  padding: .5rem .75rem; margin-bottom: .4rem;
+  font-size: .82rem; color: #276749; line-height: 1.55;
+}
+.pg-hilfe-text.open { display: block; }
+.pg-optionen { display: flex; flex-wrap: wrap; gap: .4rem; }
+.pg-option {
+  display: flex; align-items: center; gap: .3rem; cursor: pointer;
+  background: #f7fafc; border: 1.5px solid #e2e8f0; border-radius: 6px;
+  padding: .3rem .6rem; font-size: .8rem; transition: all .15s;
+}
+.pg-option:hover { border-color: #2C5F8A; background: #ebf8ff; }
+.pg-option input[type=radio] { display: none; }
+.pg-option:has(input:checked) { border-color: #2C5F8A; background: #ebf8ff; font-weight: 600; }
+.pg-option-selbst:has(input:checked) { border-color: #38a169; background: #f0fff4; }
+.pg-option-unselbst:has(input:checked) { border-color: #e53e3e; background: #fff5f5; }
+.pg-option-wert {
+  font-weight: 700; font-size: .9rem; color: #4a5568;
+  background: #e2e8f0; border-radius: 4px; padding: 0 .35rem;
+}
+.pg-modul-summe {
+  background: #f7fafc; padding: .5rem 1rem;
+  font-size: .82rem; color: #718096; border-top: 1px solid #e2e8f0;
+  text-align: right;
+}
+.pg-actions { margin: 1.5rem 0; display: flex; gap: .75rem; flex-wrap: wrap; }
+.pg-ergebnis-panel {
+  background: #fff; border: 2px solid #2C5F8A; border-radius: 12px;
+  margin-top: 1.5rem; padding: 1.5rem; box-shadow: 0 4px 16px rgba(44,95,138,.12);
+}
+.pg-ergebnis-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem; }
+.pg-grad-badge {
+  font-size: 2.5rem; font-weight: 900; color: #fff;
+  background: #2C5F8A; border-radius: 12px;
+  padding: .5rem 1.2rem; min-width: 5rem; text-align: center;
+  box-shadow: 0 2px 8px rgba(44,95,138,.25);
+}
+.pg-punkte-anzeige { font-size: 2rem; font-weight: 700; color: #1a202c; line-height: 1; }
+.pg-punkte-label { font-size: .8rem; color: #718096; }
+.pg-bezeichnung { font-size: 1rem; color: #2C5F8A; font-weight: 600; margin-top: .25rem; }
+.pg-begruendung {
+  background: #f7fafc; border-radius: 8px; padding: .75rem 1rem;
+  font-size: .9rem; color: #2d3748; margin-bottom: 1rem; line-height: 1.6;
+}
+.pg-modul-uebersicht h3 { font-size: .95rem; color: #4a5568; margin-bottom: .5rem; }
+.pg-modul-tabelle-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 2fr;
+  gap: .5rem; padding: .4rem .5rem; border-radius: 6px;
+  font-size: .82rem; align-items: center;
+}
+.pg-modul-tabelle-row:nth-child(even) { background: #f7fafc; }
+.pg-modul-tabelle-header { font-weight: 700; color: #718096; border-bottom: 1px solid #e2e8f0; margin-bottom: .25rem; }
+.pg-hinweise-liste { margin-top: 1rem; display: flex; flex-direction: column; gap: .5rem; }
+.pg-hinweis { padding: .55rem .85rem; border-radius: 7px; font-size: .85rem; line-height: 1.5; }
+.pg-hinweis-warn { background: #fffbeb; border-left: 3px solid #f6c64a; color: #7d5a00; }
+.pg-hinweis-info { background: #ebf8ff; border-left: 3px solid #2C5F8A; color: #1a365d; }
+/* Haupttreiber */
+.pg-section { margin-bottom: 1.25rem; }
+.pg-section-titel { font-size: .95rem; color: #4a5568; margin-bottom: .6rem; font-weight: 600; }
+.pg-haupttreiber-liste { display: flex; flex-direction: column; gap: .4rem; }
+.pg-treiber-item {
+  display: flex; align-items: center; gap: .75rem;
+  background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: .5rem .75rem;
+}
+.pg-treiber-icon { font-size: 1.3rem; flex-shrink: 0; }
+.pg-treiber-info { flex: 1; }
+.pg-treiber-name { font-size: .88rem; font-weight: 600; color: #2d3748; }
+.pg-treiber-sg { font-size: .78rem; color: #718096; }
+.pg-treiber-punkte { font-size: 1.1rem; font-weight: 700; color: #2C5F8A; white-space: nowrap; }
+/* Dokumentations-Tipps */
+.pg-doku-liste { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .6rem; }
+.pg-doku-item {
+  background: #fffbeb; border-left: 3px solid #f6c64a; border-radius: 0 6px 6px 0;
+  padding: .45rem .75rem; font-size: .84rem; color: #7d5a00; line-height: 1.5;
+}
+.pg-doku-link { font-size: .85rem; }
+.pg-link { color: #2C5F8A; font-weight: 600; text-decoration: none; }
+.pg-link:hover { text-decoration: underline; }
+/* Weiterführen */
+.pg-weiter-box {
+  background: #f0fff4; border: 1.5px solid #68d391; border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+.pg-weiter-titel {
+  font-size: .82rem; font-weight: 700; color: #276749;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: .6rem;
+}
+.pg-weiter-links { display: flex; flex-wrap: wrap; gap: .5rem; }
+/* Leistungsübersicht */
+.pg-leistungen-intro { font-size: .82rem; color: #718096; margin-bottom: .6rem; }
+.pg-leistungen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.pg-leistung-card {
+  border: 1px solid #e2e8f0; border-radius: 8px; padding: .6rem .8rem;
+  background: #fff;
+}
+.pg-leistung-card.verfuegbar { border-color: #68d391; background: #f0fff4; }
+.pg-leistung-card.nicht-verfuegbar { opacity: .45; }
+.pg-leistung-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; margin-bottom: .2rem; }
+.pg-leistung-titel { font-size: .85rem; font-weight: 600; color: #2d3748; }
+.pg-leistung-betrag { font-size: .85rem; font-weight: 700; color: #2C5F8A; white-space: nowrap; }
+.pg-leistung-card.nicht-verfuegbar .pg-leistung-betrag { color: #718096; }
+.pg-leistung-paragraf { font-size: .72rem; color: #718096; }
+.pg-leistung-info { font-size: .78rem; color: #4a5568; margin-top: .25rem; line-height: 1.4; }
+@media (max-width: 640px) { .pg-leistungen-grid { grid-template-columns: 1fr; } }
+.pg-balken-wrap { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.pg-balken { height: 100%; background: #2C5F8A; border-radius: 4px; transition: width .4s; }
+
+@media (max-width: 640px) {
+  .pg-optionen { flex-direction: column; }
+  .pg-option { width: 100%; }
+  .pg-modul-tabelle-row { grid-template-columns: 1fr 1fr; }
+  .pg-ergebnis-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+<script>
+const GEW = {
+  1: [[0,0,0],[1,2,2.5],[3,4,5.0],[5,999,10.0]],
+  2: [[0,0,0],[1,4,3.75],[5,10,7.5],[11,999,15.0]],
+  3: [[0,2,0],[3,11,3.75],[12,20,7.5],[21,999,15.0]],
+  4: [[0,2,0],[3,7,10.0],[8,17,20.0],[18,999,40.0]],
+  5: [[0,0,0],[1,3,5.0],[4,8,10.0],[9,999,20.0]],
+  6: [[0,0,0],[1,3,3.75],[4,9,7.5],[10,999,15.0]],
+};
+
+function lookup(mid, roh) {
+  for (const [lo,hi,pts] of GEW[mid]) {
+    if (roh >= lo && roh <= hi) return pts;
+  }
+  return 0;
+}
+
+function toggleHilfe(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function updateLiveScore() {
+  const form = document.getElementById('pg-form');
+  [1,2,3,4,5,6].forEach(mid => {
+    let roh = 0;
+    form.querySelectorAll(`[name^="${mid}."]`).forEach(inp => {
+      if (inp.checked) roh += parseInt(inp.value);
+    });
+    const gew = lookup(mid, roh);
+    const rohEl = document.getElementById(`roh-${mid}`);
+    const gewEl = document.getElementById(`gew-${mid}`);
+    if (rohEl) rohEl.textContent = roh;
+    if (gewEl) gewEl.textContent = gew.toFixed(1);
+  });
+}
+
+function resetForm() {
+  document.getElementById('pg-form').querySelectorAll('input[type=radio]').forEach(inp => {
+    inp.checked = inp.value === '0';
+  });
+  document.querySelectorAll('.pg-hilfe-text').forEach(el => el.classList.remove('open'));
+  document.getElementById('pg-ergebnis').style.display = 'none';
+  updateLiveScore();
+}
+
+document.getElementById('pg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn-berechnen');
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const fd = new FormData(e.target);
+  const resp = await fetch('/pflegegrad/berechnen', { method: 'POST', body: fd });
+  const data = await resp.json();
+
+  const panel = document.getElementById('pg-ergebnis');
+  panel.style.display = 'block';
+
+  document.getElementById('pg-grad-badge').textContent = data.pflegegrad === 0 ? 'PG –' : `PG ${data.pflegegrad}`;
+  document.getElementById('pg-punkte').textContent = data.gesamtpunkte.toFixed(1);
+  document.getElementById('pg-bezeichnung').textContent = data.pflegegrad_bezeichnung;
+  document.getElementById('pg-begruendung').textContent = data.begruendung;
+
+  const badge = document.getElementById('pg-grad-badge');
+  const farben = ['#718096','#68d391','#f6ad55','#fc8181','#e53e3e','#9b2c2c'];
+  badge.style.background = farben[data.pflegegrad] || '#2C5F8A';
+
+  const tbl = document.getElementById('pg-modul-tabelle');
+  tbl.innerHTML = `
+    <div class="pg-modul-tabelle-row pg-modul-tabelle-header">
+      <span>Modul</span><span>Rohpkt.</span><span>Gew. Pkt.</span><span>Schweregrad</span>
+    </div>
+    ${data.module.map(m => `
+      <div class="pg-modul-tabelle-row">
+        <span><strong>${m.modul_id}</strong> ${m.bezeichnung}</span>
+        <span>${m.rohpunkte}</span>
+        <span><strong>${m.gewichtete_punkte.toFixed(1)}</strong></span>
+        <span style="font-size:.78rem">${m.schweregrad}</span>
+      </div>
+      <div style="padding:0 .5rem .35rem"><div class="pg-balken-wrap"><div class="pg-balken" style="width:${Math.min(100,(m.gewichtete_punkte/40)*100)}%"></div></div></div>
+    `).join('')}
+  `;
+
+  // Haupttreiber
+  const htWrap = document.getElementById('pg-haupttreiber-wrap');
+  const htList = document.getElementById('pg-haupttreiber');
+  if (data.haupttreiber && data.haupttreiber.length > 0) {
+    htList.innerHTML = `<div class="pg-haupttreiber-liste">${data.haupttreiber.map(t => `
+      <div class="pg-treiber-item">
+        <span class="pg-treiber-icon">${t.icon}</span>
+        <div class="pg-treiber-info">
+          <div class="pg-treiber-name">Modul ${t.modul_id} — ${t.bezeichnung}</div>
+          <div class="pg-treiber-sg">${t.schweregrad}</div>
+        </div>
+        <span class="pg-treiber-punkte">${t.punkte.toFixed(1)} Pkt.</span>
+      </div>
+    `).join('')}</div>`;
+    htWrap.style.display = 'block';
+  } else {
+    htWrap.style.display = 'none';
+  }
+
+  // Dokumentations-Tipps
+  const dokuWrap = document.getElementById('pg-doku-wrap');
+  const dokuList = document.getElementById('pg-doku-tipps');
+  if (data.dokumentations_tipps && data.dokumentations_tipps.length > 0) {
+    dokuList.innerHTML = data.dokumentations_tipps.map(t =>
+      `<div class="pg-doku-item">${t}</div>`
+    ).join('');
+    dokuWrap.style.display = 'block';
+  } else {
+    dokuWrap.style.display = 'none';
+  }
+
+  const hl = document.getElementById('pg-hinweise');
+  hl.innerHTML = data.hinweise.map(h =>
+    `<div class="pg-hinweis ${h.startsWith('⚠️') ? 'pg-hinweis-warn' : 'pg-hinweis-info'}">${h}</div>`
+  ).join('');
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  btn.disabled = false;
+  btn.textContent = '🧮 Pflegegrad berechnen';
+
+  // Leistungsübersicht laden
+  const leistWrap = document.getElementById('pg-leistungen-wrap');
+  const leistListe = document.getElementById('pg-leistungen-liste');
+  if (data.pflegegrad >= 0) {
+    try {
+      const lResp = await fetch(`/pflegegrad/leistungen/${data.pflegegrad}`);
+      const leistungen = await lResp.json();
+      const verfuegbar = leistungen.filter(l => l.verfuegbar);
+      const nicht = leistungen.filter(l => !l.verfuegbar);
+      const alle = [...verfuegbar, ...nicht];
+      leistListe.innerHTML = `<div class="pg-leistungen-grid">${alle.map(l => `
+        <div class="pg-leistung-card ${l.verfuegbar ? 'verfuegbar' : 'nicht-verfuegbar'}">
+          <div class="pg-leistung-header">
+            <span class="pg-leistung-titel">${l.verfuegbar ? '✓' : '✗'} ${l.titel}</span>
+            <span class="pg-leistung-betrag">${l.betrag > 0 ? l.betrag.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:2}) + ' ' + l.einheit : '–'}</span>
+          </div>
+          <div class="pg-leistung-paragraf">${l.paragraf}</div>
+          <div class="pg-leistung-info">${l.info}</div>
+        </div>
+      `).join('')}</div>`;
+      leistWrap.style.display = 'block';
+    } catch(e) {
+      leistWrap.style.display = 'none';
+    }
+  }
+
+  document.getElementById('pg-pdf-wrap').style.display = 'block';
+
+  // Antworten zentral merken für PDF + Speichern
+  window._pgAktuelleFD = new FormData(e.target);
+
+  // Speichern-Formular: person/notiz-Felder bleiben, hidden inputs aus _pgAktuelleFD
+  document.getElementById('pg-speichern-wrap').style.display = 'block';
+
+  // Weiterführen-Block
+  const weiterWrap = document.getElementById('pg-weiter-wrap');
+  const weiterLinks = document.getElementById('pg-weiter-links');
+  if (data.pflegegrad > 0) {
+    const links = [
+      { href: `/leistungsfinder/?pg=${data.pflegegrad}`, label: `💶 Leistungen für PG ${data.pflegegrad} anzeigen`, primary: true },
+      { href: '/budget/', label: '📊 Budgetplanung' },
+      { href: '/entlastung/', label: '💚 Entlastungsbetrag' },
+      { href: '/eintraege/neu', label: '➕ Pflegeeintrag anlegen' },
+    ];
+    weiterLinks.innerHTML = links.map(l =>
+      `<a href="${l.href}" class="btn ${l.primary ? 'btn-primary' : 'btn-secondary'}">${l.label}</a>`
+    ).join('');
+    weiterWrap.style.display = 'block';
+  } else {
+    weiterWrap.style.display = 'none';
+  }
+});
+
+async function pdfHerunterladen() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const fd = new FormData();
+    for (const [k, v] of (window._pgAktuelleFD || new FormData())) {
+      fd.append(k, v);
+    }
+    fd.set('csrf_token', document.getElementById('pg-speichern-form').querySelector('[name=csrf_token]').value);
+    const r = await fetch('/pflegegrad/pdf', { method: 'POST', body: fd });
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pflegegrad_einschaetzung_${new Date().toISOString().slice(0,10)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📄 {{ _("pflegegrad.pdf_herunterladen") }}';
+  }
+}
+
+async function verlaufSpeichern() {
+  const form = document.getElementById('pg-speichern-form');
+  const fd = new FormData();
+  // Antworten aus Berechnung
+  for (const [k, v] of (window._pgAktuelleFD || new FormData())) {
+    fd.append(k, v);
+  }
+  // Person + Notiz aus Formular
+  fd.set('person', form.querySelector('[name=person]').value);
+  fd.set('notiz', form.querySelector('[name=notiz]').value);
+  // CSRF aus speichern-form (nicht globalem querySelector der ersten Form trifft)
+  fd.set('csrf_token', form.querySelector('[name=csrf_token]').value);
+  const status = document.getElementById('pg-speichern-status');
+  status.textContent = '…';
+  try {
+    const r = await fetch('/pflegegrad/verlauf/speichern', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.ok) {
+      status.textContent = `✓ Gespeichert: PG ${d.pflegegrad} (${d.gesamtpunkte} Punkte)`;
+      status.style.color = '#38a169';
+    } else {
+      status.textContent = 'Fehler beim Speichern.';
+      status.style.color = '#e53e3e';
+    }
+  } catch(e) {
+    status.textContent = 'Fehler beim Speichern.';
+    status.style.color = '#e53e3e';
+  }
+}
+
+updateLiveScore();
+</script>
+{% endblock %}
