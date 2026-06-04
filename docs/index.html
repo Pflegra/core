@@ -286,7 +286,7 @@
     <div class="hero-trust">
       <span>🔒 <strong>Keine Cloud</strong> — alles lokal</span>
       <span>🆓 <strong>Kostenlos</strong> — AGPLv3</span>
-      <span>🏠 <strong>Home Assistant</strong> Add-on</span>
+      <span>🐧 <strong>Linux Server</strong> & VM</span>
       <span>🐳 <strong>Docker</strong> Windows / Linux / Mac</span>
     </div>
   </div>
@@ -474,12 +474,12 @@
   <div class="section-inner">
     <div class="section-label">Installation</div>
     <h2>In 3 Schritten starten</h2>
-    <p class="section-sub">Pflegra läuft auf Home Assistant, Docker Desktop (Windows/Mac/Linux) oder direkt per Python.</p>
+    <p class="section-sub">Pflegra läuft auf Docker Desktop (Windows/Mac/Linux), Linux-Server oder direkt per Python.</p>
 
     <div class="install-tabs">
       <button class="install-tab active" onclick="showTab('windows')">🪟 Windows</button>
       <button class="install-tab" onclick="showTab('docker')">🐳 Docker</button>
-      <button class="install-tab" onclick="showTab('ha')">🏠 Home Assistant</button>
+      <button class="install-tab" onclick="showTab('linux')">🐧 Linux Server</button>
     </div>
 
     <div id="tab-windows" class="install-content active">
@@ -501,7 +501,7 @@
     <div id="tab-docker" class="install-content">
       <div class="code-block">
 <span class="comment"># Einzeiler</span>
-docker run -d -p 8000:8000 -v pflegra_data:/data ghcr.io/pflegra/core:latest
+docker run -d -p 8000:8000 -v pflegra_data:/share/pflegra ghcr.io/pflegra/core:latest
 
 <span class="comment"># Oder mit docker compose</span>
 git clone https://github.com/Pflegra/core.git
@@ -510,17 +510,21 @@ docker compose up -d</div>
       <p class="install-note">Pflegra läuft dann unter <strong>http://localhost:8000</strong></p>
     </div>
 
-    <div id="tab-ha" class="install-content">
+    <div id="tab-linux" class="install-content">
       <div class="code-block">
-<span class="comment"># Add-on Ordner kopieren</span>
-cp -r pflegra/ /addons/pflegra/
+<span class="comment"># Docker installieren</span>
+curl -fsSL https://get.docker.com | sudo sh
 
-<span class="comment"># In Home Assistant</span>
-<span class="comment"># Einstellungen → Add-ons → Lokale Add-ons → Pflegra</span>
-<span class="comment"># Installieren → Starten</span></div>
+<span class="comment"># Pflegra starten</span>
+mkdir -p ~/pflegra/data
+docker run -d -p 8000:8000 \
+  -v ~/pflegra/data:/share/pflegra \
+  --name pflegra \
+  --restart unless-stopped \
+  ghcr.io/pflegra/core:latest</div>
       <p class="install-note">
-        Läuft nativ auf Home Assistant OS.
-        Für Fernzugriff: Tailscale Add-on kombinieren.
+        Pflegra läuft unter <strong>http://SERVER-IP:8000</strong><br>
+        Für Fernzugriff: <a href="https://tailscale.com" target="_blank">Tailscale</a> installieren und Funnel aktivieren.
       </p>
     </div>
   </div>
