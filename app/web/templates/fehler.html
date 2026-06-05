@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ _('errors.fehler_500') if code == 500 else _('errors.fehler_404') }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        {% if code == 404 %}🔍{% else %}⚠️{% endif %}
+        Fehler {{ code }}
+    </h1>
+</div>
+
+<div class="form-card" style="max-width:520px">
+    <div class="alert alert-fehler">{{ meldung }}</div>
+    <div style="margin-top:1rem; display:flex; gap:.75rem; flex-wrap:wrap;">
+        <a href="{{ request.app.state.ingress_entry }}/" class="btn btn-primary">{{ _('errors.zurueck_dashboard') }}</a>
+        <a href="javascript:history.back()" class="btn btn-ghost">{{ _('errors.zurueck') }}</a>
+    </div>
+    {% if code == 500 %}
+    <p style="margin-top:1rem; font-size:.82rem; color:var(--text-muted);">
+        {{ _('errors.log_hinweis') }}
+        <code>{{ request.app.state.data_dir }}/logs/pflegra.log</code>
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

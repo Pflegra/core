@@ -1,0 +1,356 @@
+"""
+db/schema.py — DbSchema: Verbindung + Migration
+"""
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+
+DB_PATH = Path("pflegra.db")
+
+
+class DbSchema:
+    """Verbindungs- und Migrations-Logik. Wird von allen Repos genutzt."""
+
+    SCHEMA_VERSION = 15
+
+    def __init__(self, db_path) -> None:
+        self.db_path = db_path
+
+    def connect(self):
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+        # WAL für bessere Concurrency (mehrere Leser, ein Schreiber)
+        conn.execute("PRAGMA journal_mode=WAL;")
+        # Foreign Key Constraints aktivieren
+        conn.execute("PRAGMA foreign_keys=ON;")
+        # Synchronous NORMAL — guter Kompromiss zwischen Sicherheit und Performance
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        # Cache: 8 MB (Standard 2 MB)
+        conn.execute("PRAGMA cache_size=-8000;")
+        # Temp-Tabellen im Speicher
+        conn.execute("PRAGMA temp_store=MEMORY;")
+        # Busy-Timeout: 5 Sekunden warten bei Lock
+        conn.execute("PRAGMA busy_timeout=5000;")
+        return conn
+
+    def integrity_check(self) -> bool:
+        """Prüft DB-Integrität. Gibt True zurück wenn OK."""
+        try:
+            with self.connect() as conn:
+                result = conn.execute("PRAGMA integrity_check;").fetchone()
+                return result[0] == "ok"
+        except Exception:
+            return False
+
+    def vacuum(self) -> None:
+        """Komprimiert die Datenbank (gibt ungenutzten Speicher frei)."""
+        try:
+            conn = self.connect()
+            conn.execute("VACUUM;")
+            conn.close()
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("VACUUM fehlgeschlagen: %s", exc)
+
+    def wal_checkpoint(self) -> None:
+        """WAL-Checkpoint: schreibt ausstehende Änderungen in Hauptdatei."""
+        try:
+            with self.connect() as conn:
+                conn.execute("PRAGMA wal_checkpoint(FULL);")
+        except Exception:
+            pass
+
+    def migrate(self) -> None:
+        with self.connect() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS schema_version (
+                    version INTEGER NOT NULL
+                )
+            """)
+            row = conn.execute("SELECT version FROM schema_version").fetchone()
+            v = row["version"] if row else 0
+
+            if v < 1:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS pflege_eintraege (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        datum TEXT NOT NULL, monat INTEGER NOT NULL,
+                        jahr INTEGER NOT NULL, von TEXT NOT NULL,
+                        bis TEXT NOT NULL, stunden REAL NOT NULL,
+                        person TEXT NOT NULL, wochentag TEXT NOT NULL
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_person_jahr ON pflege_eintraege (person, jahr, monat)")
+                conn.execute("INSERT INTO schema_version VALUES (1)" if v == 0 else "UPDATE schema_version SET version = 1")
+
+            if v < 2:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS personen (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL UNIQUE, notiz TEXT DEFAULT ''
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_personen_name ON personen (name)")
+                conn.execute("INSERT OR IGNORE INTO personen (name) SELECT DISTINCT person FROM pflege_eintraege")
+                conn.execute("UPDATE schema_version SET version = 2")
+
+            if v < 3:
+                for spalte, default in [
+                    ("art", "'stundenweise'"), ("grund", "'Erholungsurlaub'"),
+                    ("ersatz_name", "''"), ("ersatz_art", "'Privatperson'"),
+                    ("ersatz_adresse", "''"), ("notiz", "''"),
+                ]:
+                    try:
+                        conn.execute(f"ALTER TABLE pflege_eintraege ADD COLUMN {spalte} TEXT NOT NULL DEFAULT {default}")
+                    except Exception:
+                        pass
+                conn.execute("UPDATE schema_version SET version = 3")
+
+            if v < 4:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS versicherte (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person_name TEXT NOT NULL UNIQUE,
+                        adresse TEXT NOT NULL DEFAULT '',
+                        versicherungsnr TEXT NOT NULL DEFAULT '',
+                        krankenkasse TEXT NOT NULL DEFAULT '',
+                        pflegegrad INTEGER NOT NULL DEFAULT 0,
+                        notiz TEXT NOT NULL DEFAULT ''
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_person ON versicherte (person_name)")
+                conn.execute("UPDATE schema_version SET version = 4")
+
+            if v < 5:
+                # Neue Felder für Versicherter: geburtsdatum, mail, krankenkasse_adresse
+                for col, default in [
+                    ("krankenkasse_adresse", "''"),
+                    ("geburtsdatum", "''"),
+                    ("mail", "''"),
+                ]:
+                    try:
+                        conn.execute(f"ALTER TABLE versicherte ADD COLUMN {col} TEXT NOT NULL DEFAULT {default}")
+                    except Exception:
+                        pass  # Spalte existiert bereits
+                conn.execute("UPDATE schema_version SET version = 5")
+
+            if v < 6:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS budget_planung (
+                        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person      TEXT    NOT NULL,
+                        jahr        INTEGER NOT NULL,
+                        monat       INTEGER NOT NULL,
+                        stunden     REAL    NOT NULL DEFAULT 0.0,
+                        notiz       TEXT    NOT NULL DEFAULT '',
+                        UNIQUE(person, jahr, monat)
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_planung_person_jahr ON budget_planung (person, jahr)")
+                conn.execute("UPDATE schema_version SET version = 6")
+
+            if v < 7:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS ersatzpflegekraefte (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person       TEXT    NOT NULL,
+                        name         TEXT    NOT NULL,
+                        geburtsdatum TEXT    NOT NULL DEFAULT '',
+                        adresse      TEXT    NOT NULL DEFAULT '',
+                        art          TEXT    NOT NULL DEFAULT 'Privatperson',
+                        notiz        TEXT    NOT NULL DEFAULT '',
+                        UNIQUE(person, name)
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_ersatz_person ON ersatzpflegekraefte (person)")
+                conn.execute("UPDATE schema_version SET version = 7")
+
+            if v < 8:
+                # User-Tabelle
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS users (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username     TEXT    NOT NULL UNIQUE,
+                        passwort     TEXT    NOT NULL,
+                        rolle        TEXT    NOT NULL DEFAULT 'user',
+                        aktiv        INTEGER NOT NULL DEFAULT 1,
+                        erstellt_am  TEXT    NOT NULL DEFAULT (datetime('now')),
+                        notiz        TEXT    NOT NULL DEFAULT ''
+                    )
+                """)
+                # owner_id zu allen relevanten Tabellen hinzufügen
+                for tabelle in ["personen", "pflege_eintraege", "versicherte",
+                                 "ersatzpflegekraefte", "budget_planung"]:
+                    try:
+                        conn.execute(f"ALTER TABLE {tabelle} ADD COLUMN owner_id INTEGER NOT NULL DEFAULT 1")
+                    except Exception:
+                        pass  # Spalte existiert bereits
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_users_username ON users (username)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_personen_owner ON personen (owner_id)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_eintraege_owner ON pflege_eintraege (owner_id)")
+                conn.execute("UPDATE schema_version SET version = 8")
+
+            if v < 9:
+                # Fix UNIQUE constraint: (person, name) → (person, name, owner_id)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS ersatzpflegekraefte_new (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person       TEXT    NOT NULL,
+                        name         TEXT    NOT NULL,
+                        geburtsdatum TEXT    NOT NULL DEFAULT '',
+                        adresse      TEXT    NOT NULL DEFAULT '',
+                        art          TEXT    NOT NULL DEFAULT 'Privatperson',
+                        notiz        TEXT    NOT NULL DEFAULT '',
+                        owner_id     INTEGER NOT NULL DEFAULT 1,
+                        UNIQUE(person, name, owner_id)
+                    )
+                """)
+                conn.execute("""
+                    INSERT OR IGNORE INTO ersatzpflegekraefte_new
+                        (id, person, name, geburtsdatum, adresse, art, notiz, owner_id)
+                    SELECT id, person, name, geburtsdatum, adresse, art, notiz,
+                           COALESCE(owner_id, 1)
+                    FROM ersatzpflegekraefte
+                """)
+                conn.execute("DROP TABLE ersatzpflegekraefte")
+                conn.execute("ALTER TABLE ersatzpflegekraefte_new RENAME TO ersatzpflegekraefte")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_ersatz_person ON ersatzpflegekraefte (person)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_ersatz_owner ON ersatzpflegekraefte (owner_id)")
+                conn.execute("UPDATE schema_version SET version = 9")
+
+            if v < 10:
+                # Fix personen UNIQUE: name → (name, owner_id)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS personen_new (
+                        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name     TEXT    NOT NULL,
+                        notiz    TEXT    DEFAULT '',
+                        owner_id INTEGER NOT NULL DEFAULT 1,
+                        UNIQUE(name, owner_id)
+                    )
+                """)
+                conn.execute("""
+                    INSERT OR IGNORE INTO personen_new (id, name, notiz, owner_id)
+                    SELECT id, name, notiz, COALESCE(owner_id, 1) FROM personen
+                """)
+                conn.execute("DROP TABLE personen")
+                conn.execute("ALTER TABLE personen_new RENAME TO personen")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_personen_name ON personen (name)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_personen_owner ON personen (owner_id)")
+                # user_settings Tabelle
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS user_settings (
+                        user_id            INTEGER PRIMARY KEY,
+                        absender_name      TEXT NOT NULL DEFAULT '',
+                        absender_adresse   TEXT NOT NULL DEFAULT '',
+                        absender_mail      TEXT NOT NULL DEFAULT '',
+                        absender_geburtsdatum TEXT NOT NULL DEFAULT '',
+                        stundensatz        REAL NOT NULL DEFAULT 20.0,
+                        standard_person    TEXT NOT NULL DEFAULT '',
+                        standard_jahr      INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (user_id) REFERENCES users(id)
+                    )
+                """)
+                conn.execute("UPDATE schema_version SET version = 10")
+
+            if v < 11:
+                # personen UNIQUE bereits in v10 gefixt — nur Version bump
+                conn.execute("UPDATE schema_version SET version = 11")
+
+            if v < 12:
+                # FK von versicherte → personen entfernen (inkompatibel mit UNIQUE(name, owner_id))
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS versicherte_new (
+                        id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person_name          TEXT    NOT NULL UNIQUE,
+                        adresse              TEXT    NOT NULL DEFAULT '',
+                        versicherungsnr      TEXT    NOT NULL DEFAULT '',
+                        krankenkasse         TEXT    NOT NULL DEFAULT '',
+                        krankenkasse_adresse TEXT    NOT NULL DEFAULT '',
+                        pflegegrad           INTEGER NOT NULL DEFAULT 0,
+                        geburtsdatum         TEXT    NOT NULL DEFAULT '',
+                        mail                 TEXT    NOT NULL DEFAULT '',
+                        notiz                TEXT    NOT NULL DEFAULT '',
+                        owner_id             INTEGER NOT NULL DEFAULT 1
+                    )
+                """)
+                conn.execute("""
+                    INSERT OR IGNORE INTO versicherte_new
+                        (id, person_name, adresse, versicherungsnr, krankenkasse,
+                         krankenkasse_adresse, pflegegrad, geburtsdatum, mail, notiz, owner_id)
+                    SELECT id, person_name, adresse, versicherungsnr, krankenkasse,
+                           COALESCE(krankenkasse_adresse, ''), COALESCE(pflegegrad, 0),
+                           COALESCE(geburtsdatum, ''), COALESCE(mail, ''), notiz,
+                           COALESCE(owner_id, 1)
+                    FROM versicherte
+                """)
+                conn.execute("DROP TABLE versicherte")
+                conn.execute("ALTER TABLE versicherte_new RENAME TO versicherte")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_person ON versicherte (person_name)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_owner ON versicherte (owner_id)")
+                conn.execute("UPDATE schema_version SET version = 12")
+
+            if v < 13:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS entlastung_buchungen (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id     INTEGER NOT NULL DEFAULT 1,
+                        person       TEXT    NOT NULL,
+                        datum        TEXT    NOT NULL,
+                        betrag       REAL    NOT NULL,
+                        anbieter     TEXT    NOT NULL DEFAULT '',
+                        beschreibung TEXT    NOT NULL DEFAULT '',
+                        beleg_nr     TEXT    NOT NULL DEFAULT '',
+                        created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_entlastung_person ON entlastung_buchungen (person, owner_id)")
+                conn.execute("UPDATE schema_version SET version = 13")
+
+            if v < 14:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS pflegegrad_verlauf (
+                        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id       INTEGER NOT NULL DEFAULT 1,
+                        person         TEXT    NOT NULL DEFAULT '',
+                        datum          TEXT    NOT NULL,
+                        pflegegrad     INTEGER NOT NULL,
+                        gesamtpunkte   REAL    NOT NULL,
+                        notiz          TEXT    NOT NULL DEFAULT '',
+                        antworten_json TEXT    NOT NULL DEFAULT '',
+                        created_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_pg_verlauf_owner ON pflegegrad_verlauf (owner_id, person, datum)")
+                conn.execute("UPDATE schema_version SET version = 14")
+
+            if v < 15:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS pflegetagebuch (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id     INTEGER NOT NULL DEFAULT 1,
+                        person       TEXT    NOT NULL DEFAULT '',
+                        datum        TEXT    NOT NULL,
+                        uhrzeit      TEXT    NOT NULL DEFAULT '',
+                        kategorie    TEXT    NOT NULL DEFAULT 'allgemein',
+                        titel        TEXT    NOT NULL DEFAULT '',
+                        inhalt       TEXT    NOT NULL DEFAULT '',
+                        stimmung     INTEGER,
+                        tags         TEXT    NOT NULL DEFAULT '',
+                        created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_tagebuch_owner ON pflegetagebuch (owner_id, person, datum)")
+                conn.execute("UPDATE schema_version SET version = 15")
+
+    def schema_version(self) -> int:
+        try:
+            with self.connect() as conn:
+                row = conn.execute("SELECT version FROM schema_version").fetchone()
+            return row["version"] if row else 0
+        except Exception:
+            return 0
+
+
+#  EintragsRepo

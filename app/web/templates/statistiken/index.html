@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% block title %}{{ _('statistiken.titel') }} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📊 {{ _('statistiken.titel') }}</h1>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar" style="margin-bottom:1.5rem">
+  <form method="get" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+    <select name="person" class="form-control" style="max-width:180px" onchange="this.form.submit()">
+      <option value="">{{ _('common.alle_personen') }}</option>
+      {% for p in personen %}
+      <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+    <select name="jahr" class="form-control" style="max-width:120px" onchange="this.form.submit()">
+      {% for j in jahre %}
+      <option value="{{ j }}" {% if filter_jahr == j %}selected{% endif %}>{{ j }}</option>
+      {% endfor %}
+    </select>
+    {% if filter_person %}
+    <a href="{{ request.app.state.ingress_entry }}/statistiken/?jahr={{ filter_jahr }}" class="btn btn-secondary btn-sm">{{ _('common.zuruecksetzen') }}</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Gesamt-Chips -->
+<div class="stat-chips" style="margin-bottom:1.5rem">
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ gesamt.eintraege_gesamt }}</span>
+    <span class="stat-chip-label">{{ _('statistiken.eintraege_gesamt') }}</span>
+  </div>
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ "%.1f"|format(gesamt.stunden_gesamt) }}</span>
+    <span class="stat-chip-label">{{ _('statistiken.stunden_gesamt') }}</span>
+  </div>
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ gesamt.personen_anzahl }}</span>
+    <span class="stat-chip-label">{{ _('statistiken.personen') }}</span>
+  </div>
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ gesamt.jahre_anzahl }}</span>
+    <span class="stat-chip-label">{{ _('statistiken.jahre') }}</span>
+  </div>
+</div>
+
+<!-- Charts Row 1: Stunden pro Monat + Art-Verteilung -->
+<div class="stats-grid-2" style="margin-bottom:1.5rem">
+
+  <!-- Stunden pro Monat -->
+  <div class="stats-card">
+    <div class="stats-card-titel">📅 {{ _('statistiken.stunden_pro_monat') }} {{ filter_jahr }}</div>
+    <canvas id="chart-monat" height="200"></canvas>
+  </div>
+
+  <!-- Art-Verteilung -->
+  <div class="stats-card">
+    <div class="stats-card-titel">🔄 {{ _('statistiken.art_verteilung') }}</div>
+    {% if art_stats %}
+    <div class="art-liste">
+      {% set gesamt_art = art_stats.values()|sum %}
+      {% for art, anzahl in art_stats.items()|sort(attribute=1, reverse=True) %}
+      <div class="art-zeile">
+        <span class="art-label">{{ art }}</span>
+        <div class="art-balken-wrap">
+          <div class="art-balken" style="width:{{ (anzahl / gesamt_art * 100)|round|int }}%"></div>
+        </div>
+        <span class="art-wert">{{ anzahl }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-mini">{{ _('statistiken.keine_daten') }}</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Charts Row 2: Stunden pro Jahr + Personen -->
+<div class="stats-grid-2" style="margin-bottom:1.5rem">
+
+  <!-- Stunden pro Jahr -->
+  <div class="stats-card">
+    <div class="stats-card-titel">📆 {{ _('statistiken.stunden_pro_jahr') }}</div>
+    {% if stunden_jahr %}
+    <canvas id="chart-jahr" height="180"></canvas>
+    {% else %}
+    <div class="empty-mini">{{ _('statistiken.keine_daten') }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Top Personen -->
+  <div class="stats-card">
+    <div class="stats-card-titel">👤 {{ _('statistiken.personen_uebersicht') }} {{ filter_jahr }}</div>
+    {% if personen_stats %}
+    <div class="personen-tabelle">
+      <div class="personen-tabelle-header">
+        <span>Person</span><span>Stunden</span><span>Einträge</span>
+      </div>
+      {% for p, s in personen_stats.items()|sort(attribute='1.stunden', reverse=True) %}
+      <div class="personen-tabelle-row">
+        <span>{{ p }}</span>
+        <span><strong>{{ "%.1f"|format(s.stunden) }}</strong> h</span>
+        <span>{{ s.eintraege }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-mini">{{ _('statistiken.keine_daten') }}</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Pflegegrad-Verlauf -->
+{% if pg_verlauf %}
+<div class="stats-card" style="margin-bottom:1.5rem">
+  <div class="stats-card-titel">🧮 {{ _('statistiken.pflegegrad_verlauf') }}</div>
+  <canvas id="chart-pg" height="140"></canvas>
+</div>
+{% endif %}
+
+<!-- Stimmungsverlauf -->
+{% if avg_stimmung_monat %}
+<div class="stats-card" style="margin-bottom:1.5rem">
+  <div class="stats-card-titel">😊 {{ _('statistiken.stimmungsverlauf') }} {{ filter_jahr }}</div>
+  <canvas id="chart-stimmung" height="120"></canvas>
+</div>
+{% endif %}
+
+<style>
+.stats-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.stats-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+}
+.stats-card-titel { font-size: .82rem; font-weight: 700; color: #4a5568;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: .85rem; }
+.art-liste { display: flex; flex-direction: column; gap: .5rem; }
+.art-zeile { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
+.art-label { min-width: 120px; color: #4a5568; }
+.art-balken-wrap { flex: 1; height: 10px; background: #f0f4f8; border-radius: 5px; overflow: hidden; }
+.art-balken { height: 100%; background: #2C5F8A; border-radius: 5px; }
+.art-wert { font-weight: 600; color: #2C5F8A; min-width: 30px; text-align: right; }
+.personen-tabelle { font-size: .85rem; }
+.personen-tabelle-header {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  font-size: .75rem; font-weight: 700; color: #718096;
+  padding: .3rem .5rem; text-transform: uppercase; letter-spacing: .04em;
+  border-bottom: 1px solid #e2e8f0; margin-bottom: .3rem;
+}
+.personen-tabelle-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  padding: .35rem .5rem; border-bottom: 1px solid #f0f4f8; color: #2d3748;
+}
+.personen-tabelle-row:last-child { border-bottom: none; }
+.empty-mini { color: #718096; font-size: .85rem; padding: 1rem 0; text-align: center; }
+@media (max-width: 700px) { .stats-grid-2 { grid-template-columns: 1fr; } }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const PRIMARY = '#2C5F8A';
+const ACCENT  = '#3ABFAB';
+const MUTED   = '#e2e8f0';
+const LABELS_MONAT = {{ monate_kurz[1:] | tojson | safe }};
+
+// Stunden pro Monat
+const stundenMonat = {{ stunden_monat[1:] | tojson | safe }};
+new Chart(document.getElementById('chart-monat'), {
+  type: 'bar',
+  data: {
+    labels: LABELS_MONAT,
+    datasets: [{
+      label: 'Stunden',
+      data: stundenMonat,
+      backgroundColor: stundenMonat.map(v => v > 0 ? PRIMARY : MUTED),
+      borderRadius: 5,
+    }]
+  },
+  options: {
+    responsive: true, plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, grid: { color: '#f0f4f8' } }, x: { grid: { display: false } } }
+  }
+});
+
+// Stunden pro Jahr
+{% if stunden_jahr %}
+const jahreLabels = {{ stunden_jahr.keys()|list|sort|tojson | safe }};
+const jahreWerte  = jahreLabels.map(j => {{ stunden_jahr | tojson | safe }}[j] || 0);
+new Chart(document.getElementById('chart-jahr'), {
+  type: 'bar',
+  data: {
+    labels: jahreLabels,
+    datasets: [{ label: 'Stunden', data: jahreWerte, backgroundColor: PRIMARY, borderRadius: 5 }]
+  },
+  options: {
+    responsive: true, plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, grid: { color: '#f0f4f8' } }, x: { grid: { display: false } } }
+  }
+});
+{% endif %}
+
+// Pflegegrad-Verlauf
+{% if pg_verlauf %}
+const pgDaten = {{ pg_verlauf | tojson | safe }};
+new Chart(document.getElementById('chart-pg'), {
+  type: 'line',
+  data: {
+    labels: pgDaten.map(d => d.datum),
+    datasets: [
+      {
+        label: 'Gesamtpunkte',
+        data: pgDaten.map(d => d.gesamtpunkte),
+        borderColor: PRIMARY, backgroundColor: 'rgba(44,95,138,.1)',
+        tension: 0.3, fill: true, pointRadius: 6,
+        pointBackgroundColor: pgDaten.map(d =>
+          ['#718096','#68d391','#f6ad55','#fc8181','#e53e3e','#9b2c2c'][d.pflegegrad]
+        ),
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} Punkte — PG ${pgDaten[ctx.dataIndex].pflegegrad}` } }
+    },
+    scales: {
+      y: { min: 0, max: 100, ticks: { stepSize: 10 }, grid: { color: '#f0f4f8' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+{% endif %}
+
+// Stimmungsverlauf
+{% if avg_stimmung_monat %}
+const stimmungDaten = {{ avg_stimmung_monat | tojson | safe }};
+const stimmLabels = Object.keys(stimmungDaten).map(m => LABELS_MONAT[parseInt(m)-1]);
+const stimmWerte  = Object.values(stimmungDaten);
+new Chart(document.getElementById('chart-stimmung'), {
+  type: 'line',
+  data: {
+    labels: stimmLabels,
+    datasets: [{
+      label: 'Ø Stimmung',
+      data: stimmWerte,
+      borderColor: ACCENT, backgroundColor: 'rgba(58,191,171,.1)',
+      tension: 0.4, fill: true, pointRadius: 5,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 1, max: 5, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+{% endif %}
+</script>
+{% endblock %}

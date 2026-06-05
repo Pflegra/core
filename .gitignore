@@ -1,0 +1,11 @@
+data/
+*.zip
+clean_src/
+pflegra_src/
+website_update/
+__pycache__/
+*.pyc
+.pytest_cache/
+dist/
+build/
+*.spec

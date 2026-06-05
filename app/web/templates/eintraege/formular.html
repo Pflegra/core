@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{{ titel }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ titel }}</h1>
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="btn btn-ghost">← Zurück</a>
+</div>
+
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+
+<form method="post" action="{{ aktion }}" class="form-card" id="eintrag-form">
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="datum">Datum *</label>
+            <input type="date" id="datum" name="datum" required tabindex="1"
+                   value="{{ eintrag.datum.isoformat() if eintrag else (datum or heute) }}">
+        </div>
+        <div class="form-group">
+            <label for="person">Person *</label>
+            <select id="person" name="person" required tabindex="2">
+                {% for p in personen %}
+                <option value="{{ p }}"
+                    {% if eintrag and eintrag.person == p %}selected
+                    {% elif not eintrag and (person or '') == p %}selected
+                    {% elif not eintrag and not person and loop.first %}selected
+                    {% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="von">Von *</label>
+            <input type="time" id="von" name="von" required tabindex="3"
+                   value="{{ eintrag.von if eintrag else (von or '08:00') }}"
+                   onchange="berechneStunden()">
+        </div>
+        <div class="form-group">
+            <label for="bis">Bis *</label>
+            <input type="time" id="bis" name="bis" required tabindex="4"
+                   value="{{ eintrag.bis if eintrag else (bis or '12:00') }}"
+                   onchange="berechneStunden()">
+        </div>
+        <div class="form-group">
+            <label for="stunden">Stunden *
+                <span id="stunden-auto" style="font-size:.75rem; color:var(--primary); margin-left:.3rem"></span>
+            </label>
+            <input type="number" id="stunden" name="stunden" step="0.25" min="0.25" required tabindex="5"
+                   value="{{ eintrag.stunden if eintrag else (stunden or '4.0') }}"
+                   placeholder="z. B. 4.5">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="art">Art der Verhinderung</label>
+            <select id="art" name="art" tabindex="6">
+                {% for a in pflege_arten %}
+                <option value="{{ a }}" {% if (eintrag.art if eintrag else (art or 'stundenweise')) == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="grund">Grund</label>
+            <select id="grund" name="grund" tabindex="7">
+                {% for g in pflege_gruende %}
+                <option value="{{ g }}" {% if (eintrag.grund if eintrag else (grund or 'Erholungsurlaub')) == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <details class="form-section-collapsible" {% if eintrag and eintrag.ersatz_name %}open{% endif %}>
+        <summary>Ersatzpflegeperson (optional)</summary>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="ersatz_name">Ersatzpflegekraft</label>
+                {% if ersatzliste %}
+                <select id="ersatz_name" name="ersatz_name" tabindex="8">
+                    <option value="">– keine / nicht angegeben –</option>
+                    {% for e in ersatzliste %}
+                    <option value="{{ e.name }}"
+                        data-art="{{ e.art }}"
+                        {% set aktuell = eintrag.ersatz_name if eintrag else (letzten_ersatz.name if letzten_ersatz else '') %}
+                        {% if e.name == aktuell %}selected{% endif %}>
+                        {{ e.name }} ({{ e.art }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">
+                    Verwalten unter <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ eintrag.person if eintrag else '' }}">Stammdaten</a>
+                </div>
+                {% else %}
+                <input type="text" id="ersatz_name" name="ersatz_name" tabindex="8"
+                       value="{{ eintrag.ersatz_name if eintrag else '' }}">
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">
+                    Noch keine Ersatzpflegekräfte hinterlegt —
+                    <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ eintrag.person if eintrag else '' }}">jetzt anlegen</a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="ersatz_art">Art</label>
+                <select id="ersatz_art" name="ersatz_art" tabindex="9">
+                    {% for a in ersatz_arten %}
+                    <option value="{{ a }}" {% if (eintrag.ersatz_art if eintrag else (letzten_ersatz.art if letzten_ersatz else 'Privatperson')) == a %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="ersatz_adresse">Adresse</label>
+            <input type="text" id="ersatz_adresse" name="ersatz_adresse" tabindex="10"
+                   value="{{ eintrag.ersatz_adresse if eintrag else (letzten_ersatz.adresse if letzten_ersatz else '') }}">
+        </div>
+    </details>
+
+    <script>
+    // Beim Auswählen einer Ersatzpflegekraft Art automatisch setzen
+    (function() {
+        var sel = document.getElementById('ersatz_name');
+        var art = document.getElementById('ersatz_art');
+        var adr = document.getElementById('ersatz_adresse');
+        if (!sel || !art) return;
+        sel.addEventListener('change', function() {
+            var opt = sel.options[sel.selectedIndex];
+            if (opt && opt.dataset.art) {
+                for (var i = 0; i < art.options.length; i++) {
+                    if (art.options[i].value === opt.dataset.art) {
+                        art.selectedIndex = i; break;
+                    }
+                }
+            }
+        });
+    })();
+    </script>
+
+    <div class="form-group">
+        <label for="notiz">Notiz</label>
+        <textarea id="notiz" name="notiz" rows="2" tabindex="11">{{ eintrag.notiz if eintrag else (notiz or '') }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary" tabindex="12">💾 Speichern</button>
+        <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="btn btn-ghost" tabindex="13">{{ _("eintraege_form.abbrechen") }}</a>
+    </div>
+</form>
+
+<script>
+function berechneStunden() {
+    const von = document.getElementById('von').value;
+    const bis = document.getElementById('bis').value;
+    if (!von || !bis) return;
+    const [vh, vm] = von.split(':').map(Number);
+    const [bh, bm] = bis.split(':').map(Number);
+    const diff = (bh * 60 + bm) - (vh * 60 + vm);
+    if (diff <= 0) return;
+    const stunden = Math.round(diff / 15) * 0.25;
+    document.getElementById('stunden').value = stunden.toFixed(2);
+    document.getElementById('stunden-auto').textContent = '(auto)';
+}
+
+// Auto-Art: tageweise wenn Stunden >= 8
+document.getElementById('stunden').addEventListener('change', function() {
+    document.getElementById('stunden-auto').textContent = '';
+    const h = parseFloat(this.value);
+    if (!isNaN(h)) {
+        const art = document.getElementById('art');
+        if (h >= 8) {
+            for (let o of art.options) if (o.value === 'tageweise') { art.value = 'tageweise'; break; }
+        } else {
+            for (let o of art.options) if (o.value === 'stundenweise') { art.value = 'stundenweise'; break; }
+        }
+    }
+});
+
+// Initial berechnen
+berechneStunden();
+</script>
+{% endblock %}

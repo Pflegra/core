@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pflegra – Self-hosted Pflege-Management</title>
+<meta name="description" content="Pflegra: Kostenlose Self-hosted Software für pflegende Angehörige. Pflegegrad berechnen, Verhinderungspflege und Entlastungsbetrag verwalten, Pflegegeld beantragen. Häusliche Pflege nach SGB XI einfach dokumentieren.">
+<meta property="og:title" content="Pflegra – Self-hosted Pflege-Management">
+<meta property="og:description" content="Open Source. Ihre Daten bleiben bei Ihnen.">
+<meta property="og:url" content="https://pflegra.app">
+<meta property="og:image" content="https://pflegra.app/screenshots/dashboard.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pflegra.app/screenshots/dashboard.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:   #1B4D7E;
+    --primary-l: #2C6FAC;
+    --accent:    #3ABFAB;
+    --dark:      #0D1B2A;
+    --mid:       #2E4057;
+    --text:      #1a2233;
+    --muted:     #5a6a80;
+    --bg:        #F4F7FA;
+    --white:     #ffffff;
+    --border:    #dce4ef;
+    --radius:    12px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(244,247,250,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: .9rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem; color: var(--primary);
+    text-decoration: none; letter-spacing: -.02em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: .9rem;
+    font-weight: 500; transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--primary); }
+  .nav-cta {
+    background: var(--primary); color: #fff !important;
+    padding: .45rem 1.1rem; border-radius: 8px;
+    font-weight: 600 !important; font-size: .85rem !important;
+    transition: background .2s !important;
+  }
+  .nav-cta:hover { background: var(--primary-l) !important; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 60% 30%, rgba(58,191,171,.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 20% 70%, rgba(27,77,126,.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; width: 100%; position: relative; }
+  .hero-screen {
+    position: absolute; right: 0; top: 0;
+    width: 52%; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,.35);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .hero-screen img { width: 100%; display: block; }
+  .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
+  @media (max-width: 900px) {
+    .hero-screen { display: none; }
+    .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 100%; }
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: rgba(58,191,171,.12); color: #1a7066;
+    border: 1px solid rgba(58,191,171,.3);
+    border-radius: 20px; padding: .3rem .85rem;
+    font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+  .hero-tag::before { content: '●'; font-size: .5rem; }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.1; color: var(--dark);
+    letter-spacing: -.03em; margin-bottom: 1.25rem;
+  }
+  h1 em { font-style: italic; color: var(--primary); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--muted); max-width: 540px;
+    font-weight: 300; line-height: 1.7; margin-bottom: 2.5rem;
+  }
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+  .btn-primary-lg {
+    background: var(--primary); color: #fff;
+    padding: .85rem 2rem; border-radius: 10px;
+    text-decoration: none; font-weight: 600; font-size: 1rem;
+    display: inline-flex; align-items: center; gap: .5rem;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 16px rgba(27,77,126,.25);
+  }
+  .btn-primary-lg:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,77,126,.3); }
+  .btn-secondary-lg {
+    background: #fff; color: var(--primary);
+    padding: .85rem 2rem; border-radius: 10px;
+    text-decoration: none; font-weight: 600; font-size: 1rem;
+    display: inline-flex; align-items: center; gap: .5rem;
+    border: 1.5px solid var(--border);
+    transition: border-color .15s, transform .15s;
+  }
+  .btn-secondary-lg:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .hero { color: #fff; }
+  .hero-entstehung {
+    font-size: .88rem; color: var(--muted);
+    font-style: italic; margin-bottom: 1.5rem;
+    border-left: 2px solid var(--accent); padding-left: .75rem;
+  }
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-screen { display: none; }
+  }
+  .hero-trust {
+    display: flex; gap: 2rem; flex-wrap: wrap;
+    font-size: .82rem; color: var(--muted);
+  }
+  .hero-trust span { display: flex; align-items: center; gap: .35rem; }
+  .hero-trust strong { color: var(--text); }
+
+  /* ── Features ── */
+  .section { padding: 5rem 2rem; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: .75rem;
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--dark); letter-spacing: -.025em;
+    line-height: 1.15; margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 520px; margin-bottom: 3rem; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .feature-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
+  .feature-icon { font-size: 1.75rem; margin-bottom: .75rem; }
+  .feature-title { font-weight: 600; font-size: 1rem; margin-bottom: .4rem; color: var(--dark); }
+  .feature-desc { font-size: .87rem; color: var(--muted); line-height: 1.55; }
+
+  /* ── Privacy ── */
+  .privacy-section {
+    background: var(--dark); color: #fff; padding: 5rem 2rem;
+  }
+  .privacy-inner { max-width: 1100px; margin: 0 auto; }
+  .privacy-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+  }
+  .privacy-section h2 { color: #fff; }
+  .privacy-section .section-label { color: var(--accent); }
+  .privacy-section .section-sub { color: rgba(255,255,255,.6); }
+  .privacy-points { display: flex; flex-direction: column; gap: .75rem; }
+  .privacy-point {
+    display: flex; align-items: flex-start; gap: .75rem;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: .85rem 1rem;
+  }
+  .privacy-point-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .privacy-point-text strong { display: block; font-size: .9rem; color: #fff; margin-bottom: .15rem; }
+  .privacy-point-text span { font-size: .8rem; color: rgba(255,255,255,.5); }
+
+  /* ── Install ── */
+  .install-section { background: #fff; padding: 5rem 2rem; }
+  .install-tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+  .install-tab {
+    padding: .5rem 1.2rem; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--bg); font-size: .88rem; font-weight: 600;
+    cursor: pointer; transition: all .15s; color: var(--muted);
+  }
+  .install-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .install-content { display: none; }
+  .install-content.active { display: block; }
+  .code-block {
+    background: var(--dark); border-radius: var(--radius);
+    padding: 1.25rem 1.5rem; font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: .88rem; color: #a8d8b0; overflow-x: auto; margin-bottom: 1rem;
+    border: 1px solid rgba(255,255,255,.05);
+  }
+  .code-block .comment { color: rgba(255,255,255,.3); }
+  .install-note { font-size: .82rem; color: var(--muted); }
+  .install-note a { color: var(--primary); }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--dark); color: rgba(255,255,255,.5);
+    padding: 2.5rem 2rem; text-align: center;
+    font-size: .82rem;
+  }
+  footer a { color: rgba(255,255,255,.6); text-decoration: none; margin: 0 .75rem; }
+  footer a:hover { color: #fff; }
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem; color: #fff; margin-bottom: .75rem; display: block;
+  }
+  .footer-logo span { color: var(--accent); }
+
+  @media (max-width: 768px) {
+    .privacy-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .hero { padding-top: 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Pflegra<span>.</span>app</a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#datenschutz">Datenschutz</a>
+    <a href="#installation">Installation</a>
+    <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
+    <a href="https://github.com/Pflegra/core/releases" target="_blank" class="nav-cta">Download</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Open Source · Self-hosted · Deutschland</div>
+    <h1>Pflege verwalten.<br><em>Einfach. Sicher.</em><br>Bei Ihnen.</h1>
+    <p class="hero-sub">
+      Pflegra ist eine selbst gehostete Plattform für pflegende Angehörige in Deutschland —
+      für Pflegegrad, Verhinderungspflege, Entlastungsbetrag, Pflegegeld und Pflegetagebuch nach SGB XI.
+    </p>
+    <p class="hero-entstehung" style="color:#4a5568;font-style:italic;font-size:.88rem;margin-bottom:1.5rem;border-left:2px solid #3ABFAB;padding-left:.75rem">Entstanden aus eigener Erfahrung mit der häuslichen Pflege von Angehörigen.</p>
+    <div class="hero-ctas">
+      <a href="https://github.com/Pflegra/core/releases" target="_blank" class="btn-primary-lg">
+        ⬇ Jetzt starten
+      </a>
+      <a href="https://github.com/Pflegra/core" target="_blank" class="btn-secondary-lg">
+        ★ GitHub
+      </a>
+    </div>
+    <div class="hero-screen">
+      <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
+    </div>
+
+    <div class="hero-trust">
+      <span>🔒 <strong>Keine Cloud</strong> — alles lokal</span>
+      <span>🆓 <strong>Kostenlos</strong> — AGPLv3</span>
+      <span>🏠 <strong>Home Assistant</strong> Add-on</span>
+      <span>🐳 <strong>Docker</strong> Windows / Linux / Mac</span>
+    </div>
+  </div>
+</section>
+
+<!-- Zahlen / Trust-Bar -->
+<section style="background:#fff; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:1.5rem 2rem">
+  <div style="max-width:1100px; margin:0 auto; display:flex; flex-wrap:wrap; gap:1.5rem; justify-content:center">
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Pflegegradrechner mit 57 NBA-Kriterien (§ 15 SGB XI)
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Verhinderungspflege &amp; Entlastungsbetrag verwalten
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Leistungsfinder für Pflegegeld &amp; Sachleistungen
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Pflegetagebuch, PDF-Berichte &amp; Widerspruchshilfe
+    </div>
+  </div>
+</section>
+
+<!-- Screenshots -->
+<section class="section" id="screenshots" style="background:#fff; padding-top:3rem; padding-bottom:3rem">
+  <div class="section-inner">
+    <div class="section-label">Screenshots</div>
+    <h2>Pflegra in Aktion</h2>
+    <div class="screens-grid">
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Dashboard</div>
+        <img src="screenshots/dashboard.png" alt="Pflegra Dashboard" loading="eager">
+      </div>
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Pflegegradrechner</div>
+        <img src="screenshots/pflegegradrechner.png" alt="Pflegegradrechner Ergebnis" loading="eager">
+      </div>
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Leistungsfinder</div>
+        <img src="screenshots/leistungsfinder.png" alt="Leistungsfinder" loading="eager">
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.screens-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem; margin-top: 1.5rem;
+}
+.screen-card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,.07);
+  transition: transform .2s, box-shadow .2s;
+  cursor: zoom-in;
+}
+.screen-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.screen-label {
+  background: var(--dark); color: rgba(255,255,255,.7);
+  font-size: .75rem; font-weight: 600; padding: .4rem .75rem;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.screen-card img { width: 100%; display: block; }
+/* Lightbox */
+.lightbox {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.92); align-items: center; justify-content: center;
+  cursor: zoom-out;
+}
+.lightbox.active { display: flex; }
+.lightbox img {
+  max-width: 92vw; max-height: 90vh;
+  border-radius: 8px; box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+.lightbox-close {
+  position: absolute; top: 20px; right: 28px;
+  color: #fff; font-size: 2rem; cursor: pointer; opacity: .7;
+  font-family: sans-serif; line-height: 1;
+}
+.lightbox-close:hover { opacity: 1; }
+</style>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-label">Funktionen</div>
+    <h2>Alles für die häusliche Pflege</h2>
+    <p class="section-sub">Von der Pflegegrad-Einschätzung bis zur täglichen Dokumentation — in einer selbst gehosteten Anwendung.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧮</div>
+        <div class="feature-title">Pflegegradrechner</div>
+        <div class="feature-desc">NBA-Begutachtung nach § 15 SGB XI — alle 6 Module, 57 Kriterien mit Alltagserklärungen, PDF-Bericht.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💶</div>
+        <div class="feature-title">Leistungsfinder</div>
+        <div class="feature-desc">Welche Leistungen stehen mir zu? Pflegegeld, Sachleistungen, VP, KZP, Entlastungsbetrag — strukturiert und berechnet.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Budgetverwaltung</div>
+        <div class="feature-desc">VP + KZP Budget in Echtzeit. 56-Tage-Grenze, Jahresprognose, Budgetplanung nach Monat.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💚</div>
+        <div class="feature-title">Entlastungsbetrag</div>
+        <div class="feature-desc">Buchungsmaske, Vorjahresguthaben, Übertragsfrist 30. Juni — automatisch überwacht.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📓</div>
+        <div class="feature-title">Pflegetagebuch</div>
+        <div class="feature-desc">Tägliche Beobachtungen strukturiert festhalten. 9 Kategorien, Stimmungsverlauf, Tags.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Fristenkalender</div>
+        <div class="feature-desc">Aktive Hinweise auf auslaufende Fristen: VP-Budget, Entlastungsbetrag-Übertrag, veraltete Einschätzungen.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <div class="feature-title">PDF-Exporte</div>
+        <div class="feature-desc">Antragsformulare, Ausfüllhilfen, Pflegegrad-Berichte und Budgetübersichten auf Knopfdruck.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <div class="feature-title">Multi-User</div>
+        <div class="feature-desc">Mehrere Nutzer mit vollständiger Datentrennung. Rollen Admin/User, Demo-Account.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">DE / EN</div>
+        <div class="feature-desc">Vollständig zweisprachig — Deutsch und Englisch, umschaltbar per Klick.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Datenschutz -->
+<section class="privacy-section" id="datenschutz">
+  <div class="privacy-inner">
+    <div class="privacy-grid">
+      <div>
+        <div class="section-label">Datenschutz</div>
+        <h2>Ihre Daten gehören Ihnen.</h2>
+        <p class="section-sub">Pflegra wurde von Grund auf nach dem Prinzip „Daten bleiben lokal" entwickelt.</p>
+      </div>
+      <div class="privacy-points">
+        <div class="privacy-point">
+          <span class="privacy-point-icon">🔒</span>
+          <div class="privacy-point-text">
+            <strong>Keine Cloud, kein Server</strong>
+            <span>Alle Daten liegen in einer SQLite-Datenbank auf Ihrem eigenen System.</span>
+          </div>
+        </div>
+        <div class="privacy-point">
+          <span class="privacy-point-icon">📡</span>
+          <div class="privacy-point-text">
+            <strong>Keine Telemetrie</strong>
+            <span>Kein Analytics, kein Tracking, keine Übertragung an externe Server.</span>
+          </div>
+        </div>
+        <div class="privacy-point">
+          <span class="privacy-point-icon">🔍</span>
+          <div class="privacy-point-text">
+            <strong>Quellcode offen</strong>
+            <span>Jede Zeile Code ist auf GitHub einsehbar. AGPLv3 lizenziert.</span>
+          </div>
+        </div>
+        <div class="privacy-point">
+          <span class="privacy-point-icon">💾</span>
+          <div class="privacy-point-text">
+            <strong>Automatische Backups</strong>
+            <span>Tägliche lokale Backups mit konfigurierbarer Aufbewahrungszeit.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Installation -->
+<section class="install-section" id="installation">
+  <div class="section-inner">
+    <div class="section-label">Installation</div>
+    <h2>In 3 Schritten starten</h2>
+    <p class="section-sub">Pflegra läuft auf Home Assistant, Docker Desktop (Windows/Mac/Linux) oder direkt per Python.</p>
+
+    <div class="install-tabs">
+      <button class="install-tab active" onclick="showTab('windows')">🪟 Windows</button>
+      <button class="install-tab" onclick="showTab('docker')">🐳 Docker</button>
+      <button class="install-tab" onclick="showTab('ha')">🏠 Home Assistant</button>
+    </div>
+
+    <div id="tab-windows" class="install-content active">
+      <div class="code-block">
+<span class="comment"># 1. Docker Desktop installieren (einmalig)</span>
+<span class="comment">#    https://www.docker.com/products/docker-desktop</span>
+
+<span class="comment"># 2. Windows-Paket herunterladen und entpacken</span>
+<span class="comment">#    pflegra_windows_vXX.zip → beliebiger Ordner</span>
+
+<span class="comment"># 3. start.bat doppelklicken → Browser öffnet sich</span></div>
+      <p class="install-note">
+        Docker Desktop muss installiert und gestartet sein.
+        Beim ersten Start wird das Image automatisch heruntergeladen (~200 MB).
+        <a href="https://github.com/Pflegra/core/releases" target="_blank">Download →</a>
+      </p>
+    </div>
+
+    <div id="tab-docker" class="install-content">
+      <div class="code-block">
+<span class="comment"># Einzeiler</span>
+docker run -d -p 8000:8000 -v pflegra_data:/data ghcr.io/pflegra/core:latest
+
+<span class="comment"># Oder mit docker compose</span>
+git clone https://github.com/Pflegra/core.git
+cd core
+docker compose up -d</div>
+      <p class="install-note">Pflegra läuft dann unter <strong>http://localhost:8000</strong></p>
+    </div>
+
+    <div id="tab-ha" class="install-content">
+      <div class="code-block">
+<span class="comment"># Add-on Ordner kopieren</span>
+cp -r pflegra/ /addons/pflegra/
+
+<span class="comment"># In Home Assistant</span>
+<span class="comment"># Einstellungen → Add-ons → Lokale Add-ons → Pflegra</span>
+<span class="comment"># Installieren → Starten</span></div>
+      <p class="install-note">
+        Läuft nativ auf Home Assistant OS.
+        Für Fernzugriff: Tailscale Add-on kombinieren.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <a class="footer-logo" href="/">Pflegra<span>.</span>app</a>
+  <div style="margin-bottom:.75rem">
+    <a href="/impressum.html">Impressum</a>
+    <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
+    <a href="https://github.com/Pflegra/core/releases" target="_blank">Releases</a>
+    <a href="https://github.com/Pflegra/core/blob/main/PRIVACY.md" target="_blank">Datenschutz</a>
+    <a href="https://github.com/Pflegra/core/blob/main/README.md" target="_blank">Dokumentation</a>
+  </div>
+  <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt</div>
+  <div style="margin-top:.4rem;font-size:.75rem">
+    Pflegra dient der persönlichen Orientierung und ersetzt keine Beratung durch Pflegekassen oder den MDK.
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.install-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+
+</body>
+</html>

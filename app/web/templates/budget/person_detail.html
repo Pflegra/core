@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ bericht.person }} – Budget {{ aktuelles_jahr }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ bericht.person }} – {{ aktuelles_jahr }}</h1>
+    <a href="{{ request.app.state.ingress_entry }}/budget/?jahr={{ aktuelles_jahr }}" class="btn btn-ghost">{{ _("budget_detail.zurueck") }}</a>
+</div>
+
+<div class="budget-card ampel-{{ bericht.ampel }}">
+    <div class="budget-progress">
+        <div class="progress-bar">
+            <div class="progress-fill ampel-fill-{{ bericht.ampel }}"
+                 style="width: {{ [bericht.budget.ausgeschoepft_prozent, 100] | min }}%"></div>
+        </div>
+        <span class="progress-label">{{ "%.1f"|format(bericht.budget.ausgeschoepft_prozent) }} %</span>
+    </div>
+    <div class="budget-stats">
+        <div class="stat"><span class="stat-label">{{ _("budget_detail.verbraucht") }}</span><span class="stat-value">{{ bericht.budget.verbraucht | eur }}</span></div>
+        <div class="stat"><span class="stat-label">Restbudget</span><span class="stat-value">{{ bericht.budget.restbudget_gesamt | eur }}</span></div>
+        <div class="stat"><span class="stat-label">{{ _("budget_detail.budget_gesamt") }}</span><span class="stat-value">{{ budget_gesamt | eur }}</span></div>
+        <div class="stat"><span class="stat-label">Tageweise</span><span class="stat-value">{{ bericht.budget.tage_tageweise }}/{{ max_tage_tageweise }}</span></div>
+        <div class="stat"><span class="stat-label">{{ _("budget_detail.stunden") }}</span><span class="stat-value">{{ "%.1f"|format(bericht.budget.stunden_gesamt) }} h</span></div>
+        <div class="stat"><span class="stat-label">Rest in Std.</span><span class="stat-value">≈ {{ "%.1f"|format(bericht.budget.restbudget_in_stunden) }} h</span></div>
+    </div>
+</div>
+
+<h2>Monatsübersicht</h2>
+<div class="table-wrap">
+<table class="data-table">
+    <thead><tr><th>{{ _("budget_detail.monat") }}</th><th class="text-right">{{ _("budget_detail.einsaetze") }}</th><th class="text-right">{{ _("budget_detail.stunden") }}</th><th class="text-right">Kosten</th><th class="text-right">Tage (tageweise)</th></tr></thead>
+    <tbody>
+    {% for m in bericht.monatshefte %}
+    {% if m.einsaetze > 0 %}
+    <tr>
+        <td>{{ m.monat_name }}</td>
+        <td class="text-right">{{ m.einsaetze }}</td>
+        <td class="text-right">{{ "%.2f"|format(m.stunden) }} h</td>
+        <td class="text-right">{{ m.kosten | eur }}</td>
+        <td class="text-right">{{ m.tage_tageweise }}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+    <tfoot>
+    <tr class="text-bold">
+        <td>Gesamt</td>
+        <td class="text-right">{{ bericht.jahressumme.einsaetze }}</td>
+        <td class="text-right">{{ "%.2f"|format(bericht.jahressumme.stunden) }} h</td>
+        <td class="text-right">{{ bericht.jahressumme.kosten | eur }}</td>
+        <td class="text-right">{{ bericht.jahressumme.tage_tageweise }}</td>
+    </tr>
+    </tfoot>
+</table>
+</div>
+
+<div class="form-actions" style="margin-top:1.5rem">
+    <a href="{{ request.app.state.ingress_entry }}/export/?person={{ bericht.person }}&jahr={{ aktuelles_jahr }}" class="btn btn-secondary">📄 PDF exportieren</a>
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/?person={{ bericht.person }}&jahr={{ aktuelles_jahr }}" class="btn btn-ghost">📋 Einträge anzeigen</a>
+</div>
+{% endblock %}

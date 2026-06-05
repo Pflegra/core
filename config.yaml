@@ -1,0 +1,25 @@
+name: "Pflegra"
+description: "Pflege-Management-Plattform für pflegende Angehörige nach SGB XI"
+version: "1.0.5"
+slug: "pflegra"
+init: false
+arch:
+  - amd64
+  - aarch64
+  - armhf
+  - armv7
+homeassistant_api: false
+hassio_api: false
+ingress: true
+ingress_port: 8000
+ingress_panel: true
+panel_icon: "mdi:clipboard-pulse"
+panel_title: "Pflegra"
+ports:
+  8000/tcp: 8000
+ports_description:
+  8000/tcp: "Pflegra Web-Interface"
+map:
+  - share:rw
+options: {}
+schema: {}

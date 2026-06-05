@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ _("benutzer_page.titel") }} – Pflegra{% endblock %}
+{% block content %}
+
+<h2 style="font-size:1.2rem;font-weight:700;color:var(--primary);margin-bottom:1rem">
+    👥 {{ _("benutzer_page.titel") }}
+</h2>
+
+{% if ok %}
+<div class="alert alert-ok" style="margin-bottom:1rem">✓ {{ ok }}</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-fehler" style="margin-bottom:1rem">⚠️ {{ fehler }}</div>
+{% endif %}
+
+{# ── Bestehende User ── #}
+<div style="margin-bottom:1.5rem">
+    {% for u in users %}
+    <div style="display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;
+                background:var(--card-bg);border:1px solid var(--border);
+                border-radius:var(--radius);margin-bottom:.4rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:150px">
+            <div style="font-weight:600;font-size:.95rem">
+                {{ u.username }}
+                {% if u.id == current_user.id %}
+                <span style="font-size:.72rem;color:var(--primary)">({{ _("benutzer_page.ich") }})</span>
+                {% endif %}
+            </div>
+            <div style="font-size:.75rem;color:var(--text-muted)">
+                <span style="padding:.1rem .4rem;border-radius:4px;
+                    background:{% if u.rolle == 'admin' %}#fef9c3{% else %}#f0f4f8{% endif %};
+                    color:{% if u.rolle == 'admin' %}#b45309{% else %}var(--text-muted){% endif %}">
+                    {{ u.rolle }}
+                </span>
+                · {{ u.erstellt_am[:10] if u.erstellt_am else '–' }}
+                {% if not u.aktiv %}
+                · <span style="color:var(--error)">deaktiviert</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Passwort reset #}
+        <details style="font-size:.8rem">
+            <summary style="cursor:pointer;color:var(--primary)">🔑 {{ _("benutzer_page.passwort") }}</summary>
+            <form method="post" action="{{ request.app.state.ingress_entry }}/admin/users/{{ u.id }}/passwort"
+                  style="display:flex;gap:.4rem;margin-top:.4rem;align-items:center">
+                <input type="password" name="passwort" placeholder="{{ _("benutzer_page.passwort_neu_hint") }}"
+                       style="font-size:.8rem;padding:.2rem .4rem;border:1px solid var(--border);
+                              border-radius:4px;background:var(--bg);color:var(--text);width:180px">
+                <button type="submit" class="btn btn-ghost"
+                        style="padding:.2rem .5rem;font-size:.8rem">Setzen</button>
+            </form>
+        </details>
+
+        {# Aktiv toggle #}
+        {% if u.id != current_user.id %}
+        <form method="post" action="{{ request.app.state.ingress_entry }}/admin/users/{{ u.id }}/toggle" style="margin:0">
+            <button type="submit" class="btn btn-ghost"
+                    style="padding:.2rem .5rem;font-size:.8rem">
+                {% if u.aktiv %}🚫 {{ _("benutzer_page.sperren") }}{% else %}✓ Aktivieren{% endif %}
+            </button>
+        </form>
+        {% endif %}
+
+        {# Löschen #}
+        {% if u.id != current_user.id %}
+        <form method="post" action="{{ request.app.state.ingress_entry }}/admin/users/{{ u.id }}/loeschen"
+              style="margin:0"
+              onsubmit="return confirm('{{ u.username }} wirklich löschen?')">
+            <button type="submit" class="btn btn-ghost"
+                    style="padding:.2rem .5rem;font-size:.8rem;color:var(--error)">🗑</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Neuen User anlegen ── #}
+<details style="background:var(--card-bg);border:1px solid var(--border);
+                border-radius:var(--radius);padding:.6rem .75rem">
+    <summary style="font-weight:600;font-size:.9rem;cursor:pointer;color:var(--primary)">
+        {{ _("benutzer_page.neuer_benutzer") }}
+    </summary>
+    <form method="post" action="{{ request.app.state.ingress_entry }}/admin/users/neu" style="margin-top:.75rem">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="flex:2;min-width:140px">
+                <label>Benutzername</label>
+                <input type="text" name="username" required placeholder="z.B. stefanneu">
+            </div>
+            <div class="form-group" style="flex:2;min-width:140px">
+                <label>{{ _("benutzer_page.passwort_label") }}</label>
+                <input type="password" name="passwort" required>
+            </div>
+            <div class="form-group" style="flex:1;min-width:100px">
+                <label>Rolle</label>
+                <select name="rolle">
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Anlegen</button>
+            </div>
+        </div>
+    </form>
+</details>
+
+{% endblock %}

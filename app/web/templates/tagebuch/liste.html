@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ _('tagebuch.titel') }} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📓 {{ _('tagebuch.titel') }}</h1>
+  <a href="{{ request.app.state.ingress_entry }}/tagebuch/neu" class="btn btn-primary">+ {{ _('tagebuch.neuer_eintrag') }}</a>
+</div>
+
+<!-- Statistik-Chips -->
+{% if statistik.gesamt > 0 %}
+<div class="stat-chips" style="margin-bottom:1rem">
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ statistik.gesamt }}</span>
+    <span class="stat-chip-label">{{ _('tagebuch.eintraege') }}</span>
+  </div>
+  {% if statistik.avg_stimmung %}
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ "%.1f"|format(statistik.avg_stimmung) }}/5</span>
+    <span class="stat-chip-label">{{ _('tagebuch.avg_stimmung') }}</span>
+  </div>
+  {% endif %}
+  {% if statistik.letzter_eintrag %}
+  <div class="stat-chip">
+    <span class="stat-chip-wert">{{ statistik.letzter_eintrag }}</span>
+    <span class="stat-chip-label">{{ _('tagebuch.letzter_eintrag') }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Filter -->
+<div class="filter-bar" style="margin-bottom:1rem">
+  <form method="get" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+    <select name="person" class="form-control" style="max-width:180px" onchange="this.form.submit()">
+      <option value="">{{ _('common.alle_personen') }}</option>
+      {% for p in personen %}
+      <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+    <select name="kategorie" class="form-control" style="max-width:200px" onchange="this.form.submit()">
+      <option value="">{{ _('tagebuch.alle_kategorien') }}</option>
+      {% for k in kategorien %}
+      <option value="{{ k }}" {% if filter_kategorie == k %}selected{% endif %}>{{ kategorien_labels[k] }}</option>
+      {% endfor %}
+    </select>
+    {% if filter_person or filter_kategorie %}
+    <a href="{{ request.app.state.ingress_entry }}/tagebuch/" class="btn btn-secondary btn-sm">{{ _('common.zuruecksetzen') }}</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if not eintraege %}
+<div class="empty-state">
+  <p>{{ _('tagebuch.keine_eintraege') }}</p>
+  <a href="{{ request.app.state.ingress_entry }}/tagebuch/neu" class="btn btn-primary">{{ _('tagebuch.ersten_eintrag') }}</a>
+</div>
+{% else %}
+<div class="tagebuch-liste">
+  {% for e in eintraege %}
+  <div class="tagebuch-karte kategorie-{{ e.kategorie }}">
+    <div class="tagebuch-karte-header">
+      <div class="tagebuch-meta">
+        <span class="tagebuch-datum">{{ e.datum }}{% if e.uhrzeit %} {{ e.uhrzeit }}{% endif %}</span>
+        <span class="tagebuch-person">{{ e.person }}</span>
+        <span class="tagebuch-kat-badge">{{ e.kategorie_label }}</span>
+        {% if e.stimmung %}
+        <span class="tagebuch-stimmung">{{ e.stimmung_label }}</span>
+        {% endif %}
+      </div>
+      <div class="tagebuch-aktionen">
+        <a href="{{ request.app.state.ingress_entry }}/tagebuch/{{ e.id }}/bearbeiten" class="btn btn-sm btn-secondary">✏️</a>
+        <button class="btn btn-sm btn-danger" onclick="loeschen({{ e.id }}, this)">🗑</button>
+      </div>
+    </div>
+    {% if e.titel %}
+    <div class="tagebuch-titel">{{ e.titel }}</div>
+    {% endif %}
+    {% if e.inhalt %}
+    <div class="tagebuch-inhalt">{{ e.inhalt }}</div>
+    {% endif %}
+    {% if e.tags_liste %}
+    <div class="tagebuch-tags">
+      {% for tag in e.tags_liste %}
+      <span class="tagebuch-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<style>
+.tagebuch-liste { display: flex; flex-direction: column; gap: .75rem; }
+.tagebuch-karte {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: .9rem 1.1rem; border-left: 4px solid #2C5F8A;
+}
+.tagebuch-karte.kategorie-vorfall { border-left-color: #e53e3e; }
+.tagebuch-karte.kategorie-arzt    { border-left-color: #d69e2e; }
+.tagebuch-karte.kategorie-stimmung { border-left-color: #9b59b6; }
+.tagebuch-karte.kategorie-medikamente { border-left-color: #38a169; }
+.tagebuch-karte-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; margin-bottom: .4rem; }
+.tagebuch-meta { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.tagebuch-datum { font-size: .82rem; font-weight: 600; color: #4a5568; }
+.tagebuch-person { font-size: .78rem; color: #718096; }
+.tagebuch-kat-badge {
+  font-size: .72rem; background: #ebf8ff; color: #2C5F8A;
+  border-radius: 20px; padding: .1rem .5rem; font-weight: 600;
+}
+.tagebuch-stimmung { font-size: .82rem; }
+.tagebuch-aktionen { display: flex; gap: .3rem; flex-shrink: 0; }
+.tagebuch-titel { font-size: .92rem; font-weight: 600; color: #2d3748; margin-bottom: .3rem; }
+.tagebuch-inhalt { font-size: .85rem; color: #4a5568; line-height: 1.55; white-space: pre-wrap; }
+.tagebuch-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .5rem; }
+.tagebuch-tag {
+  font-size: .72rem; background: #f7fafc; border: 1px solid #e2e8f0;
+  border-radius: 20px; padding: .1rem .45rem; color: #718096;
+}
+</style>
+
+<script>
+async function loeschen(id, btn) {
+  if (!confirm('{{ _("tagebuch.loeschen_bestaetigen") }}')) return;
+  const fd = new FormData();
+  fd.append('csrf_token', document.querySelector('[name=csrf_token]')?.value || '');
+  const r = await fetch(`/tagebuch/${id}/loeschen`, { method: 'POST', body: fd });
+  const d = await r.json();
+  if (d.ok) btn.closest('.tagebuch-karte').remove();
+}
+</script>
+{% endblock %}
