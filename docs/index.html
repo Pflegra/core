@@ -286,7 +286,7 @@
     <div class="hero-trust">
       <span>🔒 <strong>Keine Cloud</strong> — alles lokal</span>
       <span>🆓 <strong>Kostenlos</strong> — AGPLv3</span>
-      <span>🏠 <strong>Home Assistant</strong> Add-on</span>
+      <span>🐧 <strong>Linux Server</strong> &amp; VM</span>
       <span>🐳 <strong>Docker</strong> Windows / Linux / Mac</span>
     </div>
   </div>
@@ -474,12 +474,12 @@
   <div class="section-inner">
     <div class="section-label">Installation</div>
     <h2>In 3 Schritten starten</h2>
-    <p class="section-sub">Pflegra läuft auf Home Assistant, Docker Desktop (Windows/Mac/Linux) oder direkt per Python.</p>
+    <p class="section-sub">Pflegra läuft auf Linux Server, Docker Desktop (Windows/Mac/Linux) oder direkt per Python.</p>
 
     <div class="install-tabs">
       <button class="install-tab active" onclick="showTab('windows')">🪟 Windows</button>
       <button class="install-tab" onclick="showTab('docker')">🐳 Docker</button>
-      <button class="install-tab" onclick="showTab('ha')">🏠 Home Assistant</button>
+      <button class="install-tab" onclick="showTab('ha')">🐧 Linux Server</button>
     </div>
 
     <div id="tab-windows" class="install-content active">
@@ -515,12 +515,12 @@ docker compose up -d</div>
 <span class="comment"># Add-on Ordner kopieren</span>
 cp -r pflegra/ /addons/pflegra/
 
-<span class="comment"># In Home Assistant</span>
-<span class="comment"># Einstellungen → Add-ons → Lokale Add-ons → Pflegra</span>
-<span class="comment"># Installieren → Starten</span></div>
+<span class="comment"># Linux Server</span>
+<span class="comment"># Docker installieren</span>
+<span class="comment">curl -fsSL https://get.docker.com | sudo sh</span></div>
       <p class="install-note">
-        Läuft nativ auf Home Assistant OS.
-        Für Fernzugriff: Tailscale Add-on kombinieren.
+        Pflegra läuft unter <strong>http://SERVER-IP:8000</strong>
+        Für Fernzugriff: <a href="https://tailscale.com">Tailscale</a> installieren.
       </p>
     </div>
   </div>
