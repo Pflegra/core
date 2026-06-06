@@ -4,6 +4,8 @@ Pflegra entstand aus einem sehr praktischen Problem:
 
 Die Organisation von Pflegeleistungen in Deutschland ist kompliziert, unübersichtlich und oft unnötig belastend — besonders für pflegende Angehörige.
 
+Alle Daten bleiben unter eigener Kontrolle — ohne Cloud-Zwang und ohne unnötige Datensammlung. Das war von Anfang an keine technische Entscheidung, sondern eine inhaltliche: Gesundheitsdaten von Angehörigen gehören nicht auf fremde Server.
+
 Zwischen Verhinderungspflege, Kurzzeitpflege, Entlastungsbetrag, Pflegegeld und den vielen Formularen verlieren selbst erfahrene Pflegepersonen schnell den Überblick. Viele bestehende Lösungen richten sich primär an professionelle Einrichtungen oder setzen auf cloudbasierte Plattformen.
 
 Pflegra wurde deshalb als ruhige, selbsthostbare und datensparsame Plattform entwickelt, die Pflegeorganisation einfacher und nachvollziehbarer machen soll.
@@ -16,11 +18,11 @@ Der Fokus liegt bewusst auf:
 - langfristiger Wartbarkeit
 - und echter Alltagstauglichkeit
 
-Technisch basiert Pflegra auf einer offenen und modularen Architektur mit FastAPI, SQLite und Home Assistant Integration. Alle Daten bleiben unter eigener Kontrolle — ohne Cloud-Zwang und ohne unnötige Datensammlung.
+Technisch basiert Pflegra auf einer offenen und modularen Architektur mit FastAPI und SQLite. Optional lässt sich Pflegra auch in Home Assistant integrieren.
 
 Was als persönliche Hilfe begann, entwickelte sich Schritt für Schritt zu einer eigenständigen Open-Source-Plattform für Pflegeorganisation und Pflegeleistungsverwaltung im deutschsprachigen Raum.
 
-Pflegra ist AGPLv3-lizenziert und verfolgt einen communitynahen Ansatz: praktisch, transparent und langfristig unabhängig.
+Pflegra ist AGPLv3-lizenziert und wird offen entwickelt. Der Fokus liegt auf Transparenz, Nachvollziehbarkeit und langfristiger Unabhängigkeit.
 
 ---
 
