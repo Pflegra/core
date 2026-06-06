@@ -234,3 +234,96 @@ async def user_loeschen(request: Request, user_id: int):
     u = db.user_laden(user_id)
     db.user_loeschen(user_id)
     return redirect(request, f"/admin/users?ok=User+{u.username if u else user_id}+gelöscht", 303)
+
+
+# ── Impersonation ─────────────────────────────────────────────────────────────
+
+from web.auth import (
+    starte_impersonation, beende_impersonation,
+    get_impersonation_target, admin_erforderlich
+)
+from db.audit import AuditRepo, AuditEvent
+from fastapi.responses import Response
+
+
+@router.post("/impersonation/start/{user_id}")
+async def impersonation_start(request: Request, user_id: int):
+    """Admin beginnt als User zu agieren."""
+    guard = admin_erforderlich(request)
+    if guard:
+        return guard
+
+    db = get_db(request)
+    admin = db.user_laden(request.app.state.session_user_id
+                          if hasattr(request.app.state, "session_user_id")
+                          else None)
+
+    # Actor = eingeloggter Admin
+    from web.auth import get_aktueller_user_id
+    actor_id = get_aktueller_user_id(request)
+    ziel_user = db.user_laden(user_id)
+
+    if not ziel_user:
+        return RedirectResponse("/admin/users?fehler=user_nicht_gefunden", 303)
+
+    if ziel_user.ist_admin:
+        return RedirectResponse("/admin/users?fehler=admin_impersonation_verboten", 303)
+
+    # Audit-Log
+    ip = request.client.host if request.client else ""
+    audit = AuditRepo(request.app.state.db._schema)
+    audit.loggen(
+        aktion=AuditEvent.IMPERSONATION_START,
+        actor_user_id=actor_id,
+        effective_user_id=user_id,
+        details=f"Admin startet Impersonation für User '{ziel_user.username}'",
+        ip_adresse=ip,
+    )
+
+    response = RedirectResponse("/", status_code=303)
+    starte_impersonation(response, user_id)
+    return response
+
+
+@router.post("/impersonation/stop")
+async def impersonation_stop(request: Request):
+    """Beendet die Impersonation und kehrt zum Admin zurück."""
+    from web.auth import get_aktueller_user_id, get_impersonation_target
+    actor_id = get_aktueller_user_id(request)
+    target_id = get_impersonation_target(request)
+
+    if actor_id and target_id:
+        ip = request.client.host if request.client else ""
+        db = get_db(request)
+        ziel_user = db.user_laden(target_id)
+        audit = AuditRepo(request.app.state.db._schema)
+        audit.loggen(
+            aktion=AuditEvent.IMPERSONATION_ENDE,
+            actor_user_id=actor_id,
+            effective_user_id=target_id,
+            details=f"Impersonation für '{ziel_user.username if ziel_user else target_id}' beendet",
+            ip_adresse=ip,
+        )
+
+    response = RedirectResponse("/admin/users", status_code=303)
+    beende_impersonation(response)
+    return response
+
+
+# ── Audit-Log Anzeige ─────────────────────────────────────────────────────────
+
+@router.get("/audit", response_class=HTMLResponse)
+async def admin_audit(request: Request, limit: int = 200):
+    """Zeigt den Audit-Log an."""
+    guard = admin_erforderlich(request)
+    if guard:
+        return guard
+
+    audit = AuditRepo(request.app.state.db._schema)
+    eintraege = audit.alle(limit=limit)
+
+    return TEMPLATES.TemplateResponse(request, "admin/audit.html", {
+        **base_ctx(request),
+        "eintraege": eintraege,
+        "limit": limit,
+    })

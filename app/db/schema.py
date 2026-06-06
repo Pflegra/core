@@ -12,7 +12,7 @@ DB_PATH = Path("pflegra.db")
 class DbSchema:
     """Verbindungs- und Migrations-Logik. Wird von allen Repos genutzt."""
 
-    SCHEMA_VERSION = 15
+    SCHEMA_VERSION = 16
 
     def __init__(self, db_path) -> None:
         self.db_path = db_path
@@ -344,6 +344,28 @@ class DbSchema:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_tagebuch_owner ON pflegetagebuch (owner_id, person, datum)")
                 conn.execute("UPDATE schema_version SET version = 15")
 
+
+            if v < 16:
+                # Audit-Log Tabelle
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS audit_log (
+                        id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                        zeitstempel       TEXT    NOT NULL DEFAULT (datetime('now')),
+                        actor_user_id     INTEGER NOT NULL,
+                        effective_user_id INTEGER NOT NULL,
+                        aktion            TEXT    NOT NULL,
+                        details           TEXT    NOT NULL DEFAULT '',
+                        ip_adresse        TEXT    NOT NULL DEFAULT '',
+                        FOREIGN KEY (actor_user_id)     REFERENCES users(id),
+                        FOREIGN KEY (effective_user_id) REFERENCES users(id)
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_log (actor_user_id)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_effective ON audit_log (effective_user_id)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_aktion ON audit_log (aktion)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_zeit ON audit_log (zeitstempel)")
+                conn.execute("UPDATE schema_version SET version = 16")
+
     def schema_version(self) -> int:
         try:
             with self.connect() as conn:
@@ -354,3 +376,5 @@ class DbSchema:
 
 
 #  EintragsRepo
+
+# Migration v16 wird in migrate() ergänzt — siehe unten

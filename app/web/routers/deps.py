@@ -57,9 +57,14 @@ def get_import_service(request: Request):
 
 
 def get_owner_id(request: Request) -> int:
-    from web.auth import get_aktueller_user
-    user = get_aktueller_user(request)
-    return user.id if user else 0
+    """
+    Gibt die effective owner_id zurück.
+    Bei aktiver Impersonation: ID des Ziel-Users (Admin handelt als User).
+    Sonst: ID des eingeloggten Users.
+    """
+    from web.auth import get_effective_user_id
+    uid = get_effective_user_id(request)
+    return uid if uid else 0
 
 
 def get_user_settings(request: Request):
@@ -79,17 +84,21 @@ def base_ctx(request: Request) -> dict:
     except AttributeError:
         pflegedienst = ""
     from web.csrf import get_csrf_token
-    from web.auth import get_aktueller_user
+    from web.auth import get_aktueller_user, ist_impersonation_aktiv, get_effective_user
     user = get_aktueller_user(request)
     lang = get_lang(request)
+    impersonation = ist_impersonation_aktiv(request)
+    effective_user = get_effective_user(request) if impersonation else user
     return {
-        "request":            request,
-        "pflegedienst_name":  pflegedienst,
-        "csrf_token":         get_csrf_token(request),
-        "current_user":       user,
-        "is_admin":           user.ist_admin if user else False,
-        "lang":               lang,
-        "_":                  make_t(lang),
+        "request":              request,
+        "pflegedienst_name":    pflegedienst,
+        "csrf_token":           get_csrf_token(request),
+        "current_user":         user,
+        "is_admin":             user.ist_admin if user else False,
+        "lang":                 lang,
+        "_":                    make_t(lang),
+        "impersonation_aktiv":  impersonation,
+        "effective_user":       effective_user,
     }
 
 

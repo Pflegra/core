@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Audit-Log – Pflegra{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem">
+    <h2 style="font-size:1.2rem;font-weight:700;color:var(--primary);margin:0">
+        🔍 Audit-Log
+    </h2>
+    <div style="font-size:.8rem;color:var(--text-muted)">
+        Letzte {{ eintraege|length }} Einträge
+    </div>
+</div>
+
+{# ── Legende ── #}
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;font-size:.75rem">
+    <span style="padding:.15rem .5rem;border-radius:4px;background:#d1fae5;color:#065f46">✓ Login / OK</span>
+    <span style="padding:.15rem .5rem;border-radius:4px;background:#fee2e2;color:#991b1b">✗ Fehlgeschlagen</span>
+    <span style="padding:.15rem .5rem;border-radius:4px;background:#dbeafe;color:#1e40af">👤 Impersonation</span>
+    <span style="padding:.15rem .5rem;border-radius:4px;background:#f3f4f6;color:#374151">⚙ System</span>
+</div>
+
+{% if not eintraege %}
+<div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:.9rem">
+    Noch keine Einträge vorhanden.
+</div>
+{% else %}
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:.82rem">
+    <thead>
+        <tr style="background:var(--card-bg);border-bottom:2px solid var(--border)">
+            <th style="padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--text-muted)">Zeitstempel</th>
+            <th style="padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--text-muted)">Aktion</th>
+            <th style="padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--text-muted)">Ausgeführt von</th>
+            <th style="padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--text-muted)">Betrifft</th>
+            <th style="padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--text-muted)">Details</th>
+            <th style="padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--text-muted)">IP</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for e in eintraege %}
+    {% set is_impersonation = "impersonation" in e.aktion %}
+    {% set is_fehler = "fehlgeschlagen" in e.aktion or "fehler" in e.aktion %}
+    {% set is_ok = "ok" in e.aktion or "erstellt" in e.aktion or "ende" in e.aktion %}
+    <tr style="border-bottom:1px solid var(--border);
+        {% if is_impersonation %}background:#eff6ff{% elif is_fehler %}background:#fff5f5{% endif %}">
+        <td style="padding:.45rem .75rem;white-space:nowrap;color:var(--text-muted)">
+            {{ e.zeitstempel }}
+        </td>
+        <td style="padding:.45rem .75rem">
+            {% if is_impersonation %}
+            <span style="padding:.15rem .5rem;border-radius:4px;background:#dbeafe;color:#1e40af;font-weight:600">
+                👤 {{ e.aktion }}
+            </span>
+            {% elif is_fehler %}
+            <span style="padding:.15rem .5rem;border-radius:4px;background:#fee2e2;color:#991b1b;font-weight:600">
+                ✗ {{ e.aktion }}
+            </span>
+            {% elif is_ok %}
+            <span style="padding:.15rem .5rem;border-radius:4px;background:#d1fae5;color:#065f46;font-weight:600">
+                ✓ {{ e.aktion }}
+            </span>
+            {% else %}
+            <span style="padding:.15rem .5rem;border-radius:4px;background:#f3f4f6;color:#374151">
+                {{ e.aktion }}
+            </span>
+            {% endif %}
+        </td>
+        <td style="padding:.45rem .75rem;font-weight:600">
+            {{ e.actor_username }}
+        </td>
+        <td style="padding:.45rem .75rem">
+            {% if e.effective_user_id != e.actor_user_id %}
+            <span style="color:var(--primary);font-weight:600">{{ e.effective_username }}</span>
+            {% else %}
+            <span style="color:var(--text-muted)">—</span>
+            {% endif %}
+        </td>
+        <td style="padding:.45rem .75rem;color:var(--text-muted)">
+            {{ e.details }}
+        </td>
+        <td style="padding:.45rem .75rem;color:var(--text-muted);font-family:monospace;font-size:.75rem">
+            {{ e.ip_adresse or "—" }}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+
+<div style="margin-top:1rem;font-size:.78rem;color:var(--text-muted)">
+    <a href="/admin/">← Zurück zur Übersicht</a>
+</div>
+
+{% endblock %}

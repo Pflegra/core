@@ -9,13 +9,6 @@ from datetime import date
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-# PyInstaller-kompatibler Pfad-Helper
-try:
-    from _paths import get_app_dir, get_data_dir
-    _APP_DIR = get_app_dir()
-except ImportError:
-    _APP_DIR = ROOT
-
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,11 +28,7 @@ from web.routers.login import router as login_router
 from web.auth import login_erforderlich, hash_passwort
 from web.csrf import CSRF_COOKIE, generiere_csrf_token, get_csrf_token, pruefe_csrf_request, csrf_fehler
 
-try:
-    from _paths import get_data_dir as _get_data_dir
-    DATA_DIR = _get_data_dir()
-except ImportError:
-    DATA_DIR = Path(os.environ.get("PFLEGRA_DATA", ROOT))
+DATA_DIR = Path(os.environ.get("PFLEGRA_DATA", ROOT))
 
 # ── Logging einrichten (vor allem anderen) ───────────────────────────────────
 log_ordner = DATA_DIR / "logs"
@@ -138,12 +127,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(AuthMiddleware)
 
-# Im frozen-Zustand liegen templates/static unter _MEIPASS/web/
-if getattr(sys, "frozen", False):
-    import sys as _sys
-    WEB_DIR = Path(_sys._MEIPASS) / "web"
-else:
-    WEB_DIR = Path(__file__).parent
+WEB_DIR = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=str(WEB_DIR / "static")), name="static")
 TEMPLATES = Jinja2Templates(directory=str(WEB_DIR / "templates"))
 
@@ -313,7 +297,7 @@ from fastapi.responses import JSONResponse
 import time as _time
 
 _start_time = _time.time()
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.1.0"
 
 
 
@@ -375,9 +359,9 @@ async def index(request: Request):
     budget_service = request.app.state.budget_service
     aktuelles_jahr = konfig.standard_jahr or date.today().year
 
-    from web.auth import get_aktueller_user
+    from web.auth import get_aktueller_user, get_effective_user_id
     user = get_aktueller_user(request)
-    owner_id = user.id if user else 0
+    owner_id = get_effective_user_id(request) or 0
 
     personen = db.personen(owner_id)
     alle_eintraege = db.alle(owner_id)

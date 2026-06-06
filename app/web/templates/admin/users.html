@@ -71,9 +71,29 @@
                     style="padding:.2rem .5rem;font-size:.8rem;color:var(--error)">🗑</button>
         </form>
         {% endif %}
+
+        {# Impersonation #}
+        {% if not u.ist_admin and u.id != current_user.id and u.aktiv %}
+        <form method="post" action="/admin/impersonation/start/{{ u.id }}" style="margin:0">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit"
+                style="background:#dbeafe;border:1px solid #93c5fd;color:#1e40af;
+                       padding:.2rem .6rem;border-radius:6px;font-size:.78rem;
+                       cursor:pointer;font-weight:600;white-space:nowrap">
+                👤 Als User arbeiten
+            </button>
+        </form>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
+
+<div style="margin-top:1rem">
+    <a href="/admin/audit" style="font-size:.85rem;color:var(--primary);font-weight:500">
+        🔍 Audit-Log →
+    </a>
+</div>
+
 
 {# ── Neuen User anlegen ── #}
 <details style="background:var(--card-bg);border:1px solid var(--border);

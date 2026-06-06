@@ -16,6 +16,7 @@ from web.auth import (
     erstelle_session_cookie, pruefe_passwort,
     get_aktueller_user_id, hash_passwort,
 )
+from db.audit import AuditRepo, AuditEvent
 from web.routers.deps import redirect,\
      TEMPLATES, base_ctx
 from models import User
@@ -76,9 +77,26 @@ async def login_submit(
 
     if not user or not pruefe_passwort(passwort, user.passwort):
         _fehlversuch_registrieren(ip)
+        # Audit: Login fehlgeschlagen
+        try:
+            if user:
+                audit = AuditRepo(request.app.state.db._schema)
+                audit.loggen(AuditEvent.LOGIN_FEHLGESCHLAGEN, user.id,
+                             details=f"Fehlgeschlagener Login für '{username.strip()}'",
+                             ip_adresse=ip)
+        except Exception:
+            pass
         return redirect(request, f"/login?next={next}&fehler=1", 303)
 
     token = erstelle_session_cookie(user.id)
+    # Audit: Login erfolgreich
+    try:
+        audit = AuditRepo(request.app.state.db._schema)
+        audit.loggen(AuditEvent.LOGIN_OK, user.id,
+                     details=f"Login erfolgreich",
+                     ip_adresse=ip)
+    except Exception:
+        pass
     # Ingress-Prefix für korrekte Weiterleitung
     root = request.scope.get("root_path", "")
     if not root:

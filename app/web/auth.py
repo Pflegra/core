@@ -116,3 +116,60 @@ def passwort_korrekt(passwort: str, gespeicherter_hash: str) -> bool:
 
 # Alias – wird von login.py importiert
 pruefe_passwort = passwort_korrekt
+
+# ── Impersonation ─────────────────────────────────────────────────────────────
+
+IMPERSONATION_COOKIE = "pflegra_impersonation"
+
+def starte_impersonation(response, target_user_id: int) -> None:
+    """Setzt den Impersonation-Cookie (target_user_id)."""
+    token = SERIALIZER.dumps({"impersonate": target_user_id})
+    response.set_cookie(
+        IMPERSONATION_COOKIE,
+        token,
+        httponly=True,
+        samesite="lax",
+        max_age=60 * 60 * 8,  # 8 Stunden max
+    )
+
+def beende_impersonation(response) -> None:
+    """Löscht den Impersonation-Cookie."""
+    response.delete_cookie(IMPERSONATION_COOKIE)
+
+def get_impersonation_target(request: Request) -> Optional[int]:
+    """Gibt die user_id zurück für die der Admin gerade handelt, oder None."""
+    token = request.cookies.get(IMPERSONATION_COOKIE)
+    if not token:
+        return None
+    try:
+        daten = SERIALIZER.loads(token, max_age=60 * 60 * 8)
+        return daten.get("impersonate")
+    except Exception:
+        return None
+
+def get_effective_user_id(request: Request) -> Optional[int]:
+    """
+    Gibt die effective user_id zurück:
+    - Bei aktiver Impersonation: die Ziel-User-ID
+    - Sonst: die eigene User-ID
+    """
+    impersonation = get_impersonation_target(request)
+    if impersonation is not None:
+        return impersonation
+    return get_aktueller_user_id(request)
+
+def get_effective_user(request: Request):
+    """
+    Gibt den effective User zurück (impersoniert oder eigener).
+    """
+    user_id = get_effective_user_id(request)
+    if user_id is None:
+        return None
+    try:
+        return request.app.state.db.user_laden(user_id)
+    except Exception:
+        return None
+
+def ist_impersonation_aktiv(request: Request) -> bool:
+    """True wenn Admin gerade als anderer User agiert."""
+    return get_impersonation_target(request) is not None

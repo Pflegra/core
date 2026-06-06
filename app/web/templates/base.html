@@ -537,6 +537,28 @@ small.text-muted { font-size: .78rem; }
     </style>
 </head>
 <body>
+
+    {# ── Impersonation Banner ── #}
+    {% if impersonation_aktiv %}
+    <div style="background:#1e40af;color:#fff;padding:.6rem 1.25rem;
+                display:flex;align-items:center;justify-content:space-between;
+                font-size:.85rem;font-weight:500;gap:1rem;flex-wrap:wrap;
+                position:sticky;top:0;z-index:200">
+        <span>
+            👤 Du arbeitest gerade als <strong>{{ effective_user.username }}</strong>
+            — alle Aktionen werden im Audit-Log festgehalten
+        </span>
+        <form method="post" action="/admin/impersonation/stop" style="margin:0">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit"
+                style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+                       color:#fff;padding:.25rem .75rem;border-radius:6px;
+                       font-size:.8rem;cursor:pointer;font-weight:600">
+                ✕ Impersonation beenden
+            </button>
+        </form>
+    </div>
+    {% endif %}
     <nav class="navbar">
         <div class="nav-brand">
             <a href="{{ request.app.state.ingress_entry }}/" style="display:flex;align-items:center;text-decoration:none">
