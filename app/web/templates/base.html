@@ -562,6 +562,7 @@ small.text-muted { font-size: .78rem; }
                     <li><a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" {% if 'pflegegrad/verlauf' in request.url.path %}class="active"{% endif %}>📈 {{ _('nav.pflegegrad_verlauf') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/leistungsfinder/" {% if request.url.path.find('/leistungsfinder') != -1 %}class="active"{% endif %}>💶 {{ _('nav.leistungsfinder') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/" {% if request.url.path.find('/tagebuch') != -1 %}class="active"{% endif %}>📓 {{ _('nav.tagebuch') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/gutachten/" {% if request.url.path.find('/gutachten') != -1 %}class="active"{% endif %}>📋 Gutachten-Analyse</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/statistiken/" {% if request.url.path.find('/statistiken') != -1 %}class="active"{% endif %}>📊 {{ _('nav.statistiken') }}</a></li>
                     <li class="nav-dropdown-sep"></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/versicherte/" {% if request.url.path.find('/versicherte') != -1 %}class="active"{% endif %}>🏥 {{ _('nav.versicherte') }}</a></li>
@@ -584,16 +585,16 @@ small.text-muted { font-size: .78rem; }
             <li style="display:flex;align-items:center;margin-left:.25rem">
                 {% if lang == 'de' %}
                 <a href="{{ request.app.state.ingress_entry }}/lang/en" title="Switch to English"
-                   style="text-decoration:none;font-size:1.1rem;padding:.1rem .3rem;
-                          border-radius:4px;border:1px solid rgba(255,255,255,.3);
-                          background:transparent;line-height:1.4;opacity:.8;transition:opacity .2s"
-                   onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.8'">🇬🇧</a>
+                   style="text-decoration:none;padding:.2rem .35rem;border-radius:4px;
+                          border:1px solid rgba(255,255,255,.3);background:transparent;
+                          opacity:.8;transition:opacity .2s;display:flex;align-items:center"
+                   onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.8'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="22" height="13" style="border-radius:2px;display:block"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10"/><path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6"/></svg></a>
                 {% else %}
                 <a href="{{ request.app.state.ingress_entry }}/lang/de" title="Auf Deutsch wechseln"
-                   style="text-decoration:none;font-size:1.1rem;padding:.1rem .3rem;
-                          border-radius:4px;border:1px solid rgba(255,255,255,.3);
-                          background:transparent;line-height:1.4;opacity:.8;transition:opacity .2s"
-                   onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.8'">🇩🇪</a>
+                   style="text-decoration:none;padding:.2rem .35rem;border-radius:4px;
+                          border:1px solid rgba(255,255,255,.3);background:transparent;
+                          opacity:.8;transition:opacity .2s;display:flex;align-items:center"
+                   onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.8'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3" width="22" height="13" style="border-radius:2px;display:block"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#D00"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg></a>
                 {% endif %}
             </li>
         </ul>

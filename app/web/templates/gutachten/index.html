@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Gutachten-Analyse — Pflegra{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>📋 Gutachten-Analyse</h1>
+  <p class="page-subtitle">MD/MDK-Gutachten hochladen und automatisch auswerten lassen</p>
+</div>
+
+{% if request.query_params.get('fehler') %}
+<div class="alert alert-fehler" style="margin-bottom:1rem">
+  {% set fehler = request.query_params.get('fehler') %}
+  {% if fehler == 'kein_pdf' %}⚠️ Bitte eine PDF-Datei hochladen.
+  {% elif fehler == 'zu_gross' %}⚠️ Die Datei ist zu groß (max. 20 MB).
+  {% elif fehler == 'analyse_fehler' %}⚠️ Die Analyse konnte nicht durchgeführt werden. Bitte prüfe ob es sich um ein gültiges MD-Gutachten handelt.
+  {% elif fehler == 'nicht_gefunden' %}⚠️ Analyse nicht gefunden.
+  {% else %}⚠️ Ein Fehler ist aufgetreten.
+  {% endif %}
+</div>
+{% endif %}
+
+{# ── Upload-Formular ── #}
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem">
+  <h2 style="font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--primary)">
+    📤 Neues Gutachten analysieren
+  </h2>
+
+  <form method="post" action="/gutachten/analysieren" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+      <div class="form-group" style="flex:2;min-width:200px">
+        <label>Person (optional)</label>
+        <input type="text" name="person" placeholder="z.B. Max Mustermann"
+               style="width:100%">
+      </div>
+      <div class="form-group" style="flex:3;min-width:250px">
+        <label>Gutachten PDF <span style="color:var(--error)">*</span></label>
+        <input type="file" name="pdf_datei" accept=".pdf" required
+               style="width:100%;padding:.4rem;background:var(--input-bg);
+                      border:1px solid var(--border);border-radius:var(--radius-sm)">
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">
+          🔍 Analysieren
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-muted)">
+    Das Gutachten wird lokal auf deinem Server analysiert. Es werden keine Daten an externe Dienste übertragen.
+    Unterstützt werden Gutachten des Medizinischen Dienstes (MD/MDK) nach SGB XI.
+  </p>
+</div>
+
+{# ── Bisherige Analysen ── #}
+{% if analysen %}
+<h2 style="font-size:1rem;font-weight:600;margin-bottom:.75rem;color:var(--text-muted)">
+  Gespeicherte Analysen
+</h2>
+
+<div style="display:flex;flex-direction:column;gap:.5rem">
+  {% for a in analysen %}
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding:.75rem 1rem;background:var(--card-bg);
+              border:1px solid var(--border);border-radius:var(--radius);
+              flex-wrap:wrap;gap:.5rem">
+    <div style="flex:1;min-width:200px">
+      <div style="font-weight:600;font-size:.95rem">
+        {% if a.person %}{{ a.person }}{% else %}Unbekannte Person{% endif %}
+        {% if a.pflegegrad %}
+        <span style="margin-left:.5rem;padding:.1rem .4rem;border-radius:4px;
+                     font-size:.75rem;font-weight:700;
+                     background:#dbeafe;color:#1e40af">PG {{ a.pflegegrad }}</span>
+        {% endif %}
+      </div>
+      <div style="font-size:.78rem;color:var(--text-muted);margin-top:.15rem">
+        {{ a.gutachten_typ or 'Gutachten' }}
+        {% if a.gutachten_datum %} · {{ a.gutachten_datum }}{% endif %}
+        {% if a.gesamtpunkte %} · {{ a.gesamtpunkte }} Punkte{% endif %}
+        · Analysiert am {{ a.erstellt_am }}
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.5rem;align-items:center">
+      {% if a.konfidenz == 'hoch' %}
+      <span style="font-size:.72rem;padding:.1rem .4rem;border-radius:4px;
+                   background:#d1fae5;color:#065f46">✓ Hohe Konfidenz</span>
+      {% elif a.konfidenz == 'mittel' %}
+      <span style="font-size:.72rem;padding:.1rem .4rem;border-radius:4px;
+                   background:#fef3c7;color:#92400e">~ Mittlere Konfidenz</span>
+      {% else %}
+      <span style="font-size:.72rem;padding:.1rem .4rem;border-radius:4px;
+                   background:#fee2e2;color:#991b1b">⚠ Niedrige Konfidenz</span>
+      {% endif %}
+
+      <a href="/gutachten/{{ a.id }}" class="btn btn-ghost"
+         style="padding:.25rem .6rem;font-size:.82rem">
+        Anzeigen →
+      </a>
+
+      <form method="post" action="/gutachten/{{ a.id }}/loeschen" style="margin:0"
+            onsubmit="return confirm('Analyse wirklich löschen?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="btn btn-ghost"
+                style="padding:.25rem .5rem;font-size:.82rem;color:var(--error)">🗑</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:.9rem">
+  Noch keine Analysen vorhanden. Lade ein Gutachten hoch um zu starten.
+</div>
+{% endif %}
+
+{% endblock %}

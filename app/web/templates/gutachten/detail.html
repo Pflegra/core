@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Gutachten {{ analyse.person }} — Pflegra{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem">
+  <div>
+    <h1 style="font-size:1.2rem;font-weight:700;color:var(--primary);margin:0">
+      📋 {{ analyse.person or 'Gutachten' }}
+    </h1>
+    <div style="font-size:.82rem;color:var(--text-muted);margin-top:.25rem">
+      {{ analyse.gutachten_typ or 'Gutachten' }}
+      {% if analyse.gutachten_datum %} · {{ analyse.gutachten_datum }}{% endif %}
+      · Analysiert am {{ analyse.erstellt_am }}
+      {% if analyse.ocr_verwendet %}
+      <span style="margin-left:.5rem;padding:.1rem .35rem;border-radius:4px;
+                   background:#f3f4f6;color:#6b7280;font-size:.72rem">OCR</span>
+      {% endif %}
+    </div>
+  </div>
+  <a href="/gutachten/" class="btn btn-ghost" style="font-size:.85rem">← Zurück</a>
+</div>
+
+{# ── Ergebnis-Karte ── #}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem">
+
+  {# Pflegegrad #}
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center">
+    <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.5rem">
+      Pflegegrad
+    </div>
+    {% if analyse.pflegegrad %}
+    <div style="font-size:2.5rem;font-weight:800;color:var(--primary)">{{ analyse.pflegegrad }}</div>
+    {% if analyse.pflegegrad_seit %}
+    <div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">seit {{ analyse.pflegegrad_seit }}</div>
+    {% endif %}
+    {% else %}
+    <div style="font-size:1.5rem;color:var(--text-muted)">—</div>
+    {% endif %}
+  </div>
+
+  {# Gesamtpunkte #}
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center">
+    <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.5rem">
+      Gesamtpunkte
+    </div>
+    {% if analyse.gesamtpunkte %}
+    <div style="font-size:2rem;font-weight:700;color:var(--text)">{{ analyse.gesamtpunkte }}</div>
+    <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">von max. 100</div>
+    {% else %}
+    <div style="font-size:1.5rem;color:var(--text-muted)">—</div>
+    {% endif %}
+  </div>
+
+  {# Gutachtentyp #}
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center">
+    <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.5rem">
+      Art
+    </div>
+    <div style="font-size:1rem;font-weight:600;color:var(--text)">{{ analyse.gutachten_typ or '—' }}</div>
+    {% if analyse.bisheriger_pflegegrad %}
+    <div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">
+      Vorher: PG {{ analyse.bisheriger_pflegegrad }}
+    </div>
+    {% endif %}
+  </div>
+
+  {# Konfidenz #}
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center">
+    <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.5rem">
+      Analysequalität
+    </div>
+    {% if analyse.konfidenz == 'hoch' %}
+    <div style="font-size:1.1rem;font-weight:700;color:#065f46">✓ Hoch</div>
+    <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">Alle Kernwerte erkannt</div>
+    {% elif analyse.konfidenz == 'mittel' %}
+    <div style="font-size:1.1rem;font-weight:700;color:#92400e">~ Mittel</div>
+    <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">Einige Werte unklar</div>
+    {% else %}
+    <div style="font-size:1.1rem;font-weight:700;color:#991b1b">⚠ Niedrig</div>
+    <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">Manuelle Prüfung empfohlen</div>
+    {% endif %}
+  </div>
+
+</div>
+
+{# ── Diagnosen ── #}
+{% if analyse.diagnosen %}
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem">
+  <h2 style="font-size:.9rem;font-weight:700;color:var(--primary);margin-bottom:.75rem">
+    🏥 Pflegebegründende Diagnosen
+  </h2>
+  {% for d in analyse.diagnosen %}
+  <div style="padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem;color:var(--text)">
+    {{ d }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── Modulwertungen ── #}
+{% if analyse.module %}
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem">
+  <h2 style="font-size:.9rem;font-weight:700;color:var(--primary);margin-bottom:1rem">
+    📊 Modulwertungen
+  </h2>
+
+  {% for m in analyse.module %}
+  {% set gp = m.gewichtete_punkte %}
+  {% set max_gp = m.gewichtung_prozent %}
+
+  <div style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem">
+      <div style="font-size:.85rem;font-weight:600;color:var(--text)">
+        {{ m.nummer }}. {{ m.name }}
+        <span style="font-weight:400;color:var(--text-muted);font-size:.78rem">({{ m.gewichtung_prozent }}%)</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--primary);white-space:nowrap;margin-left:.5rem">
+        {% if gp is not none %}{{ gp }} Pkt.{% else %}—{% endif %}
+        {% if m.einzelpunkte is not none %}
+        <span style="font-weight:400;font-size:.75rem;color:var(--text-muted)"> (EP: {{ m.einzelpunkte }})</span>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Fortschrittsbalken #}
+    {% if gp is not none and max_gp %}
+    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+      <div style="height:100%;border-radius:3px;background:var(--primary);
+                  width:{{ [(gp / max_gp * 100)|int, 100]|min }}%;
+                  transition:width .3s"></div>
+    </div>
+    {% else %}
+    <div style="height:6px;background:var(--border);border-radius:3px"></div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% if analyse.gesamtpunkte %}
+  <div style="border-top:2px solid var(--border);padding-top:.75rem;margin-top:.25rem;
+              display:flex;justify-content:space-between;font-weight:700">
+    <span>Gesamtpunkte</span>
+    <span style="color:var(--primary)">{{ analyse.gesamtpunkte }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{# ── Hinweis ── #}
+<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--radius);padding:1rem;
+            font-size:.82rem;color:#92400e">
+  <strong>Hinweis:</strong> Diese Analyse dient der persönlichen Orientierung und ersetzt keine Beratung durch die Pflegekasse oder den Medizinischen Dienst.
+  Bei Fragen zum Gutachten empfehlen wir eine Pflegeberatung nach § 7a SGB XI.
+</div>
+
+{% endblock %}

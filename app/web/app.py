@@ -23,7 +23,7 @@ from services.import_service import ImportService
 from services.backup_service import BackupService
 from logging_setup import setup_logging
 
-from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch
+from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten
 from web.routers.login import router as login_router
 from web.auth import login_erforderlich, hash_passwort
 from web.csrf import CSRF_COOKIE, generiere_csrf_token, get_csrf_token, pruefe_csrf_request, csrf_fehler
@@ -293,11 +293,12 @@ app.include_router(leistungsfinder.router)
 app.include_router(tagebuch.router)
 app.include_router(statistiken.router)
 app.include_router(widerspruch.router)
+app.include_router(gutachten.router)
 from fastapi.responses import JSONResponse
 import time as _time
 
 _start_time = _time.time()
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 
 
 
@@ -359,9 +360,9 @@ async def index(request: Request):
     budget_service = request.app.state.budget_service
     aktuelles_jahr = konfig.standard_jahr or date.today().year
 
-    from web.auth import get_aktueller_user, get_effective_user_id
+    from web.auth import get_aktueller_user
     user = get_aktueller_user(request)
-    owner_id = get_effective_user_id(request) or 0
+    owner_id = user.id if user else 0
 
     personen = db.personen(owner_id)
     alle_eintraege = db.alle(owner_id)

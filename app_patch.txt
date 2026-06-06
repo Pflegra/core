@@ -1,0 +1,7 @@
+In app.py folgende Zeilen anpassen:
+
+1. Import-Zeile ergänzen:
+from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten
+
+2. Router registrieren (nach widerspruch.router):
+app.include_router(gutachten.router)
