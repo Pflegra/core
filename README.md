@@ -12,9 +12,9 @@
   <img src="docs/screenshots/dashboard.png" alt="Pflegra Dashboard" width="800">
 </p>
 
-**Pflegra ist eine selbst gehostete Pflegeverwaltungssoftware für pflegende Angehörige in Deutschland — zur Planung, Dokumentation und Verwaltung von Pflegeleistungen nach SGB XI.**
+Pflegra ist eine selbst gehostete Pflegeverwaltungssoftware für pflegende Angehörige in Deutschland. Sie unterstützt bei der Planung, Dokumentation und Verwaltung von Pflegeleistungen nach SGB XI.
 
-Pflegra hilft Familien dabei, Verhinderungspflege, Entlastungsbetrag und alle weiteren Pflegeleistungen zu verwalten — ohne Tabellenkalkulation, ohne Cloud, ohne dass Daten das eigene Zuhause verlassen.
+Pflegra hilft Familien dabei, Verhinderungspflege, Entlastungsbetrag und weitere Pflegeleistungen zu verwalten. Ohne Tabellenkalkulation, ohne Cloud und ohne dass Daten das eigene Zuhause verlassen.
 
 ---
 
@@ -22,29 +22,29 @@ Pflegra hilft Familien dabei, Verhinderungspflege, Entlastungsbetrag und alle we
 
 Viele Angehörige verwalten Verhinderungspflege, Entlastungsbetrag und Pflegegrad-Unterlagen in Excel-Dateien, Papierordnern oder verschiedenen Apps.
 
-Pflegra bündelt diese Aufgaben lokal auf dem eigenen Gerät — ohne Cloud-Zwang, ohne Weitergabe sensibler Gesundheitsdaten, ohne monatliche Abo-Kosten.
+Pflegra bündelt diese Aufgaben lokal auf dem eigenen Gerät. Ohne Cloud-Zwang, ohne Weitergabe sensibler Gesundheitsdaten und ohne monatliche Abo-Kosten.
 
 ---
 
 ## Funktionen
 
-- **Pflegeeinträge** — Verhinderungspflege stundenweise oder tageweise erfassen, mit Datum, Dauer und Pflegeperson
-- **Budgetverwaltung** — VP+KZP-Budget in Echtzeit, 56-Tage-Grenze, Jahresprognose
-- **Budgetplanung** — vollständiges Jahresbudget über alle Leistungsarten planen (§ 36, § 37, § 39, § 40, § 41, § 45b SGB XI)
-- **Pflegegradrechner** — NBA-Begutachtung nach § 15 SGB XI, alle 6 Module, 57 Kriterien mit Alltagserklärungen, PDF-Bericht
-- **Leistungsfinder** — strukturierte Leistungsübersicht nach Pflegegrad, Versorgungsform und Leistungsart
-- **Pflegegradverlauf** — Begutachtungsergebnisse speichern und als Trenddiagramm verfolgen
-- **Entlastungsbetrag** — monatliches Budget, Vorjahresguthaben, Übertragsfrist 30. Juni (§ 45b SGB XI)
-- **Ausfüllhilfe** — kassenunabhängiges Datenblatt zum Ausfüllen der Formulare der eigenen Pflegekasse
-- **PDF-Exporte** — Pflegenachweise, Budgetberichte, Antragsschreiben, Pflegegrad-Berichte
-- **Ersatzpflegekräfte** — Stammkräfte in den Versichertendaten hinterlegen, bei Einträgen auswählen
-- **Pflegetagebuch** — tägliche Beobachtungen strukturiert erfassen, 9 Kategorien, Stimmungsverlauf
-- **Automatische Backups** — täglich, konfigurierbare Aufbewahrung, mit Wiederherstellung
-- **Mehrbenutzer** — vollständige Datentrennung pro Nutzer, Rollen Admin/User, Benutzerverwaltung
-- **Benutzervertretung + Audit-Log** — Admin kann temporär als Nutzer agieren, alle Aktionen werden protokolliert
-- **Demo-System** — integrierter `demo/demo`-Account mit Beispieldaten, automatischer Reset
-- **Fernzugriff per Tailscale** — sicherer Zugriff von unterwegs ohne Portfreigaben
-- **Zweisprachig DE/EN** — vollständige deutsche und englische Oberfläche, umschaltbar per Klick
+- **Pflegeeinträge:** Verhinderungspflege stundenweise oder tageweise erfassen, mit Datum, Dauer und Pflegeperson
+- **Budgetverwaltung:** VP+KZP-Budget in Echtzeit, 56-Tage-Grenze, Jahresprognose
+- **Budgetplanung:** vollständiges Jahresbudget über alle Leistungsarten planen (§ 36, § 37, § 39, § 40, § 41, § 45b SGB XI)
+- **Pflegegradrechner:** NBA-Begutachtung nach § 15 SGB XI, alle 6 Module, 57 Kriterien mit Alltagserklärungen, PDF-Bericht
+- **Leistungsfinder:** strukturierte Leistungsübersicht nach Pflegegrad, Versorgungsform und Leistungsart
+- **Pflegegradverlauf:** Begutachtungsergebnisse speichern und als Trenddiagramm verfolgen
+- **Entlastungsbetrag:** monatliches Budget, Vorjahresguthaben, Übertragsfrist 30. Juni (§ 45b SGB XI)
+- **Ausfüllhilfe:** kassenunabhängiges Datenblatt zum Ausfüllen der Formulare der eigenen Pflegekasse
+- **PDF-Exporte:** Pflegenachweise, Budgetberichte, Antragsschreiben, Pflegegrad-Berichte
+- **Ersatzpflegekräfte:** Stammkräfte in den Versichertendaten hinterlegen, bei Einträgen auswählen
+- **Pflegetagebuch:** tägliche Beobachtungen strukturiert erfassen, 9 Kategorien, Stimmungsverlauf
+- **Automatische Backups:** täglich, konfigurierbare Aufbewahrung, mit Wiederherstellung
+- **Mehrbenutzer:** vollständige Datentrennung pro Nutzer, Rollen Admin/User, Benutzerverwaltung
+- **Benutzervertretung und Audit-Log:** Admin kann temporär als Nutzer agieren, alle Aktionen werden protokolliert
+- **Demo-System:** integrierter `demo/demo`-Account mit Beispieldaten, automatischer Reset
+- **Fernzugriff per Tailscale:** sicherer Zugriff von unterwegs ohne Portfreigaben
+- **Zweisprachig DE/EN:** vollständige deutsche und englische Oberfläche, umschaltbar per Klick
 
 ---
 
@@ -66,7 +66,7 @@ Pflegra bündelt diese Aufgaben lokal auf dem eigenen Gerät — ohne Cloud-Zwan
 
 ## Quick Start
 
-### Option A — Docker Desktop (Windows/Mac)
+### Option A: Docker Desktop (Windows/Mac)
 
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop) installieren
 2. ZIP herunterladen und entpacken
@@ -78,7 +78,7 @@ Pflegra bündelt diese Aufgaben lokal auf dem eigenen Gerät — ohne Cloud-Zwan
 docker run -d -p 8000:8000 -v pflegra_data:/data ghcr.io/pflegra/core:latest
 ```
 
-### Option B — Docker Compose (Linux Server / VM)
+### Option B: Docker Compose (Linux Server / VM)
 
 ```bash
 git clone https://github.com/Pflegra/core.git
@@ -89,7 +89,7 @@ docker compose up -d
 
 Pflegra ist dann unter `http://localhost:8000` erreichbar.
 
-### Option C — Direkt (Python 3.11+)
+### Option C: Direkt (Python 3.11+)
 
 ```bash
 cd app
@@ -98,13 +98,13 @@ uvicorn web.app:app --host 0.0.0.0 --port 8000 --app-dir app
 ```
 
 **Erster Login:** Ein `admin`-Account wird beim ersten Start automatisch über `/setup` angelegt.  
-**Demo-Zugang:** `demo` / `demo` — wird beim Abmelden automatisch zurückgesetzt.
+**Demo-Zugang:** `demo` / `demo`. Die Beispieldaten werden beim Abmelden automatisch zurückgesetzt.
 
 ---
 
 ## Fernzugriff (Tailscale)
 
-Pflegra unterstützt sicheren Fernzugriff über [Tailscale](https://tailscale.com) — ohne Ports ins Internet zu öffnen.
+Pflegra unterstützt sicheren Fernzugriff über [Tailscale](https://tailscale.com), ohne Ports ins Internet öffnen zu müssen.
 
 1. Tailscale installieren: `curl -fsSL https://tailscale.com/install.sh | sh`
 2. Anmelden: `sudo tailscale up`
@@ -139,7 +139,7 @@ Pflegra unterstützt sicheren Fernzugriff über [Tailscale](https://tailscale.co
 | DiPA App | § 40a SGB XI | 40 €/Monat |
 | DiPA Unterstützung | § 40a SGB XI | 30 €/Monat |
 
-Alle Beträge sind zentral in `app/pflege_rules.py` hinterlegt — eine Datei zum Aktualisieren bei Gesetzesänderungen.
+Alle Beträge sind zentral in `app/pflege_rules.py` hinterlegt. Dadurch müssen Gesetzesänderungen nur an einer Stelle gepflegt werden.
 
 ---
 
@@ -177,7 +177,7 @@ app/
 
 **Stack:** FastAPI · Jinja2 · SQLite · ReportLab · Python 3.11+
 
-**Health endpoint:** `GET /health` — returns status, DB integrity, schema version, uptime
+**Health-Endpunkt:** `GET /health` liefert Status, Datenbankintegrität, Schema-Version und Laufzeit.
 
 **Auth:** bcrypt · CSRF protection · rate limiting · secure cookies · per-user data isolation
 
