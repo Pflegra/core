@@ -103,7 +103,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if not path:
             path = "/"
         # Statische Dateien und Login-Seite sind offen
-        if path.startswith("/static") or path in OEFFENTLICHE_PFADE:
+        if path.startswith("/static") or path.startswith("/lang/") or path in OEFFENTLICHE_PFADE:
             return await call_next(request)
         # Kein Passwort gesetzt → direkt durchlassen (Erststart)
         # Eingeloggt prüfen — DB-basierte Auth (Multiuser)
