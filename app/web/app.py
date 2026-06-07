@@ -501,9 +501,14 @@ async def index(request: Request):
 @app.get("/lang/{lang}")
 async def sprache_setzen(lang: str, request: Request):
     from fastapi.responses import RedirectResponse as RR
+    from web.auth import get_aktueller_user
     referer = request.headers.get("referer", "/")
     if lang not in SUPPORTED_LANGS:
         lang = "de"
+    # Wenn referer von externer Domain kommt → auf /login redirecten
+    host = request.headers.get("host", "")
+    if referer and host and host not in referer:
+        referer = "/login"
     response = RR(referer, status_code=303)
     response.set_cookie("pflegra_lang", lang, max_age=60*60*24*365, httponly=False, samesite="lax")
     return response
