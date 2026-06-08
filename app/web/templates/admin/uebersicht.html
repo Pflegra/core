@@ -87,6 +87,24 @@
                 <span class="pk-wert">{{ sys_stats.logins_woche }}</span>
             </div>
             <div class="pk-zeile">
+                <span class="pk-label">Demo-Logins heute</span>
+                <span class="pk-wert">
+                    {% if sys_stats.demo_logins_heute > 0 %}
+                    <span class="ampel ampel-gruen">{{ sys_stats.demo_logins_heute }}</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">0</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Demo-Logins letzte 7 Tage</span>
+                <span class="pk-wert">{{ sys_stats.demo_logins_woche }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Demo-Logins gesamt</span>
+                <span class="pk-wert">{{ sys_stats.demo_logins_gesamt }}</span>
+            </div>
+            <div class="pk-zeile">
                 <span class="pk-label">Fehlversuche heute</span>
                 <span class="pk-wert">
                     {% if sys_stats.login_fehler_heute > 0 %}

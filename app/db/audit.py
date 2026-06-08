@@ -66,6 +66,9 @@ class SystemStats:
     gutachten_gesamt: int
     users_gesamt: int
     users_aktiv: int
+    demo_logins_heute: int
+    demo_logins_woche: int
+    demo_logins_gesamt: int
 
 
 class AuditRepo:
@@ -188,6 +191,17 @@ class AuditRepo:
             """)
             users_gesamt = count("SELECT COUNT(*) FROM users")
             users_aktiv = count("SELECT COUNT(*) FROM users WHERE aktiv = 1")
+            demo_row = conn.execute("SELECT id FROM users WHERE username='demo' LIMIT 1").fetchone()
+            demo_id  = demo_row[0] if demo_row else -1
+            demo_logins_heute = count(
+                "SELECT COUNT(*) FROM audit_log WHERE aktion='login_ok' AND actor_user_id=? AND date(zeitstempel)=date('now')",
+                (demo_id,))
+            demo_logins_woche = count(
+                "SELECT COUNT(*) FROM audit_log WHERE aktion='login_ok' AND actor_user_id=? AND zeitstempel>=datetime('now','-7 days')",
+                (demo_id,))
+            demo_logins_gesamt = count(
+                "SELECT COUNT(*) FROM audit_log WHERE aktion='login_ok' AND actor_user_id=?",
+                (demo_id,))
 
         return SystemStats(
             logins_heute=logins_heute,
@@ -197,4 +211,7 @@ class AuditRepo:
             gutachten_gesamt=gutachten_gesamt,
             users_gesamt=users_gesamt,
             users_aktiv=users_aktiv,
+            demo_logins_heute=demo_logins_heute,
+            demo_logins_woche=demo_logins_woche,
+            demo_logins_gesamt=demo_logins_gesamt,
         )
