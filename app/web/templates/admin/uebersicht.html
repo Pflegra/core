@@ -68,34 +68,57 @@
         </form>
     </div>
 
-    {# ── Benutzer ── #}
+    {# ── Nutzungsstatistik ── #}
     <div class="form-card">
-        <h2>👤 {{ _("admin_page.benutzer") }}</h2>
-        <div class="pk-daten" style="margin-bottom:1rem">
+        <h2>📊 Nutzungsstatistik</h2>
+        <div class="pk-daten">
             <div class="pk-zeile">
-                <span class="pk-label">{{ _("admin_page.benutzername") }}</span>
-                <span class="pk-wert">{{ konfig.benutzer_name or "admin" }}</span>
-            </div>
-            <div class="pk-zeile">
-                <span class="pk-label">{{ _("admin_page.rolle") }}</span>
-                <span class="pk-wert">Administrator</span>
-            </div>
-            <div class="pk-zeile">
-                <span class="pk-label">{{ _("admin_page.passwort") }}</span>
+                <span class="pk-label">Logins heute</span>
                 <span class="pk-wert">
-                    {% if konfig.passwort_hash %}
-                    <span class="ampel ampel-gruen">gesetzt</span>
+                    {% if sys_stats.logins_heute > 0 %}
+                    <span class="ampel ampel-gruen">{{ sys_stats.logins_heute }}</span>
                     {% else %}
-                    <span class="ampel ampel-rot">nicht gesetzt</span>
+                    <span style="color:var(--text-muted)">0</span>
                     {% endif %}
                 </span>
             </div>
             <div class="pk-zeile">
-                <span class="pk-label">{{ _("admin_page.modus") }}</span>
-                <span class="pk-wert">Einzelbenutzer</span>
+                <span class="pk-label">Logins letzte 7 Tage</span>
+                <span class="pk-wert">{{ sys_stats.logins_woche }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Fehlversuche heute</span>
+                <span class="pk-wert">
+                    {% if sys_stats.login_fehler_heute > 0 %}
+                    <span class="ampel ampel-gelb">{{ sys_stats.login_fehler_heute }}</span>
+                    {% else %}
+                    <span class="ampel ampel-gruen">0</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Gutachten heute</span>
+                <span class="pk-wert">
+                    {% if sys_stats.gutachten_heute > 0 %}
+                    <span class="ampel ampel-gruen">{{ sys_stats.gutachten_heute }}</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">0</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Gutachten gesamt</span>
+                <span class="pk-wert">{{ sys_stats.gutachten_gesamt }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Benutzer aktiv / gesamt</span>
+                <span class="pk-wert">{{ sys_stats.users_aktiv }} / {{ sys_stats.users_gesamt }}</span>
             </div>
         </div>
-        <a href="{{ request.app.state.ingress_entry }}/einstellungen/" class="btn btn-primary btn-sm">🔐 {{ _("admin_page.passwort_aendern") }}</a>
+        <div style="margin-top:.75rem">
+            <a href="{{ request.app.state.ingress_entry }}/admin/users" class="btn btn-ghost btn-sm">👤 Benutzerverwaltung</a>
+            <a href="{{ request.app.state.ingress_entry }}/admin/audit" class="btn btn-ghost btn-sm">📋 Audit-Log</a>
+        </div>
     </div>
 
     {# ── Fehlerhistorie ── #}

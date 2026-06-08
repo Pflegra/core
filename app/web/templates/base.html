@@ -571,9 +571,9 @@ small.text-muted { font-size: .78rem; }
                     <li class="nav-dropdown-sep"></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/export/" {% if request.url.path.find('/export') != -1 %}class="active"{% endif %}>📤 {{ _('nav.export') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/import/" {% if request.url.path.find('/import') != -1 %}class="active"{% endif %}>📥 {{ _('nav.import') }}</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/backup/" {% if request.url.path.find('/backup') != -1 %}class="active"{% endif %}>💾 {{ _('nav.backup') }}</a></li>
                     <li class="nav-dropdown-sep"></li>
                     {% if is_admin %}
+                    <li><a href="{{ request.app.state.ingress_entry }}/backup/" {% if request.url.path.find('/backup') != -1 %}class="active"{% endif %}>💾 {{ _('nav.backup') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/admin/">🖥 {{ _('nav.system') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/admin/users">👤 {{ _('nav.benutzer') }}</a></li>
                     <li class="nav-dropdown-sep"></li>

@@ -9,10 +9,9 @@ from pathlib import Path
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 
-
+from web.auth import admin_erforderlich
 from web.csrf import pruefe_csrf_request, csrf_fehler
-from web.routers.deps import redirect,\
-     TEMPLATES, base_ctx
+from web.routers.deps import redirect, TEMPLATES, base_ctx
 
 router = APIRouter(prefix="/backup", tags=["Backup"])
 
@@ -25,6 +24,9 @@ def _get_backup_service(request: Request):
 
 @router.get("/", response_class=HTMLResponse)
 async def backup_uebersicht(request: Request, ok: str = "", fehler: str = ""):
+    guard = admin_erforderlich(request)
+    if guard: return guard
+
     svc = _get_backup_service(request)
     backups = svc.liste_backups()
 
@@ -55,6 +57,9 @@ async def backup_uebersicht(request: Request, ok: str = "", fehler: str = ""):
 
 @router.post("/erstellen")
 async def backup_erstellen(request: Request):
+    guard = admin_erforderlich(request)
+    if guard: return guard
+
     if not await pruefe_csrf_request(request):
         return csrf_fehler(request)
     svc = _get_backup_service(request)
@@ -68,6 +73,9 @@ async def backup_erstellen(request: Request):
 
 @router.get("/herunterladen")
 async def backup_herunterladen(request: Request, pfad: str):
+    guard = admin_erforderlich(request)
+    if guard: return guard
+
     p = Path(pfad)
     svc = _get_backup_service(request)
     erlaubte = [str(b) for b in svc.liste_backups()]
@@ -82,23 +90,22 @@ async def backup_herunterladen(request: Request, pfad: str):
 # ── Backup wiederherstellen ──────────────────────────────────────────────────
 
 @router.post("/wiederherstellen")
-async def backup_wiederherstellen(request: Request,
- pfad: str = Form(...)):
+async def backup_wiederherstellen(request: Request, pfad: str = Form(...)):
+    guard = admin_erforderlich(request)
+    if guard: return guard
+
     p = Path(pfad)
     svc = _get_backup_service(request)
     erlaubte = [str(b) for b in svc.liste_backups()]
     if str(p) not in erlaubte:
         return redirect(request, "/backup/?fehler=nicht_gefunden", 303)
 
-    # Vor Wiederherstellung: DB neu laden
     ok = svc.wiederherstellen(p)
     if ok:
-        # DB-Verbindung neu initialisieren
         try:
             from models import PflegraDB
             db_pfad = request.app.state.backup_service._db_pfad
             request.app.state.db = PflegraDB(db_pfad)
-            # Services mit neuer DB aktualisieren
             konfig = request.app.state.konfig
             from services.budget_service import BudgetService
             from services.export_service import ExportService
@@ -115,8 +122,10 @@ async def backup_wiederherstellen(request: Request,
 # ── Backup löschen ───────────────────────────────────────────────────────────
 
 @router.post("/loeschen")
-async def backup_loeschen(request: Request,
- pfad: str = Form(...)):
+async def backup_loeschen(request: Request, pfad: str = Form(...)):
+    guard = admin_erforderlich(request)
+    if guard: return guard
+
     p = Path(pfad)
     svc = _get_backup_service(request)
     erlaubte = [str(b) for b in svc.liste_backups()]

@@ -40,6 +40,9 @@ class AuditEvent:
     IMPORT_DURCHGEFUEHRT = "import_durchgefuehrt"
     BACKUP_ERSTELLT     = "backup_erstellt"
 
+    # Gutachten
+    GUTACHTEN_ANALYSE   = "gutachten_analyse"
+
 
 @dataclass
 class AuditEintrag:
@@ -52,6 +55,17 @@ class AuditEintrag:
     aktion: str
     details: str
     ip_adresse: str
+
+
+@dataclass
+class SystemStats:
+    logins_heute: int
+    logins_woche: int
+    login_fehler_heute: int
+    gutachten_heute: int
+    gutachten_gesamt: int
+    users_gesamt: int
+    users_aktiv: int
 
 
 class AuditRepo:
@@ -141,3 +155,46 @@ class AuditRepo:
             details=r["details"],
             ip_adresse=r["ip_adresse"],
         ) for r in rows]
+
+    def system_stats(self) -> SystemStats:
+        """Aggregierte System-Statistik aus audit_log + users."""
+        with self._c() as conn:
+            def count(sql, params=()):
+                return conn.execute(sql, params).fetchone()[0]
+
+            logins_heute = count("""
+                SELECT COUNT(*) FROM audit_log
+                WHERE aktion = 'login_ok'
+                AND date(zeitstempel) = date('now')
+            """)
+            logins_woche = count("""
+                SELECT COUNT(*) FROM audit_log
+                WHERE aktion = 'login_ok'
+                AND zeitstempel >= datetime('now', '-7 days')
+            """)
+            login_fehler_heute = count("""
+                SELECT COUNT(*) FROM audit_log
+                WHERE aktion = 'login_fehlgeschlagen'
+                AND date(zeitstempel) = date('now')
+            """)
+            gutachten_heute = count("""
+                SELECT COUNT(*) FROM audit_log
+                WHERE aktion = 'gutachten_analyse'
+                AND date(zeitstempel) = date('now')
+            """)
+            gutachten_gesamt = count("""
+                SELECT COUNT(*) FROM audit_log
+                WHERE aktion = 'gutachten_analyse'
+            """)
+            users_gesamt = count("SELECT COUNT(*) FROM users")
+            users_aktiv = count("SELECT COUNT(*) FROM users WHERE aktiv = 1")
+
+        return SystemStats(
+            logins_heute=logins_heute,
+            logins_woche=logins_woche,
+            login_fehler_heute=login_fehler_heute,
+            gutachten_heute=gutachten_heute,
+            gutachten_gesamt=gutachten_gesamt,
+            users_gesamt=users_gesamt,
+            users_aktiv=users_aktiv,
+        )

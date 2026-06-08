@@ -93,6 +93,11 @@ async def admin_uebersicht(request: Request):
     db = request.app.state.db
     statistik = db.statistik()
 
+    # Nutzungsstatistik
+    from db.audit import AuditRepo
+    audit = AuditRepo(request.app.state.db._schema)
+    sys_stats = audit.system_stats()
+
     return TEMPLATES.TemplateResponse(request, "admin/uebersicht.html", {
         **base_ctx(request),
         "konfig": konfig,
@@ -106,6 +111,7 @@ async def admin_uebersicht(request: Request):
         "archiv_dateien": archiv_dateien,
         "archiv_groesse_mb": archiv_groesse_mb,
         "statistik": statistik,
+        "sys_stats": sys_stats,
         "jetzt": datetime.now().strftime("%d.%m.%Y %H:%M"),
     })
 
@@ -326,4 +332,33 @@ async def admin_audit(request: Request, limit: int = 200):
         **base_ctx(request),
         "eintraege": eintraege,
         "limit": limit,
+    })
+
+
+# ── System-Statistik ──────────────────────────────────────────────────────────
+
+@router.get("/system", response_class=HTMLResponse)
+async def admin_system(request: Request):
+    """System-Statistik: Logins, Gutachten, User."""
+    guard = admin_erforderlich(request)
+    if guard:
+        return guard
+
+    from db.audit import AuditRepo
+    from pathlib import Path
+
+    audit = AuditRepo(request.app.state.db._schema)
+    stats = audit.system_stats()
+
+    # Gutachten-Dateien zählen (Fallback falls audit_log noch leer)
+    data_dir = getattr(request.app.state, "data_dir", Path("/share/pflegra"))
+    gutachten_dir = Path(data_dir) / "gutachten"
+    gutachten_dateien = len(list(gutachten_dir.rglob("*.json"))) if gutachten_dir.exists() else 0
+
+    return TEMPLATES.TemplateResponse(request, "admin/system.html", {
+        **base_ctx(request),
+        "stats": stats,
+        "gutachten_dateien": gutachten_dateien,
+        "uptime": _uptime_str(),
+        "jetzt": datetime.now().strftime("%d.%m.%Y %H:%M"),
     })

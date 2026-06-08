@@ -91,6 +91,24 @@ async def gutachten_analysieren(
     # Ergebnis speichern
     analyse_id = _speichere_analyse(request, owner_id, person, ergebnis)
 
+    # Audit-Log
+    try:
+        from db.audit import AuditRepo, AuditEvent
+        from web.auth import get_aktueller_user_id
+        actor_id = get_aktueller_user_id(request)
+        ip = request.client.host if request.client else ""
+        pg_info = f"PG {ergebnis.pflegegrad}" if ergebnis.pflegegrad else "PG unbekannt"
+        audit = AuditRepo(request.app.state.db._schema)
+        audit.loggen(
+            aktion=AuditEvent.GUTACHTEN_ANALYSE,
+            actor_user_id=actor_id,
+            effective_user_id=owner_id,
+            details=f"Gutachten analysiert: {person} · {pg_info} · {ergebnis.gutachten_typ or 'Typ unbekannt'}",
+            ip_adresse=ip,
+        )
+    except Exception as e:
+        log.warning("Audit-Log für Gutachten fehlgeschlagen: %s", e)
+
     return RedirectResponse(f"/gutachten/{analyse_id}", status_code=303)
 
 
