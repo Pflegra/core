@@ -25,7 +25,7 @@
     📤 Neues Gutachten analysieren
   </h2>
 
-  <form method="post" action="/gutachten/analysieren" enctype="multipart/form-data">
+  <form method="post" action="/gutachten/analysieren" enctype="multipart/form-data" id="gutachten-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
     <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
@@ -41,12 +41,65 @@
                       border:1px solid var(--border);border-radius:var(--radius-sm)">
       </div>
       <div>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" id="analyse-btn">
           🔍 Analysieren
         </button>
       </div>
     </div>
   </form>
+
+  {# ── Ladeanzeige ── #}
+  <div id="analyse-loading" style="display:none;margin-top:1.25rem">
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem">
+      <div style="width:18px;height:18px;border:3px solid var(--border);
+                  border-top-color:var(--primary);border-radius:50%;
+                  animation:spin .8s linear infinite;flex-shrink:0"></div>
+      <span style="font-size:.9rem;font-weight:600;color:var(--text)">Gutachten wird analysiert …</span>
+    </div>
+    <div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden">
+      <div id="analyse-bar" style="height:100%;width:0%;background:var(--primary);
+           border-radius:99px;transition:width .4s ease"></div>
+    </div>
+    <div style="font-size:.78rem;color:var(--text-muted);margin-top:.4rem" id="analyse-status">
+      Texterkennung läuft — das kann bis zu 50 Sekunden dauern …
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+
+  <script>
+  document.getElementById('gutachten-form').addEventListener('submit', function() {
+    document.getElementById('analyse-btn').disabled = true;
+    document.getElementById('analyse-btn').textContent = '⏳ Analysiert …';
+    document.getElementById('analyse-loading').style.display = 'block';
+
+    const bar    = document.getElementById('analyse-bar');
+    const status = document.getElementById('analyse-status');
+
+    const schritte = [
+      [2,  'PDF wird geladen …'],
+      [15, 'Text wird extrahiert …'],
+      [35, 'Texterkennung (OCR) läuft …'],
+      [55, 'Module werden ausgewertet …'],
+      [72, 'Pflegegrad wird ermittelt …'],
+      [88, 'Ergebnis wird gespeichert …'],
+      [95, 'Fast fertig …'],
+    ];
+
+    let i = 0;
+    function tick() {
+      if (i < schritte.length) {
+        bar.style.width    = schritte[i][0] + '%';
+        status.textContent = schritte[i][1];
+        i++;
+        setTimeout(tick, i === 1 ? 300 : i <= 3 ? 4000 : 5000);
+      }
+    }
+    tick();
+  });
+  </script>
 
   <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-muted)">
     Das Gutachten wird lokal auf deinem Server analysiert. Es werden keine Daten an externe Dienste übertragen.
