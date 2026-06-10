@@ -731,6 +731,17 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+<!-- Feedback-Button -->
+<a href="mailto:s.l.neu@web.de?subject=Pflegra%20Feedback&body=Hallo%20Stefan%2C%0A%0Amein%20Feedback%20zu%20Pflegra%3A%0A%0A"
+   style="position:fixed;bottom:1.25rem;right:1rem;background:var(--primary);color:white;
+          border-radius:99px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;
+          text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:900;
+          opacity:.75;transition:opacity .2s"
+   onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.75'"
+   title="Feedback senden">
+   💬 Feedback
+</a>
+
 <!-- PWA Install-Prompt -->
 <div id="pwa-install-banner" style="
     display:none; position:fixed; bottom:1rem; left:50%; transform:translateX(-50%);

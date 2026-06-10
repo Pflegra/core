@@ -298,7 +298,7 @@ from fastapi.responses import JSONResponse
 import time as _time
 
 _start_time = _time.time()
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.3.1"
 
 
 
