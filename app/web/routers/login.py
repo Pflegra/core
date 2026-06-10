@@ -105,7 +105,10 @@ async def login_submit(
         except Exception:
             root = ""
     cookie_path = root if root else "/"
-    ziel_raw = next if (next.startswith("/") and not next.startswith("//")) else "/"
+    from urllib.parse import unquote
+    log.warning("LOGIN next=%s", next)
+    next_decoded = unquote(next)
+    ziel_raw = next_decoded if (next_decoded.startswith("/") and not next_decoded.startswith("//")) else "/"
     ziel = root + ziel_raw
     from fastapi.responses import RedirectResponse as _RR
     response = _RR(url=ziel, status_code=303)

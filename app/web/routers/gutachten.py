@@ -129,6 +129,7 @@ async def gutachten_neueste(request: Request):
 
 
 
+@router.get("/{analyse_id}", response_class=HTMLResponse)
 async def gutachten_detail(request: Request, analyse_id: str):
     """Detailansicht einer Gutachten-Analyse."""
     from web.auth import login_erforderlich

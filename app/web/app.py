@@ -91,7 +91,7 @@ app.add_middleware(IngressMiddleware)
 
 
 # ── Auth-Middleware ───────────────────────────────────────────────────────────
-OEFFENTLICHE_PFADE = {"/login", "/logout", "/setup", "/health", "/version", "/impressum", "/sw.js", "/offline"}
+OEFFENTLICHE_PFADE = {"/login", "/logout", "/setup", "/health", "/version", "/impressum", "/sw.js"}
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -110,8 +110,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         redirect = login_erforderlich(request)
         if redirect:
             from web.auth import _get_root
-            login_url = _get_root(request) + "/login"
-            log.warning("=== INGRESS REDIRECT === to=%s", login_url)
+            from urllib.parse import quote
+            next_path = quote(path)
+            login_url = _get_root(request) + "/login?next=" + next_path
+            log.warning("=== INGRESS REDIRECT === to=%s", path)
             from fastapi.responses import RedirectResponse
             return RedirectResponse(login_url, status_code=303)
         response = await call_next(request)
@@ -298,7 +300,7 @@ from fastapi.responses import JSONResponse
 import time as _time
 
 _start_time = _time.time()
-APP_VERSION = "1.3.1"
+APP_VERSION = "1.2.0"
 
 
 
@@ -320,14 +322,6 @@ async def impressum(request: Request):
     return TEMPLATES.TemplateResponse(request, "impressum.html", {
         **base_ctx(request),
     })
-
-
-@app.get("/offline", response_class=HTMLResponse)
-async def offline(request: Request):
-    from fastapi.responses import HTMLResponse as HR
-    from pathlib import Path
-    p = WEB_DIR / "templates" / "offline.html"
-    return HR(p.read_text(encoding="utf-8"))
 
 
 @app.get("/health")
