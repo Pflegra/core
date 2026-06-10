@@ -250,11 +250,11 @@ def erstelle_antrag_pdf(
     # ── Unterschriftsbereich + Fußzeile ──────────────────────────
     unt = Table(
         [
-            ["_" * 35, "_" * 25],
+            ["_" * 35, ""],
             [absender_name, _heute_str(ort)],
             ["", ""],
             [Paragraph(
-                f"<font size='7' color='#999999'>Erstellt mit Pflegra  ·  "
+                f"<font size='7' color='#999999'>Erstellt mit pflegra.app  ·  "
                 f"Antrag auf Kostenerstattung Verhinderungspflege § 39 SGB XI  ·  {jahr}</font>",
                 s["fuss"]
             ), ""],
