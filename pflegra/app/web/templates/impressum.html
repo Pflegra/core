@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ _('impressum.titel') }} – Pflegra{% endblock %}
+{% block content %}
+
+<div style="max-width:680px;margin:0 auto;padding:1.5rem 0">
+    <h2 style="font-size:1.2rem;font-weight:700;color:var(--primary);margin-bottom:1.5rem">{{ _('impressum.titel') }}</h2>
+
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;line-height:1.8;font-size:.95rem">
+
+        <h3 style="font-size:.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem">
+            {{ _('impressum.angaben_titel') }}
+        </h3>
+
+        <p>
+            <strong>Stefan Neu</strong><br>
+            Bauklohstraße 7<br>
+            44805 Bochum<br>
+            Deutschland
+        </p>
+
+        <br>
+
+        <h3 style="font-size:.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem">
+            {{ _('impressum.kontakt_titel') }}
+        </h3>
+
+        <p>
+            E-Mail: <a href="mailto:s.l.neu@web.de" style="color:var(--primary)">s.l.neu@web.de</a>
+        </p>
+
+        <br>
+
+        <h3 style="font-size:.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem">
+            {{ _('impressum.hinweis_titel') }}
+        </h3>
+
+        <p style="color:var(--text-muted);font-size:.88rem">
+            {{ _('impressum.hinweis_text') }}
+            <a href="https://github.com/Pflegra/core/blob/main/LICENSE" target="_blank" style="color:var(--primary)">AGPLv3</a>.
+        </p>
+
+        <br>
+
+        <h3 style="font-size:.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem">
+            {{ _('impressum.haftung_titel') }}
+        </h3>
+
+        <p style="color:var(--text-muted);font-size:.88rem">
+            {{ _('impressum.haftung_text') }}
+        </p>
+
+        <p style="color:var(--text-muted);font-size:.88rem;margin-top:.75rem">
+            {{ _('impressum.haftung_pflegegrad') }}
+        </p>
+
+        <br>
+
+        <p style="color:var(--text-muted);font-size:.85rem;margin-top:.5rem">
+            {{ _('impressum.copyright') }}<br>
+            {{ _('impressum.copyright_lizenz') }}
+        </p>
+
+    </div>
+
+    <div style="margin-top:1rem;text-align:center;font-size:.8rem;color:var(--text-muted)">
+        <a href="{{ request.app.state.ingress_entry }}/" style="color:var(--primary)">{{ _('impressum.zurueck') }}</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Personen – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>👤 Personen verwalten</h1></div>
+
+{% if request.query_params.get('ok') %}
+<div class="alert alert-ok">✓ Gespeichert.</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+
+<!-- Neue Person -->
+<div class="form-card" style="margin-bottom:1.5rem">
+    <h2>{{ _("personen.neue_person") }}</h2>
+    <form method="post" action="{{ request.app.state.ingress_entry }}/personen/neu" class="form-row">
+        <div class="form-group" style="flex:2">
+            <label>Name *</label>
+            <input type="text" name="name" required placeholder="Vor- und Nachname">
+        </div>
+        <div class="form-group" style="flex:3">
+            <label>Notiz</label>
+            <input type="text" name="notiz" placeholder="Optional">
+        </div>
+        <div class="form-group" style="align-self:flex-end">
+            <button type="submit" class="btn btn-primary">+ Anlegen</button>
+        </div>
+    </form>
+</div>
+
+<!-- Liste -->
+<div class="table-wrap">
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th class="text-right">{{ _("personen.eintraege_col") }}</th>
+            <th class="text-right">{{ _("personen.stunden_col") }}</th>
+            <th>Notiz</th>
+            <th>Aktionen</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p in personen %}
+    <tr>
+        <td><strong>{{ p.name }}</strong></td>
+        <td class="text-right">{{ p.eintraege }}</td>
+        <td class="text-right">{{ "%.1f"|format(p.stunden) }} h</td>
+        <td class="text-muted">{{ p.notiz }}</td>
+        <td class="actions">
+            <!-- Umbenennen -->
+            <form method="post" action="{{ request.app.state.ingress_entry }}/personen/{{ p.name }}/umbenennen" style="display:inline"
+                  onsubmit="let n=prompt('Neuer Name:','{{ p.name }}');if(!n)return false;this.querySelector('[name=neuer_name]').value=n;">
+                <input type="hidden" name="neuer_name" value="">
+                <button type="submit" class="btn-icon" title="Umbenennen">✏️</button>
+            </form>
+            <!-- Löschen -->
+            <form method="post" action="{{ request.app.state.ingress_entry }}/personen/{{ p.name }}/loeschen" style="display:inline"
+                  onsubmit="return confirm('Person {{ p.name }} löschen?{% if p.eintraege %} Achtung: {{ p.eintraege }} Einträge!{% endif %}')">
+                {% if p.eintraege %}
+                <input type="hidden" name="mit_eintraegen" value="true">
+                {% endif %}
+                <button type="submit" class="btn-icon" title="{{ _('personen.loeschen_title') }}">🗑️</button>
+            </form>
+            <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ p.name }}" class="btn-icon" title="Stammdaten">📂</a>
+            <a href="{{ request.app.state.ingress_entry }}/eintraege/?person={{ p.name }}" class="btn-icon" title="{{ _('personen.eintraege_title') }}">📋</a>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="text-center text-muted">Noch keine Personen angelegt.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}System-Statistik – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 System-Statistik</h1>
+    <span style="font-size:.8rem; color:var(--text-muted)">Stand: {{ jetzt }} · Laufzeit: {{ uptime }}</span>
+</div>
+
+<div class="cards-grid-2">
+
+    {# ── Logins ── #}
+    <div class="form-card">
+        <h2>🔑 Anmeldungen</h2>
+        <div class="pk-daten">
+            <div class="pk-zeile">
+                <span class="pk-label">Heute</span>
+                <span class="pk-wert">
+                    {% if stats.logins_heute > 0 %}
+                    <span class="ampel ampel-gruen">{{ stats.logins_heute }}</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">0</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Letzte 7 Tage</span>
+                <span class="pk-wert">{{ stats.logins_woche }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Fehlversuche heute</span>
+                <span class="pk-wert">
+                    {% if stats.login_fehler_heute > 0 %}
+                    <span class="ampel ampel-gelb">{{ stats.login_fehler_heute }}</span>
+                    {% else %}
+                    <span class="ampel ampel-gruen">0</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {# ── Gutachten ── #}
+    <div class="form-card">
+        <h2>📄 Gutachten-Analysen</h2>
+        <div class="pk-daten">
+            <div class="pk-zeile">
+                <span class="pk-label">Heute analysiert</span>
+                <span class="pk-wert">
+                    {% if stats.gutachten_heute > 0 %}
+                    <span class="ampel ampel-gruen">{{ stats.gutachten_heute }}</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">0</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Gesamt (seit v1.2.0)</span>
+                <span class="pk-wert">{{ stats.gutachten_gesamt }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Gespeicherte Analysen</span>
+                <span class="pk-wert">{{ gutachten_dateien }}</span>
+            </div>
+        </div>
+        <div style="margin-top:.75rem">
+            <a href="{{ request.app.state.ingress_entry }}/gutachten/" class="btn btn-ghost btn-sm">📄 Zur Gutachten-Übersicht</a>
+        </div>
+    </div>
+
+    {# ── Benutzer ── #}
+    <div class="form-card">
+        <h2>👤 Benutzer</h2>
+        <div class="pk-daten">
+            <div class="pk-zeile">
+                <span class="pk-label">Registriert</span>
+                <span class="pk-wert">{{ stats.users_gesamt }}</span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Aktiv</span>
+                <span class="pk-wert">
+                    <span class="ampel ampel-gruen">{{ stats.users_aktiv }}</span>
+                </span>
+            </div>
+            <div class="pk-zeile">
+                <span class="pk-label">Deaktiviert</span>
+                <span class="pk-wert">{{ stats.users_gesamt - stats.users_aktiv }}</span>
+            </div>
+        </div>
+        <div style="margin-top:.75rem">
+            <a href="{{ request.app.state.ingress_entry }}/admin/users" class="btn btn-ghost btn-sm">👤 Benutzerverwaltung</a>
+        </div>
+    </div>
+
+    {# ── Audit-Log Vorschau ── #}
+    <div class="form-card">
+        <h2>📋 Letzte Aktivitäten</h2>
+        <div style="font-size:.82rem; color:var(--text-muted); margin-bottom:.5rem">
+            Aus dem Audit-Log
+        </div>
+        {% set recent = stats %}
+        <div style="font-size:.85rem">
+            {% if stats.logins_heute == 0 and stats.gutachten_heute == 0 %}
+            <div style="color:var(--text-muted); font-style:italic">Heute noch keine Aktivität.</div>
+            {% else %}
+            <div class="pk-daten">
+                {% if stats.logins_heute > 0 %}
+                <div class="pk-zeile">
+                    <span class="pk-label">🔑 Logins heute</span>
+                    <span class="pk-wert">{{ stats.logins_heute }}×</span>
+                </div>
+                {% endif %}
+                {% if stats.gutachten_heute > 0 %}
+                <div class="pk-zeile">
+                    <span class="pk-label">📄 Gutachten heute</span>
+                    <span class="pk-wert">{{ stats.gutachten_heute }}×</span>
+                </div>
+                {% endif %}
+                {% if stats.login_fehler_heute > 0 %}
+                <div class="pk-zeile">
+                    <span class="pk-label">⚠️ Fehlversuche</span>
+                    <span class="pk-wert" style="color:#b45309">{{ stats.login_fehler_heute }}×</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div style="margin-top:.75rem">
+            <a href="{{ request.app.state.ingress_entry }}/admin/audit" class="btn btn-ghost btn-sm">📋 Vollständiger Audit-Log</a>
+        </div>
+    </div>
+
+</div>
+
+{# ── Zurück ── #}
+<div class="quick-actions" style="margin-top:1rem">
+    <a href="{{ request.app.state.ingress_entry }}/admin/" class="btn btn-ghost">⚙ Admin-Übersicht</a>
+    <a href="{{ request.app.state.ingress_entry }}/admin/audit" class="btn btn-ghost">📋 Audit-Log</a>
+    <a href="{{ request.app.state.ingress_entry }}/admin/users" class="btn btn-ghost">👤 Benutzer</a>
+</div>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}{{ _('entlastung.titel') }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💚 {{ _('entlastung.titel') }} <small style="font-size:.6em;color:var(--text-muted)">§ 45b SGB XI</small></h1>
+</div>
+
+{% if ok %}
+<div class="alert alert-ok">✓ {{ ok }}</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+
+{# ── Filter ── #}
+<form method="get" class="filter-bar" style="margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+    <label>{{ _('common.person') }}:</label>
+    <select name="person" onchange="this.form.submit()">
+        <option value="">{{ _('common.bitte_waehlen') }}</option>
+        {% for p in personen %}
+        <option value="{{ p }}" {% if gewaehlte_person == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+    </select>
+    <label>{{ _('common.jahr') }}:</label>
+    <select name="jahr" onchange="this.form.submit()">
+        {% for j in jahre %}
+        <option value="{{ j }}" {% if j == jahr %}selected{% endif %}>{{ j }}</option>
+        {% endfor %}
+    </select>
+    {% if gewaehlte_person %}
+    <a href="{{ request.app.state.ingress_entry }}/entlastung/pdf?person={{ gewaehlte_person }}&jahr={{ jahr }}"
+       class="btn btn-ghost" style="margin-left:auto">📄 {{ _('entlastung.pdf_export') }}</a>
+    {% endif %}
+</form>
+
+{% if gewaehlte_person %}
+
+{# ── Jahres-Übersicht ── #}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem">
+    <div class="card" style="padding:1rem;text-align:center">
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ _('entlastung.jahresbudget') }}</div>
+        <div style="font-size:1.6rem;font-weight:700;color:var(--primary);margin:.25rem 0">{{ "%.2f"|format(jahresmax) }} €</div>
+        <div style="font-size:.75rem;color:var(--text-muted)">{{ "%.2f"|format(monatlich) }} {{ _('entlastung.pro_monat_label') }}</div>
+    </div>
+    {% if vorjahr_guthaben > 0 %}
+    <div class="card" style="padding:1rem;text-align:center;border:1px solid {% if vorjahr_aktiv %}var(--ok){% else %}var(--border){% endif %}">
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ _('entlastung.vorjahresguthaben') }}</div>
+        <div style="font-size:1.6rem;font-weight:700;color:{% if vorjahr_aktiv %}var(--ok){% else %}var(--text-muted){% endif %};margin:.25rem 0">
+            {{ "%.2f"|format(vorjahr_guthaben) }} €
+        </div>
+        <div style="font-size:.75rem;color:{% if vorjahr_aktiv %}var(--ok){% else %}var(--error){% endif %}">
+            {% if vorjahr_aktiv %}✓ {{ _('entlastung.vorjahr_nutzbar', jahr=jahr) }}{% else %}⚠ {{ _('entlastung.vorjahr_abgelaufen') }}{% endif %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="card" style="padding:1rem;text-align:center">
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ _('common.verbraucht') }}</div>
+        <div style="font-size:1.6rem;font-weight:700;color:{% if gesamt_verbraucht > verfuegbar_gesamt %}var(--error){% else %}#e67e22{% endif %};margin:.25rem 0">
+            {{ "%.2f"|format(gesamt_verbraucht) }} €
+        </div>
+        <div style="font-size:.75rem;color:var(--text-muted)">{{ "%.0f"|format((gesamt_verbraucht / verfuegbar_gesamt * 100) if verfuegbar_gesamt else 0) }}{{ _('entlastung.genutzt') }}</div>
+    </div>
+    <div class="card" style="padding:1rem;text-align:center">
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ _('entlastung.restguthaben') }}</div>
+        <div style="font-size:1.6rem;font-weight:700;color:{% if jahres_rest <= 0 %}var(--error){% else %}var(--ok){% endif %};margin:.25rem 0">
+            {{ "%.2f"|format(jahres_rest) }} €
+        </div>
+        <div style="font-size:.75rem;color:var(--text-muted)">{{ _('entlastung.von_gesamt', betrag="%.2f"|format(verfuegbar_gesamt)) }}</div>
+    </div>
+</div>
+
+{% if vorjahr_guthaben > 0 and vorjahr_aktiv %}
+<div style="background:rgba(46,204,113,.08);border:1px solid var(--ok);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:var(--ok)">
+    💚 <strong>{{ _('entlastung.vorjahresguthaben') }} {{ "%.2f"|format(vorjahr_guthaben) }} €</strong> — {{ _('entlastung.vorjahr_nutzbar', jahr=jahr) }}.
+    {{ _('entlastung.gesamt_verfuegbar') }}: {{ "%.2f"|format(verfuegbar_gesamt) }} €
+</div>
+{% elif vorjahr_guthaben > 0 and not vorjahr_aktiv %}
+<div style="background:rgba(231,76,60,.06);border:1px solid var(--error);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:var(--error)">
+    ⚠ {{ _('entlastung.vorjahresguthaben') }} {{ "%.2f"|format(vorjahr_guthaben) }} € — {{ _('entlastung.vorjahr_abgelaufen') }}.
+</div>
+{% endif %}
+
+{# ── Fortschrittsbalken ── #}
+{% set pct = [(gesamt_verbraucht / verfuegbar_gesamt * 100) if verfuegbar_gesamt else 0, 100] | min %}
+<div style="margin-bottom:1.5rem">
+    <div style="background:var(--border);border-radius:999px;height:10px;overflow:hidden">
+        <div style="height:100%;width:{{ pct }}%;background:{% if pct >= 90 %}var(--error){% elif pct >= 70 %}#e67e22{% else %}var(--ok){% endif %};border-radius:999px;transition:width .3s"></div>
+    </div>
+</div>
+
+{# ── Monatsübersicht ── #}
+<div class="form-card" style="margin-bottom:1.5rem">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:.75rem">📅 {{ _('entlastung.monatsuebersicht') }} {{ jahr }}</h3>
+    <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+            <thead>
+                <tr style="border-bottom:2px solid var(--border)">
+                    <th style="text-align:left;padding:.4rem .5rem;color:var(--text-muted)">{{ _('entlastung.monat') }}</th>
+                    <th style="text-align:right;padding:.4rem .5rem;color:var(--text-muted)">{{ _('common.budget') }}</th>
+                    <th style="text-align:right;padding:.4rem .5rem;color:var(--text-muted)">{{ _('common.verbraucht') }}</th>
+                    <th style="text-align:right;padding:.4rem .5rem;color:var(--text-muted)">{{ _('common.rest') }}</th>
+                    <th style="padding:.4rem .5rem"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in monate %}
+                <tr style="border-bottom:1px solid var(--border);{% if m.voll %}background:rgba(231,76,60,.05){% endif %}">
+                    <td style="padding:.4rem .5rem;font-weight:{% if m.verbraucht > 0 %}600{% else %}400{% endif %}">{{ m.name }}</td>
+                    <td style="text-align:right;padding:.4rem .5rem">{{ "%.2f"|format(m.monatlich) }} €</td>
+                    <td style="text-align:right;padding:.4rem .5rem;color:{% if m.verbraucht > 0 %}#e67e22{% else %}var(--text-muted){% endif %}">
+                        {{ "%.2f"|format(m.verbraucht) }} €
+                    </td>
+                    <td style="text-align:right;padding:.4rem .5rem;font-weight:600;color:{% if m.rest <= 0 %}var(--error){% else %}var(--ok){% endif %}">
+                        {{ "%.2f"|format(m.rest) }} €
+                    </td>
+                    <td style="padding:.4rem .5rem">
+                        {% if m.voll %}<span style="font-size:.7rem;color:var(--error)">{{ _('entlastung.ausgeschoepft') }}</span>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="border-top:2px solid var(--border);font-weight:700">
+                    <td style="padding:.5rem .5rem">{{ _('common.gesamt') }}</td>
+                    <td style="text-align:right;padding:.5rem .5rem">{{ "%.2f"|format(jahresmax) }} €</td>
+                    <td style="text-align:right;padding:.5rem .5rem;color:#e67e22">{{ "%.2f"|format(gesamt_verbraucht) }} €</td>
+                    <td style="text-align:right;padding:.5rem .5rem;color:{% if jahres_rest <= 0 %}var(--error){% else %}var(--ok){% endif %}">{{ "%.2f"|format(jahres_rest) }} €</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+{# ── Neue Buchung ── #}
+<div class="form-card" style="margin-bottom:1.5rem">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:.75rem">➕ {{ _('entlastung.neue_buchung') }}</h3>
+    <form method="post" action="{{ request.app.state.ingress_entry }}/entlastung/buchen">
+        <input type="hidden" name="person" value="{{ gewaehlte_person }}">
+        <input type="hidden" name="jahr" value="{{ jahr }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:.75rem">
+            <div class="form-group" style="margin:0">
+                <label>{{ _('entlastung.datum_label') }} <span style="color:var(--error)">*</span></label>
+                <input type="date" name="datum" required value="{{ heute }}" max="{{ heute }}">
+            </div>
+            <div class="form-group" style="margin:0">
+                <label>{{ _('entlastung.betrag_label') }} <span style="color:var(--error)">*</span></label>
+                <input type="number" name="betrag" required min="0.01" max="10000" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group" style="margin:0">
+                <label>{{ _('entlastung.anbieter_label') }}</label>
+                <input type="text" name="anbieter" placeholder="{{ _('entlastung.anbieter_placeholder') }}" list="anbieter-list">
+                <datalist id="anbieter-list">
+                    {% for b in buchungen %}{% if b.anbieter %}<option value="{{ b.anbieter }}">{% endif %}{% endfor %}
+                </datalist>
+            </div>
+            <div class="form-group" style="margin:0">
+                <label>{{ _('entlastung.beleg_label') }}</label>
+                <input type="text" name="beleg_nr" placeholder="{{ _('entlastung.beleg_placeholder') }}">
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom:.75rem">
+            <label>{{ _('entlastung.beschreibung_label') }}</label>
+            <input type="text" name="beschreibung" placeholder="{{ _('entlastung.beschreibung_placeholder') }}">
+        </div>
+        <button type="submit" class="btn btn-primary">💾 {{ _('entlastung.buchung_speichern') }}</button>
+    </form>
+</div>
+
+{# ── Buchungsliste ── #}
+{% if buchungen %}
+<div class="form-card">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:.75rem">📋 {{ _('entlastung.buchungen_titel', jahr=jahr) }}</h3>
+    <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+            <thead>
+                <tr style="border-bottom:2px solid var(--border)">
+                    <th style="text-align:left;padding:.4rem .5rem;color:var(--text-muted)">{{ _('entlastung.datum_label') }}</th>
+                    <th style="text-align:left;padding:.4rem .5rem;color:var(--text-muted)">{{ _('entlastung.anbieter_label') }}</th>
+                    <th style="text-align:left;padding:.4rem .5rem;color:var(--text-muted)">{{ _('entlastung.beschreibung_label') }}</th>
+                    <th style="text-align:left;padding:.4rem .5rem;color:var(--text-muted)">{{ _('entlastung.beleg_label') }}</th>
+                    <th style="text-align:right;padding:.4rem .5rem;color:var(--text-muted)">{{ _('common.betrag') }}</th>
+                    <th style="padding:.4rem .5rem"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in buchungen %}
+                <tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:.4rem .5rem">{{ b.datum }}</td>
+                    <td style="padding:.4rem .5rem">{{ b.anbieter or "–" }}</td>
+                    <td style="padding:.4rem .5rem;color:var(--text-muted)">{{ b.beschreibung or "–" }}</td>
+                    <td style="padding:.4rem .5rem;color:var(--text-muted);font-size:.8rem">{{ b.beleg_nr or "–" }}</td>
+                    <td style="text-align:right;padding:.4rem .5rem;font-weight:600">{{ "%.2f"|format(b.betrag) }} €</td>
+                    <td style="padding:.4rem .5rem">
+                        <form method="post" action="{{ request.app.state.ingress_entry }}/entlastung/{{ b.id }}/loeschen" style="margin:0"
+                              onsubmit="return confirm('{{ b.datum }} löschen?')">
+                            <input type="hidden" name="person" value="{{ gewaehlte_person }}">
+                            <input type="hidden" name="jahr" value="{{ jahr }}">
+                            <button type="submit" class="btn btn-ghost"
+                                    style="padding:.2rem .4rem;font-size:.8rem">🗑</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<p style="color:var(--text-muted);font-size:.9rem">{{ _('entlastung.keine_buchungen', person=gewaehlte_person, jahr=jahr) }}</p>
+{% endif %}
+
+{% else %}
+<p class="text-muted">{{ _('entlastung.person_waehlen') }}</p>
+{% endif %}
+{% endblock %}

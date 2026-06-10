@@ -1,0 +1,17 @@
+# Pflegra – Web-Abhängigkeiten
+# Installieren: pip install -r requirements_web.txt
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+jinja2>=3.1.0
+python-multipart>=0.0.9
+bcrypt>=4.0.0
+itsdangerous>=2.1.0
+
+# Testing
+pytest>=7.0.0
+
+# Bereits vorhanden (aus bestehenden requirements):
+# reportlab  (PDF-Export)
+# odfpy      (ODS-Import)
+# openpyxl   (XLSX-Import)

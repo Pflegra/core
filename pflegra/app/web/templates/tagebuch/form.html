@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{% if eintrag %}{{ _('tagebuch.bearbeiten') }}{% else %}{{ _('tagebuch.neuer_eintrag') }}{% endif %} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📓 {% if eintrag %}{{ _('tagebuch.bearbeiten') }}{% else %}{{ _('tagebuch.neuer_eintrag') }}{% endif %}</h1>
+  <a href="{{ request.app.state.ingress_entry }}/tagebuch/" class="btn btn-secondary">← {{ _('common.zurueck') }}</a>
+</div>
+
+<div class="form-card">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <div class="form-row-2">
+      <!-- Person -->
+      <div class="form-group">
+        <label>{{ _('tagebuch.person') }} *</label>
+        <select name="person" required class="form-control">
+          <option value="">{{ _('common.bitte_waehlen') }}</option>
+          {% for p in personen %}
+          <option value="{{ p }}"
+            {% if eintrag and eintrag.person == p %}selected
+            {% elif not eintrag and vorauswahl_person == p %}selected{% endif %}>
+            {{ p }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Kategorie -->
+      <div class="form-group">
+        <label>{{ _('tagebuch.kategorie') }}</label>
+        <select name="kategorie" class="form-control">
+          {% for k in kategorien %}
+          <option value="{{ k }}"
+            {% if eintrag and eintrag.kategorie == k %}selected
+            {% elif not eintrag and k == 'allgemein' %}selected{% endif %}>
+            {{ kategorien_labels[k] }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <!-- Datum -->
+      <div class="form-group">
+        <label>{{ _('tagebuch.datum') }} *</label>
+        <input type="date" name="datum" required class="form-control"
+               value="{{ eintrag.datum if eintrag else heute }}">
+      </div>
+
+      <!-- Uhrzeit -->
+      <div class="form-group">
+        <label>{{ _('tagebuch.uhrzeit') }}</label>
+        <input type="time" name="uhrzeit" class="form-control"
+               value="{{ eintrag.uhrzeit if eintrag else '' }}">
+      </div>
+    </div>
+
+    <!-- Titel -->
+    <div class="form-group">
+      <label>{{ _('tagebuch.titel_feld') }}</label>
+      <input type="text" name="titel" class="form-control"
+             placeholder="{{ _('tagebuch.titel_placeholder') }}"
+             value="{{ eintrag.titel if eintrag else '' }}">
+    </div>
+
+    <!-- Inhalt -->
+    <div class="form-group">
+      <label>{{ _('tagebuch.inhalt') }} *</label>
+      <textarea name="inhalt" required class="form-control" rows="6"
+                placeholder="{{ _('tagebuch.inhalt_placeholder') }}">{{ eintrag.inhalt if eintrag else '' }}</textarea>
+    </div>
+
+    <!-- Stimmung -->
+    <div class="form-group">
+      <label>{{ _('tagebuch.stimmung') }}</label>
+      <div class="stimmung-buttons">
+        {% for wert, label in stimmung_labels.items() %}
+        <label class="stimmung-btn">
+          <input type="radio" name="stimmung" value="{{ wert }}"
+                 {% if eintrag and eintrag.stimmung == wert %}checked{% endif %}>
+          <span>{{ label }}</span>
+        </label>
+        {% endfor %}
+        <label class="stimmung-btn">
+          <input type="radio" name="stimmung" value=""
+                 {% if not eintrag or not eintrag.stimmung %}checked{% endif %}>
+          <span>— {{ _('tagebuch.keine_angabe') }}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="form-group">
+      <label>{{ _('tagebuch.tags') }}</label>
+      <input type="text" name="tags" class="form-control"
+             placeholder="{{ _('tagebuch.tags_placeholder') }}"
+             value="{{ eintrag.tags if eintrag else '' }}">
+      <div class="form-hint">{{ _('tagebuch.tags_hinweis') }}</div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        💾 {% if eintrag %}{{ _('common.speichern') }}{% else %}{{ _('tagebuch.eintrag_erstellen') }}{% endif %}
+      </button>
+      <a href="{{ request.app.state.ingress_entry }}/tagebuch/" class="btn btn-secondary">{{ _('common.abbrechen') }}</a>
+    </div>
+  </form>
+</div>
+
+<style>
+.form-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 1.5rem; max-width: 700px;
+}
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.stimmung-buttons { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .25rem; }
+.stimmung-btn {
+  cursor: pointer; background: #f7fafc; border: 1.5px solid #e2e8f0;
+  border-radius: 7px; padding: .35rem .75rem; font-size: .85rem;
+  transition: all .15s;
+}
+.stimmung-btn:hover { border-color: #2C5F8A; background: #ebf8ff; }
+.stimmung-btn input[type=radio] { display: none; }
+.stimmung-btn:has(input:checked) { border-color: #2C5F8A; background: #ebf8ff; font-weight: 600; }
+.form-hint { font-size: .75rem; color: #718096; margin-top: .2rem; }
+.form-actions { display: flex; gap: .75rem; margin-top: 1.25rem; }
+@media (max-width: 600px) { .form-row-2 { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}

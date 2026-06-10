@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% block title %}{{ _("budgetplanung.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 {{ _("budgetplanung.titel") }} {{ jahr }}</h1>
+</div>
+
+<form method="get" class="filter-bar" style="margin-bottom:1rem">
+    <select name="jahr" id="jahr-sel">
+        {% for j in jahre %}
+        <option value="{{ j }}" {% if j == jahr %}selected{% endif %}>{{ j }}</option>
+        {% endfor %}
+    </select>
+    <span style="font-size:.85rem;color:var(--text-muted);align-self:center">
+        {{ _("budgetplanung.jahresbudget") }}: <strong>{{ budget_gesamt | eur }}</strong>
+    </span>
+</form>
+
+<div id="budget-status-bar" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+    <div style="display:flex;flex-direction:column;gap:.15rem">
+        <span style="font-size:.75rem;color:var(--text-muted)">Jahresbudget VP</span>
+        <span style="font-size:1.2rem;font-weight:700;color:var(--primary)">{{ budget_gesamt | eur }}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.15rem">
+        <span style="font-size:.75rem;color:var(--text-muted)">Geplant VP</span>
+        <span id="bsb-geplant" style="font-size:1.2rem;font-weight:700;color:var(--primary)">0.00 €</span>
+    </div>
+    <span style="font-size:1.2rem;color:var(--text-muted)">→</span>
+    <div style="display:flex;flex-direction:column;gap:.15rem">
+        <span style="font-size:.75rem;color:var(--text-muted)">Noch verfügbar</span>
+        <span id="bsb-rest" style="font-size:1.4rem;font-weight:700;color:#22c55e">{{ budget_gesamt | eur }}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.15rem">
+        <div style="width:120px;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+            <div id="bsb-bar" style="height:100%;width:0%;background:var(--primary);border-radius:4px;transition:width .3s"></div>
+        </div>
+        <span id="bsb-prozent" style="font-size:.75rem;color:var(--text-muted)">0% {{ _("budgetplanung.verplant") }}</span>
+    </div>
+</div>
+
+<div class="leistungsart-filter" id="la-filter">
+    <span style="font-size:.78rem;color:var(--text-muted);margin-right:.5rem">{{ _("budgetplanung.anzeigen") }}:</span>
+    <span class="la-chip" data-row="row-jahresbetrag">📦 {{ _("budgetplanung.chip_vp_kzp") }}</span>
+    <span class="la-chip" data-row="row-kzp">🏥 {{ _("budgetplanung.chip_kzp") }}</span>
+    <span class="la-chip" data-row="row-vp">🔄 {{ _("budgetplanung.chip_vp") }}</span>
+    <span class="la-chip" data-row="row-sachleistung">🏥 {{ _("budgetplanung.chip_sl") }}</span>
+    <span class="la-chip" data-row="row-tagespflege">☀️ {{ _("budgetplanung.chip_tp") }}</span>
+    <span class="la-chip" data-row="row-entlastung">🌿 {{ _("budgetplanung.chip_eb") }}</span>
+    <span class="la-chip" data-row="row-hilfsmittel">🩺 {{ _("budgetplanung.chip_hm") }}</span>
+    <span class="la-chip" data-row="row-hausnotruf">🔔 {{ _("budgetplanung.chip_hn") }}</span>
+    <span class="la-chip" data-row="row-wohnumfeld">🏠 {{ _("budgetplanung.chip_wu") }}</span>
+    <span class="la-chip" data-row="row-dipa">📱 DiPA</span>
+</div>
+
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem 1rem;margin-bottom:.75rem;font-size:.85rem">
+    <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+        <input type="checkbox" id="cb-entlastung-kzp" style="width:16px;height:16px" {% if entlastung_kzp %}checked{% endif %}>
+        <span>{{ _("budgetplanung.kzp_checkbox") }}</span>
+    </label>
+    <div style="font-size:.78rem;color:var(--text-muted);margin-top:.3rem;margin-left:1.5rem">
+        Aktiviert: {{ _("budgetplanung.chip_eb") }} (131 €/Monat) finanziert KZP-Hotelkosten bis zur verfügbaren Höhe mit.
+    </div>
+</div>
+
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem 1rem;margin-bottom:.75rem;font-size:.85rem">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+        <label for="inp-vorjahr-guthaben" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-weight:600;color:#16a34a">
+            🌿 {{ _("budgetplanung.vorjahresguthaben") }}
+        </label>
+        <div style="display:flex;align-items:center;gap:.4rem">
+            <input type="number" id="inp-vorjahr-guthaben"
+                   min="0" max="1572" step="1" value="{{ vorjahr_guthaben | int }}"
+                   style="width:90px;padding:.2rem .4rem;font-size:.9rem;border:1px solid var(--border);border-radius:4px;background:var(--input-bg,var(--bg));color:var(--text)">
+            <span style="color:var(--text-muted)">€</span>
+        </div>
+        <span id="vorjahr-badge" style="font-size:.78rem;padding:.15rem .5rem;border-radius:999px;background:#dcfce7;color:#16a34a;font-weight:600"></span>
+    </div>
+    <div style="font-size:.78rem;color:var(--text-muted);margin-top:.3rem">
+        {{ _("budgetplanung.vorjahr_desc") }} <strong>30. Juni {{ jahr }}</strong>.
+        {{ _("budgetplanung.max_uebertragbar") }}: <strong>{{ (entlastungsbetrag * 12) | eur0 }}</strong>.
+    </div>
+    <div id="vorjahr-total-hinweis" style="font-size:.8rem;margin-top:.4rem;display:none"></div>
+</div>
+
+<div class="table-wrap" style="overflow-x:auto">
+<table class="data-table planung-tabelle" id="plan-table">
+    <thead>
+        <tr>
+            <th style="min-width:140px">{{ _("budgetplanung.leistungsart") }}</th>
+            {% for m in monate_liste %}
+            <th style="text-align:center;min-width:68px;font-size:.82rem">{{ m.name }}</th>
+            {% endfor %}
+            <th style="text-align:right;min-width:80px;font-size:.82rem">{{ _("budgetplanung.gesamt_col") }}</th>
+        </tr>
+        <tr style="background:var(--bg)">
+            <td style="font-size:.78rem;color:var(--text-muted)">{{ _("budgetplanung.pflegegrad") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.25rem .3rem">
+                <select class="pg-select" data-monat="{{ m.nr }}" style="font-size:.78rem;padding:.15rem .2rem;width:60px">
+                    {% for pg in range(1,6) %}
+                    <option value="{{ pg }}" {% if pg == planung_pg.get(m.nr, 3) %}selected{% endif %}>PG {{ pg }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% endfor %}
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+
+        {# {{ _("budgetplanung.pflegegeld_row") }} - immer sichtbar #}
+        <tr class="row-pflegegeld">
+            <td><span style="color:var(--primary)">💳 {{ _("budgetplanung.pflegegeld_row") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 37 SGB XI</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center">
+                <div class="pg-prozent" data-monat="{{ m.nr }}" style="font-size:.72rem;color:var(--primary)">0%</div>
+                <div class="pg-betrag" data-monat="{{ m.nr }}" style="font-weight:600">0 €</div>
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700" id="total-pflegegeld">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.gemeinsamer_jahresbetrag") }} #}
+        <tr class="row-jahresbetrag">
+            <td><span style="color:#9333ea;font-weight:600">📦 {{ _("budgetplanung.gemeinsamer_jahresbetrag") }}</span><div style="font-size:.72rem;color:var(--text-muted)">VP + KZP § 39 SGB XI</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center">
+                <div class="rest-betrag" data-monat="{{ m.nr }}" style="font-weight:600;color:#9333ea">{{ budget_gesamt | eur0 }}</div>
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:#9333ea">{{ budget_gesamt | eur }}</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_kzp") }} #}
+        <tr class="row-kzp">
+            <td><span style="color:#7c3aed">🏥 {{ _("budgetplanung.chip_kzp") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 42 SGB XI · {{ _("budgetplanung.aus_gem_jahresbetrag") }}</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.25rem .3rem">
+                <input type="number" class="kzp-input planung-input" data-monat="{{ m.nr }}" value="{{ planung_kzp.get(m.nr, 0) }}" min="0" step="50" style="width:60px">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:#7c3aed" id="total-kzp">0 €</td>
+        </tr>
+        <tr class="row-kzp verbrauch-summe-row" data-total="total-kzp-verpfl" style="background:#f5f3ff">
+            <td style="font-size:.72rem;color:#7c3aed;padding-left:1rem">{{ _("budgetplanung.verpflegung") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input kzp-verpfl-input" data-monat="{{ m.nr }}" value="0" min="0" step="10" style="width:58px;font-size:.78rem;color:#7c3aed">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#7c3aed" id="total-kzp-verpfl">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_vp") }} #}
+        <tr class="row-vp">
+            <td>
+                <span style="color:var(--primary)">🔄 {{ _("budgetplanung.chip_vp") }}</span>
+                <div style="font-size:.72rem;color:var(--text-muted)">§ 39 SGB XI</div>
+                <button type="button" id="btn-gleich" title="Gleichmäßig auf alle Monate verteilen"
+                        style="margin-top:.3rem;font-size:.72rem;padding:.15rem .4rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:.25rem;white-space:nowrap">
+                    ⚖ {{ _("budgetplanung.verteilen") }}
+                </button>
+            </td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.25rem .3rem">
+                <input type="number" class="vp-input planung-input" data-monat="{{ m.nr }}" value="{{ planung_vp.get(m.nr, 0) }}" min="0" step="50" style="width:60px">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700" id="total-vp">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_sl") }} - Prozent-Input statt Slider #}
+        <tr class="row-sachleistung">
+            <td><span style="color:#0891b2">🏥 {{ _("budgetplanung.sachleistungs_budget") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 36 SGB XI · {{ _("budgetplanung.beeinflusst_pflegegeld") }}</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.25rem .3rem">
+                <div class="sl-prozent-label" data-monat="{{ m.nr }}" style="font-size:.72rem;color:#0891b2;font-weight:600">0%</div>
+                <select class="sl-select planung-input" data-monat="{{ m.nr }}" style="width:60px;font-size:.78rem;color:#0891b2;padding:.1rem">
+                    {% for pct in [0,10,20,30,40,50,60,70,80,90,100] %}
+                    <option value="{{ pct }}" {% if pct == planung_sl.get(m.nr, 0) %}selected{% endif %}>{{ pct }}%</option>
+                    {% endfor %}
+                </select>
+                <div class="sl-betrag" data-monat="{{ m.nr }}" style="color:#0891b2;font-weight:600;font-size:.82rem">0 €</div>
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:#0891b2" id="total-sl">0 €</td>
+        </tr>
+        <tr class="row-sachleistung" style="background:#ecfeff">
+            <td style="font-size:.72rem;color:#0891b2;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input" value="0" min="0" step="10" style="width:58px;font-size:.78rem;color:#0891b2">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#0891b2">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_tp") }} #}
+        <tr class="row-tagespflege">
+            <td><span style="color:#d97706">☀️ {{ _("budgetplanung.chip_tp") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 41 SGB XI</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center">
+                <div class="tp-betrag" data-monat="{{ m.nr }}" style="color:#d97706;font-weight:600">–</div>
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700" id="total-tp">–</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_eb") }} #}
+        <tr class="row-entlastung">
+            <td><span style="color:#16a34a">🌿 {{ _("budgetplanung.chip_eb") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 45b SGB XI · {{ _("budgetplanung.alle_pg") }}</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center">
+                <div style="color:#16a34a;font-weight:600">{{ entlastungsbetrag | eur0 }}</div>
+                <div class="entl-rest" data-monat="{{ m.nr }}" style="font-size:.72rem;color:var(--text-muted)"></div>
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:#16a34a" id="total-entlastung">{{ (entlastungsbetrag * 12) | eur0 }}</td>
+        </tr>
+        <tr class="row-entlastung verbrauch-summe-row" data-total="total-entlastung-vbr" style="background:#f0fdf4">
+            <td style="font-size:.72rem;color:#16a34a;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input" 
+                       value="{{ planung_data.get('entlastung_vbr_' ~ m.nr, 0) | int }}"
+                       min="0" step="1" 
+                       style="width:58px;font-size:.78rem;color:#16a34a"
+                       data-key="entlastung_vbr_{{ m.nr }}">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#16a34a" id="total-entlastung-vbr">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_hm") }} #}
+        <tr class="row-hilfsmittel">
+            <td><span style="color:var(--text-muted)">🩺 {{ _("budgetplanung.pflegehilfsmittel") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 40 SGB XI · 42 €/Monat</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;color:var(--text-muted);font-weight:600">{{ hilfsmittel | eur0 }}</td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:var(--text-muted)">{{ (hilfsmittel * 12) | eur0 }}</td>
+        </tr>
+        <tr class="row-hilfsmittel verbrauch-summe-row" data-total="total-hilfsmittel-vbr" style="background:#f8fafc">
+            <td style="font-size:.72rem;color:#0891b2;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input" value="0" min="0" step="1" style="width:58px;font-size:.78rem;color:#0891b2">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#0891b2" id="total-hilfsmittel-vbr">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_hn") }} #}
+        <tr class="row-hausnotruf">
+            <td><span style="color:var(--text-muted)">🔔 {{ _("budgetplanung.chip_hn") }}</span><div style="font-size:.72rem;color:var(--text-muted)">{{ _("budgetplanung.marktublich") }}</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;color:var(--text-muted);font-weight:600">{{ hausnotruf | eur }}</td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:var(--text-muted)">{{ (hausnotruf * 12) | eur }}</td>
+        </tr>
+        <tr class="row-hausnotruf verbrauch-summe-row" data-total="total-hausnotruf-vbr" style="background:#f8fafc">
+            <td style="font-size:.72rem;color:#0891b2;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input" value="0" min="0" step="0.50" style="width:58px;font-size:.78rem;color:#0891b2">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#0891b2" id="total-hausnotruf-vbr">0 €</td>
+        </tr>
+
+        {# {{ _("budgetplanung.chip_wu") }} #}
+        <tr class="row-wohnumfeld">
+            <td><span style="color:var(--text-muted)">🏠 {{ _("budgetplanung.chip_wu") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 40 SGB XI · bis 4.180 € je Maßnahme</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;color:var(--text-muted);font-weight:600">{{ wohnumfeld | eur0 }}</td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:var(--text-muted)">{{ wohnumfeld | eur0 }}</td>
+        </tr>
+        <tr class="row-wohnumfeld verbrauch-summe-row" data-total="total-wohnumfeld-vbr" style="background:#f8fafc">
+            <td style="font-size:.72rem;color:#0891b2;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input" value="0" min="0" step="100" style="width:58px;font-size:.78rem;color:#0891b2">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#0891b2" id="total-wohnumfeld-vbr">0 €</td>
+        </tr>
+
+        {# DiPA #}
+        <tr class="row-dipa">
+            <td><span style="color:var(--text-muted)">📱 {{ _("budgetplanung.dipa_anwendung") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 40a SGB XI · bis 40 €/Monat</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;color:var(--text-muted);font-weight:600">{{ dipa_app | eur0 }}</td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:var(--text-muted)">{{ (dipa_app * 12) | eur0 }}</td>
+        </tr>
+        <tr class="row-dipa verbrauch-summe-row" data-total="total-dipa-app-vbr" style="background:#f8fafc">
+            <td style="font-size:.72rem;color:#0891b2;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input" value="0" min="0" step="10" style="width:58px;font-size:.78rem;color:#0891b2">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#0891b2" id="total-dipa-app-vbr">0 €</td>
+        </tr>
+        <tr class="row-dipa">
+            <td><span style="color:var(--text-muted)">📱 {{ _("budgetplanung.dipa_unterstuetzung") }}</span><div style="font-size:.72rem;color:var(--text-muted)">§ 39a SGB XI · bis 30 €/Monat</div></td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;color:var(--text-muted);font-weight:600">{{ dipa_unterstuetzung | eur0 }}</td>
+            {% endfor %}
+            <td style="text-align:right;font-weight:700;color:var(--text-muted)">{{ (dipa_unterstuetzung * 12) | eur0 }}</td>
+        </tr>
+        <tr class="row-dipa verbrauch-summe-row" data-total="total-dipa-ust-vbr" style="background:#f8fafc">
+            <td style="font-size:.72rem;color:#0891b2;padding-left:1rem">{{ _("budgetplanung.verbrauch") }}</td>
+            {% for m in monate_liste %}
+            <td style="text-align:center;padding:.2rem .3rem">
+                <input type="number" class="planung-input vbr-input" value="0" min="0" step="10" style="width:58px;font-size:.78rem;color:#0891b2">
+            </td>
+            {% endfor %}
+            <td style="text-align:right;font-size:.82rem;color:#0891b2" id="total-dipa-ust-vbr">0 €</td>
+        </tr>
+
+    </tbody>
+</table>
+</div>
+
+<div class="form-actions" style="margin-top:1rem;flex-wrap:wrap;gap:.5rem">
+    <button type="button" id="btn-speichern" class="btn btn-primary">💾 {{ _("budgetplanung.speichern") }}</button>
+    <button type="button" id="btn-reset" class="btn btn-ghost">🗑 {{ _("budgetplanung.zuruecksetzen") }}</button>
+    <button type="button" id="btn-pdf" class="btn btn-secondary">⬇ {{ _("budgetplanung.als_pdf") }}</button>
+</div>
+
+<style>
+.leistungsart-filter { display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:.75rem;padding:.5rem .75rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius); }
+.la-chip { display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .65rem;border-radius:20px;cursor:pointer;border:1.5px solid var(--border);font-size:.8rem;color:var(--text-muted);background:var(--bg);transition:all .15s;user-select:none; }
+.la-chip.la-active { background:var(--primary);border-color:var(--primary);color:white; }
+.planung-input { width:60px;text-align:center;padding:.25rem;border:1px solid var(--border);border-radius:6px;font-size:.82rem;min-height:34px; }
+.planung-input:focus { border-color:var(--primary);outline:none; }
+.planung-tabelle td { padding:.4rem .45rem;vertical-align:middle; }
+.row-jahresbetrag td { background:#faf5ff; }
+.row-pflegegeld td { background:#f0f9ff; }
+.row-sachleistung td { background:#ecfeff; }
+.row-tagespflege td { background:#fffbeb; }
+.row-vp td { background:#eff6ff; }
+.row-kzp td { background:#f5f3ff; }
+.row-jahresbetrag,.row-kzp,.row-vp,.row-sachleistung,.row-tagespflege,
+.row-entlastung,.row-hilfsmittel,.row-hausnotruf,.row-wohnumfeld,.row-dipa { display:none !important; }
+.row-visible { display:table-row !important; }
+@media print {
+    @page { size:A4 landscape;margin:1.5cm; }
+    .form-actions,.filter-bar,.leistungsart-filter,.navbar,nav,.page-header { display:none!important; }
+    #budget-status-bar { border:1px solid #ccc;padding:.4cm; }
+    .table-wrap { overflow:visible!important; }
+    .data-table { font-size:7.5pt!important;width:100%!important;table-layout:fixed; }
+    .data-table th,.data-table td { padding:2px 4px!important; }
+    .planung-input { display:none!important; }
+    .print-wert { display:block;text-align:center;font-size:7.5pt;font-weight:600; }
+    .pg-select,.sl-select { border:none!important;background:none!important;font-size:7.5pt!important; }
+    .row-visible { display:table-row!important; }
+}
+</style>
+
+<div id="planung-config" style="display:none"
+     data-budget="{{ budget_gesamt }}"
+     data-jahr="{{ jahr }}"
+     data-pg-saetze='{{ pg_saetze | tojson | safe }}'
+     data-sl-saetze='{{ sl_saetze | tojson | safe }}'
+     data-tp-saetze='{{ tp_saetze | tojson | safe }}'
+     data-entlastung="{{ entlastungsbetrag }}"
+     data-entlastung-max="{{ (entlastungsbetrag * 12) | int }}"
+></div>
+<script src="{{ request.app.state.ingress_entry }}/static/js/budget_planung.js"></script>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Import-Vorschau – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📥 Import-Vorschau</h1>
+    <a href="{{ request.app.state.ingress_entry }}/import/" class="btn btn-ghost">← Zurück</a>
+</div>
+
+<div class="alert alert-info">
+    <strong>{{ dateiname }}</strong> — {{ vorschau.zusammenfassung() }}
+</div>
+
+{% if vorschau.zeilen_fehlerhaft %}
+<div class="alert alert-warnung">
+    <strong>{{ vorschau.anzahl_fehler }} fehlerhafte Zeilen:</strong>
+    <ul>
+    {% for nr, zeile, fehler in vorschau.zeilen_fehlerhaft %}
+        <li>Zeile {{ nr }}: {{ fehler }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if vorschau.eintraege_neu %}
+<h2>{{ vorschau.anzahl_neu }} neue Einträge</h2>
+<div class="table-wrap">
+<table class="data-table">
+    <thead><tr><th>Datum</th><th>Von</th><th>Bis</th><th class="text-right">Stunden</th><th>Person</th><th>Art</th></tr></thead>
+    <tbody>
+    {% for e in vorschau.eintraege_neu[:50] %}
+    <tr>
+        <td>{{ e.datum.strftime('%d.%m.%Y') }}</td>
+        <td>{{ e.von }}</td><td>{{ e.bis }}</td>
+        <td class="text-right">{{ "%.2f"|format(e.stunden) }}</td>
+        <td>{{ e.person }}</td><td>{{ e.art }}</td>
+    </tr>
+    {% endfor %}
+    {% if vorschau.anzahl_neu > 50 %}
+    <tr><td colspan="6" class="text-center text-muted">… und {{ vorschau.anzahl_neu - 50 }} weitere</td></tr>
+    {% endif %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+
+{% if vorschau.eintraege_duplikat %}
+<details>
+    <summary class="text-muted">{{ vorschau.anzahl_duplikate }} Duplikate (werden übersprungen)</summary>
+    <div class="table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Datum</th><th>Von</th><th>Person</th></tr></thead>
+        <tbody>
+        {% for e in vorschau.eintraege_duplikat %}
+        <tr class="text-muted"><td>{{ e.datum.strftime('%d.%m.%Y') }}</td><td>{{ e.von }}</td><td>{{ e.person }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</details>
+{% endif %}
+
+<form method="post" action="{{ request.app.state.ingress_entry }}/import/durchfuehren" class="form-actions" style="margin-top:1.5rem">
+    <input type="hidden" name="tmp_pfad" value="{{ tmp_pfad }}">
+    <input type="hidden" name="suffix" value="{{ suffix }}">
+    <input type="hidden" name="person_fallback" value="{{ person_fallback }}">
+    {% if vorschau.anzahl_neu > 0 %}
+    <button type="submit" class="btn btn-primary">✓ {{ vorschau.anzahl_neu }} Einträge importieren</button>
+    {% else %}
+    <span class="text-muted">Keine neuen Einträge zum Importieren.</span>
+    {% endif %}
+    <a href="{{ request.app.state.ingress_entry }}/import/" class="btn btn-ghost">Abbrechen</a>
+</form>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}{{ _("versicherte.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>📂 {{ _("versicherte.titel") }}</h1></div>
+
+{% if ok %}
+<div class="alert alert-ok">✓ Gespeichert.</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+
+<form method="get" class="filter-bar" style="margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+    <label>{{ _("common.person_waehlen") }}</label>
+    <select name="person" onchange="this.form.submit()">
+        <option value="">{{ _("common.bitte_waehlen") }}</option>
+        {% for p in personen %}
+        <option value="{{ p }}" {% if gewaehlte_person == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+    </select>
+    <a href="{{ request.app.state.ingress_entry }}/versicherte/neu" class="btn btn-primary" style="white-space:nowrap">➕ {{ _("versicherte.hinzufuegen") }}</a>
+</form>
+
+{% if gewaehlte_person %}
+<div class="form-card">
+    <h2>{{ gewaehlte_person }}</h2>
+    <form method="post" action="{{ request.app.state.ingress_entry }}/versicherte/speichern">
+        <input type="hidden" name="person_name" value="{{ gewaehlte_person }}">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>{{ _("versicherte.versicherungsnr") }}</label>
+                <input type="text" name="versicherungsnr"
+                       value="{{ versicherter.versicherungsnr if versicherter else '' }}">
+            </div>
+            <div class="form-group">
+                <label>{{ _("versicherte.pflegegrad") }}</label>
+                <select name="pflegegrad">
+                    {% for pg in pflegegrade %}
+                    <option value="{{ pg }}" {% if versicherter and versicherter.pflegegrad == pg %}selected{% endif %}>
+                        {% if pg == 0 %}nicht gesetzt{% else %}{{ pg }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>{{ _("versicherte.geburtsdatum") }}</label>
+                <input type="text" name="geburtsdatum" placeholder="TT.MM.JJJJ"
+                       value="{{ versicherter.geburtsdatum if versicherter else '' }}">
+            </div>
+            <div class="form-group">
+                <label>{{ _("versicherte.mail") }}</label>
+                <input type="email" name="mail"
+                       value="{{ versicherter.mail if versicherter else '' }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>{{ _("versicherte.krankenkasse") }}</label>
+            <input type="text" name="krankenkasse" list="kk-list"
+                   value="{{ versicherter.krankenkasse if versicherter else '' }}">
+            <datalist id="kk-list">
+                {% for kk in krankenkassen %}<option value="{{ kk }}">{% endfor %}
+            </datalist>
+        </div>
+
+        <div class="form-group">
+            <label>{{ _("versicherte.kk_adresse") }}
+                <small class="text-muted">(für Antrag VP, mehrzeilig)</small>
+            </label>
+            <textarea name="krankenkasse_adresse" rows="3"
+                      placeholder="z.B.&#10;Pflegekasse&#10;Straße Nr.&#10;PLZ Ort">{{ versicherter.krankenkasse_adresse if versicherter else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>{{ _("versicherte.adresse") }}</label>
+            <textarea name="adresse" rows="2">{{ versicherter.adresse if versicherter else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>{{ _("versicherte.notiz") }}</label>
+            <textarea name="notiz" rows="2">{{ versicherter.notiz if versicherter else '' }}</textarea>
+        </div>
+
+        <div class="form-actions" style="display:flex;gap:.5rem;align-items:center">
+            <button type="submit" class="btn btn-primary">💾 {{ _("common.speichern") }}</button>
+            {% if versicherter %}
+            <button type="button" class="btn btn-ghost"
+                    onclick="if(confirm('{{ gewaehlte_person }} {{ _("personen.achtung_eintraege") }}')) {
+                        document.getElementById('form-loeschen').submit();
+                    }">🗑️ {{ _("common.loeschen") }}</button>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if versicherter %}
+    <form id="form-loeschen" method="post"
+          action="{{ request.app.state.ingress_entry }}/versicherte/{{ gewaehlte_person }}/loeschen"
+          style="display:none"></form>
+    {% endif %}
+
+    {# ── Ersatzpflegekräfte ── #}
+    {% if versicherter %}
+    <div style="margin-top:1.5rem">
+        <h3 style="font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:.75rem">
+            👥 {{ _("versicherte.ersatzpflegekraefte") }}
+        </h3>
+
+        {# Liste bestehender #}
+        {% if ersatzliste %}
+        <div style="margin-bottom:1rem">
+            {% for e in ersatzliste %}
+            <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;
+                        background:var(--card-bg);border:1px solid var(--border);
+                        border-radius:var(--radius);margin-bottom:.4rem;flex-wrap:wrap">
+                <div style="flex:1;min-width:150px">
+                    <div style="font-weight:600;font-size:.9rem">{{ e.name }}</div>
+                    <div style="font-size:.75rem;color:var(--text-muted)">
+                        {{ e.art }}
+                        {% if e.geburtsdatum %} · {{ e.geburtsdatum }}{% endif %}
+                        {% if e.adresse %} · {{ e.adresse }}{% endif %}
+                    </div>
+                </div>
+                <form method="post" action="{{ request.app.state.ingress_entry }}/versicherte/ersatz/{{ e.id }}/loeschen"
+                      style="margin:0" onsubmit="return confirm('{{ e.name }} löschen?')">
+                    <input type="hidden" name="person" value="{{ gewaehlte_person }}">
+                    <button type="submit" class="btn btn-ghost"
+                            style="padding:.2rem .5rem;font-size:.8rem">🗑</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem">
+            {{ _("versicherte.noch_keine_ersatz") }}
+        </p>
+        {% endif %}
+
+        {# Neue hinzufügen #}
+        <details style="background:var(--card-bg);border:1px solid var(--border);
+                        border-radius:var(--radius);padding:.6rem .75rem">
+            <summary style="font-weight:600;font-size:.85rem;cursor:pointer;
+                            color:var(--primary)">{{ _("versicherte.neue_ersatz") }}</summary>
+            <form method="post" action="{{ request.app.state.ingress_entry }}/versicherte/ersatz/speichern"
+                  style="margin-top:.75rem">
+                <input type="hidden" name="person" value="{{ gewaehlte_person }}">
+                <input type="hidden" name="ersatz_id" value="0">
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                    <div class="form-group" style="flex:2;min-width:160px">
+                        <label>Name <span style="color:var(--error)">*</span></label>
+                        <input type="text" name="name" required placeholder="Vor- und Nachname">
+                    </div>
+                    <div class="form-group" style="flex:1;min-width:120px">
+                        <label>{{ _("versicherte.geburtsdatum") }}</label>
+                        <input type="text" name="geburtsdatum" placeholder="TT.MM.JJJJ">
+                    </div>
+                    <div class="form-group" style="flex:1;min-width:120px">
+                        <label>Art</label>
+                        <select name="art">
+                            {% for a in ersatz_arten %}
+                            <option value="{{ a }}">{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:.5rem">
+                    <label>Adresse</label>
+                    <input type="text" name="adresse" placeholder="Straße, PLZ Ort">
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">
+                    🔒 Daten werden gemäß DSGVO ausschließlich zur Abrechnung der Verhinderungspflege (§ 39 SGB XI) genutzt.
+                </div>
+                <button type="submit" class="btn btn-primary" style="font-size:.85rem">
+                    ➕ Hinzufügen
+                </button>
+            </form>
+        </details>
+    </div>
+    {% endif %}
+
+</div>
+{% else %}
+<p class="text-muted">{{ _("versicherte.bitte_waehlen_msg") }}</p>
+{% endif %}
+{% endblock %}

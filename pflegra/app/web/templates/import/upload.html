@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ _("import_page.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>📥 {{ _("import_page.titel") }}</h1></div>
+
+{% if ok %}
+<div class="alert alert-ok">✓ {{ ok }}</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-fehler">⚠️ {{ fehler }}</div>
+{% endif %}
+
+<div class="form-card">
+    <h2>{{ _("import_page.datei_importieren") }}</h2>
+    <p class="text-muted">{{ _("import_page.formate") }}</p>
+
+    <form method="post" action="{{ request.app.state.ingress_entry }}/import/vorschau" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="datei">{{ _("import_page.datei_waehlen_label") }}</label>
+            <input type="file" id="datei" name="datei" required
+                   accept=".csv,.xlsx,.xls,.ods">
+        </div>
+        <div class="form-group">
+            <label for="person_fallback">{{ _("import_page.person_fallback_label") }}</label>
+            <input type="text" id="person_fallback" name="person_fallback"
+                   list="personen-list" placeholder="{{ _("import_page.name_der_person") }}">
+            <datalist id="personen-list">
+                {% for p in personen %}<option value="{{ p }}">{% endfor %}
+            </datalist>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ _("import_page.vorschau") }}</button>
+    </form>
+</div>
+{% endblock %}

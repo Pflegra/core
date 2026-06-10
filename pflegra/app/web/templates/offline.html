@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2C5F8A">
+    <title>Pflegra – Offline</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f7fb; color: #1a1a2e;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            background: white; border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,.1);
+            padding: 2.5rem 2rem; text-align: center;
+            max-width: 380px; width: 100%;
+        }
+        .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+        h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: .6rem; color: #1a6fa6; }
+        p { font-size: .9rem; color: #6b7a90; line-height: 1.6; margin-bottom: 1.5rem; }
+        .btn {
+            display: inline-block; background: #1a6fa6; color: white;
+            padding: .65rem 1.5rem; border-radius: 8px; text-decoration: none;
+            font-weight: 600; font-size: .9rem; border: none; cursor: pointer;
+            transition: background .15s;
+        }
+        .btn:hover { background: #155a87; }
+        .hint { font-size: .78rem; color: #6b7a90; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">📡</div>
+        <h1>Keine Verbindung</h1>
+        <p>Pflegra läuft auf deinem eigenen Server. Bitte stelle sicher, dass du mit deinem Heimnetzwerk oder per Tailscale verbunden bist.</p>
+        <button class="btn" onclick="window.location.reload()">Erneut versuchen</button>
+        <p class="hint">Zuletzt verbunden: <span id="letzte-verbindung">–</span></p>
+    </div>
+    <script>
+        const ts = localStorage.getItem('pflegra_last_online');
+        if (ts) {
+            const d = new Date(parseInt(ts));
+            document.getElementById('letzte-verbindung').textContent =
+                d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+        }
+    </script>
+</body>
+</html>

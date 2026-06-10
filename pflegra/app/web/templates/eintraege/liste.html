@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}{{ _("eintraege.titel") }} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📋 {{ _("eintraege.titel") }}</h1>
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="btn btn-primary">{{ _('eintraege.neuer_eintrag') }}</a>
+</div>
+
+{% if request.query_params.get('ok') %}
+<div class="alert alert-ok">✓ Eintrag gespeichert.</div>
+{% endif %}
+{% if request.query_params.get('geloescht') %}
+<div class="alert alert-ok">✓ Eintrag gelöscht.</div>
+{% endif %}
+
+<!-- Filter -->
+{% set filter_aktiv = filter_person or filter_jahr or filter_monat or suche %}
+<form method="get" class="filter-bar" id="filter-form">
+    <select name="person" onchange="this.form.submit()">
+        <option value="">{{ _("common.alle_personen") }}</option>
+        {% for p in personen %}
+        <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+    </select>
+    <select name="jahr" onchange="this.form.submit()">
+        <option value="0">{{ _("common.alle_jahre") }}</option>
+        {% for j in jahre %}
+        <option value="{{ j }}" {% if filter_jahr == j %}selected{% endif %}>{{ j }}</option>
+        {% endfor %}
+    </select>
+    <select name="monat" onchange="this.form.submit()">
+        <option value="0">{{ _("common.alle_monate") }}</option>
+        {% for nr, name in monate %}
+        <option value="{{ nr }}" {% if filter_monat == nr %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+    </select>
+    <input type="search" name="suche" id="live-suche" value="{{ suche }}" placeholder="{{ _('eintraege.suche') }}" autocomplete="off">
+    <button type="submit" class="btn btn-secondary">{{ _("common.filtern") }}</button>
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="btn btn-ghost">{{ _("common.zuruecksetzen") }}</a>
+</form>
+
+<!-- Aktive Filter -->
+{% if filter_aktiv %}
+<div class="filter-chips">
+    <span class="filter-chips-label">Filter:</span>
+    {% if filter_person %}<span class="filter-chip">👤 {{ filter_person }} <a href="?{{ request.query_params | replace('person=' + filter_person, '') }}">×</a></span>{% endif %}
+    {% if filter_jahr %}<span class="filter-chip">📅 {{ filter_jahr }} <a href="?{{ request.query_params | replace('jahr=' + filter_jahr|string, '') }}">×</a></span>{% endif %}
+    {% if filter_monat %}<span class="filter-chip">🗓 Monat {{ filter_monat }} <a href="?{{ request.query_params | replace('monat=' + filter_monat|string, '') }}">×</a></span>{% endif %}
+    {% if suche %}<span class="filter-chip">🔍 "{{ suche }}" <a href="?{{ request.query_params | replace('suche=' + suche, '') }}">×</a></span>{% endif %}
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="filter-chip-reset">Alle zurücksetzen</a>
+</div>
+{% endif %}
+
+<!-- Bulk-Aktionen -->
+<form method="post" action="{{ request.app.state.ingress_entry }}/eintraege/bulk-loeschen" id="bulk-form">
+<!-- Tabelle -->
+<div class="bulk-aktionen" id="bulk-bar" style="display:none; margin-bottom:.5rem">
+    <span id="bulk-anzahl" style="font-size:.85rem; color:var(--text-muted)"></span>
+    <button type="submit" class="btn btn-ghost btn-sm"
+            style="color:var(--error)"
+            onclick="return confirm('Ausgewählte Einträge wirklich löschen?')">
+        🗑 Ausgewählte löschen
+    </button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="alleAbwaehlen()">Auswahl aufheben</button>
+</div>
+<div class="table-wrap table-sticky">
+    <table class="data-table sortable" id="eintraege-table">
+        <thead>
+            <tr>
+                <th class="col-nr"><input type="checkbox" id="alle-cb" title="Alle auswählen" onchange="alleWaehlen(this)"></th>
+                <th class="sort-col" data-col="1" data-type="date">{{ _("common.datum") }} ↕</th>
+                <th data-col="2" class="col-wochentag">{{ _("eintraege.wochentag") }}</th>
+                <th class="sort-col col-von" data-col="3" data-type="str">{{ _("eintraege.von_col") }} ↕</th>
+                <th class="sort-col col-bis" data-col="4" data-type="str">{{ _("eintraege.bis_col") }} ↕</th>
+                <th class="sort-col text-right" data-col="5" data-type="num">{{ _("common.stunden") }} ↕</th>
+                <th class="sort-col" data-col="6" data-type="str">{{ _("common.person") }} ↕</th>
+                <th class="sort-col col-art" data-col="7" data-type="str">Art ↕</th>
+                <th>{{ _("common.aktionen") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for e in eintraege %}
+            <tr class="{% if e.art == art_tageweise %}row-tageweise{% endif %}">
+                <td class="col-nr"><input type="checkbox" name="ids" value="{{ e.id }}" class="zeilen-cb" onchange="updateBulkBar()"></td>
+                <td data-sort="{{ e.datum.isoformat() }}">{{ e.datum.strftime('%d.%m.%Y') }}</td>
+                <td class="col-wochentag">{{ _("wochentage." + e.wochentag) if e.wochentag else "" }}</td>
+                <td class="text-center col-von">{{ e.von }}</td>
+                <td class="text-center col-bis">{{ e.bis }}</td>
+                <td class="text-right {% if e.art == art_tageweise %}text-warning{% endif %}"
+                    data-sort="{{ e.stunden }}">{{ "%.2f"|format(e.stunden) }} h</td>
+                <td class="col-person">{{ e.person }}</td>
+                <td class="col-art"><span class="badge {% if e.art == art_tageweise %}badge-tageweise{% else %}badge-stundenweise{% endif %}">{{ _("eintraege.art_" + e.art) if e.art else e.art }}</span></td>
+                <td class="actions">
+                    <a href="{{ request.app.state.ingress_entry }}/eintraege/{{ e.id }}/bearbeiten" class="btn-icon" title="Bearbeiten">✏️</a>
+                    <form method="post" action="{{ request.app.state.ingress_entry }}/eintraege/{{ e.id }}/loeschen" style="display:inline"
+                          onsubmit="return confirm('Eintrag löschen?')">
+                        <button type="submit" class="btn-icon" title="Löschen">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="9" class="text-center text-muted">{{ _("eintraege.keine_gefunden") }}</td></tr>
+        {% endfor %}
+        </tbody>
+        {% if eintraege %}
+        <tfoot>
+            <tr>
+                <td colspan="5" class="text-right text-bold">Gesamt:</td>
+                <td class="text-right text-bold">{{ "%.2f"|format(eintraege | sum(attribute='stunden')) }} h</td>
+                <td colspan="3"></td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+</form>
+<div class="table-info" id="table-info">
+    {{ _("eintraege.eintraege_gesamt", n=eintraege|length, h="%.2f"|format(eintraege|sum(attribute="stunden"))) }}
+</div>
+
+<script>
+(function() {
+    let sortCol = 1, sortDir = -1; // Standard: Datum absteigend
+
+    function getVal(cell, type) {
+        const s = cell.dataset.sort || cell.textContent.trim();
+        if (type === 'num') return parseFloat(s) || 0;
+        return s.toLowerCase();
+    }
+
+    function sortTable(col, type) {
+        const table = document.getElementById('eintraege-table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.cells.length > 1);
+
+        if (sortCol === col) {
+            sortDir *= -1;
+        } else {
+            sortCol = col; sortDir = 1;
+        }
+
+        rows.sort((a, b) => {
+            const va = getVal(a.cells[col], type);
+            const vb = getVal(b.cells[col], type);
+            return va < vb ? -sortDir : va > vb ? sortDir : 0;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+
+        // Zeilennummern neu setzen
+        rows.forEach((r, i) => { if (r.cells[0]) r.cells[0].textContent = i + 1; });
+
+        // Header-Pfeile aktualisieren
+        table.querySelectorAll('th.sort-col').forEach(th => {
+            const arrow = th.dataset.col == col ? (sortDir > 0 ? ' ↑' : ' ↓') : ' ↕';
+            th.textContent = th.textContent.replace(/ [↑↓↕]$/, '') + arrow;
+        });
+    }
+
+    document.querySelectorAll('th.sort-col').forEach(th => {
+        th.style.cursor = 'pointer';
+        th.title = 'Klicken zum Sortieren';
+        th.addEventListener('click', () => sortTable(
+            parseInt(th.dataset.col), th.dataset.type || 'str'
+        ));
+    });
+
+    // Bulk-Auswahl
+    window.updateBulkBar = function() {
+        const checked = document.querySelectorAll('.zeilen-cb:checked');
+        const bar = document.getElementById('bulk-bar');
+        const anzahl = document.getElementById('bulk-anzahl');
+        bar.style.display = checked.length > 0 ? 'flex' : 'none';
+        if (anzahl) anzahl.textContent = checked.length + ' Einträge ausgewählt';
+    };
+    window.alleWaehlen = function(cb) {
+        document.querySelectorAll('.zeilen-cb').forEach(c => {
+            const row = c.closest('tr');
+            if (!row || row.style.display !== 'none') c.checked = cb.checked;
+        });
+        updateBulkBar();
+    };
+    window.alleAbwaehlen = function() {
+        document.querySelectorAll('.zeilen-cb').forEach(c => c.checked = false);
+        const allCb = document.getElementById('alle-cb');
+        if (allCb) allCb.checked = false;
+        updateBulkBar();
+    };
+
+    // Initial nach Datum sortieren
+    sortTable(1, 'date');
+    // Live-Suche in der Tabelle (zusätzlich zur Server-Suche)
+    const liveInput = document.getElementById('live-suche');
+    if (liveInput && !liveInput.value) {
+        liveInput.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            const tbody = document.querySelector('#eintraege-table tbody');
+            if (!tbody) return;
+            let visible = 0;
+            tbody.querySelectorAll('tr').forEach(row => {
+                if (row.cells.length <= 1) return;
+                const text = row.textContent.toLowerCase();
+                const show = !q || text.includes(q);
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const info = document.getElementById('table-info');
+            if (info && q) info.textContent = visible + ' Einträge gefunden';
+            else if (info) info.textContent = info.dataset.original || info.textContent;
+        });
+        // Original-Text merken
+        const info = document.getElementById('table-info');
+        if (info) info.dataset.original = info.textContent;
+    }
+})();
+</script>
+{% endblock %}

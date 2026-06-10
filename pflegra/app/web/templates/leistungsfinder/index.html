@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% block title %}{{ _('leistungsfinder.titel') }} — Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>💶 {{ _('leistungsfinder.titel') }}</h1>
+  <p class="page-subtitle">{{ _('leistungsfinder.untertitel') }}</p>
+</div>
+
+<!-- Eingabe-Panel -->
+<div class="lf-eingabe-card">
+  <div class="lf-eingabe-grid">
+
+    <!-- Pflegegrad -->
+    <div class="lf-eingabe-gruppe">
+      <label class="lf-label">{{ _('leistungsfinder.pflegegrad_waehlen') }}</label>
+      <div class="lf-pg-buttons" id="pg-buttons">
+        {% for pg in range(6) %}
+        <button type="button"
+                class="lf-pg-btn {% if pg == 0 %}active{% endif %}"
+                data-pg="{{ pg }}"
+                onclick="setPG({{ pg }})">
+          {% if pg == 0 %}–{% else %}PG {{ pg }}{% endif %}
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Setting -->
+    <div class="lf-eingabe-gruppe">
+      <label class="lf-label">{{ _('leistungsfinder.pflegesetting') }}</label>
+      <div class="lf-toggle-group" id="setting-buttons">
+        <button type="button" class="lf-toggle active" data-val="haeuslich" onclick="setSetting('haeuslich')">
+          🏠 {{ _('leistungsfinder.haeuslich') }}
+        </button>
+        <button type="button" class="lf-toggle" data-val="stationaer" onclick="setSetting('stationaer')">
+          🏥 {{ _('leistungsfinder.stationaer') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Leistungsart -->
+    <div class="lf-eingabe-gruppe" id="art-gruppe">
+      <label class="lf-label">{{ _('leistungsfinder.leistungsart') }}</label>
+      <div class="lf-toggle-group" id="art-buttons">
+        <button type="button" class="lf-toggle active" data-val="pflegegeld" onclick="setArt('pflegegeld')">
+          👤 {{ _('leistungsfinder.pflegegeld') }}
+        </button>
+        <button type="button" class="lf-toggle" data-val="sachleistung" onclick="setArt('sachleistung')">
+          🤝 {{ _('leistungsfinder.sachleistung') }}
+        </button>
+        <button type="button" class="lf-toggle" data-val="kombination" onclick="setArt('kombination')">
+          ⚖️ {{ _('leistungsfinder.kombination') }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn btn-primary btn-lg" onclick="berechnen()" id="btn-berechnen" style="margin-top:1rem">
+    💶 {{ _('leistungsfinder.berechnen') }}
+  </button>
+</div>
+
+<!-- Ergebnis -->
+<div id="lf-ergebnis" style="display:none; margin-top:1.5rem">
+
+  <div class="lf-zusammenfassung" id="lf-zusammenfassung"></div>
+
+  <div class="lf-summen-row" id="lf-summen"></div>
+
+  <!-- Monatliche Leistungen -->
+  <div id="lf-monatlich-wrap" class="lf-sektion">
+    <h3 class="lf-sektion-titel">📅 {{ _('leistungsfinder.monatlich') }}</h3>
+    <div id="lf-monatlich-liste" class="lf-posten-liste"></div>
+  </div>
+
+  <!-- Jährliche Leistungen -->
+  <div id="lf-jaehrlich-wrap" class="lf-sektion" style="display:none">
+    <h3 class="lf-sektion-titel">📆 {{ _('leistungsfinder.jaehrlich') }}</h3>
+    <div id="lf-jaehrlich-liste" class="lf-posten-liste"></div>
+  </div>
+
+  <!-- Einmalige Leistungen -->
+  <div id="lf-einmalig-wrap" class="lf-sektion" style="display:none">
+    <h3 class="lf-sektion-titel">🔧 {{ _('leistungsfinder.einmalig') }}</h3>
+    <div id="lf-einmalig-liste" class="lf-posten-liste"></div>
+  </div>
+
+  <!-- Kombinationshinweise -->
+  <div id="lf-kombi-wrap" class="lf-sektion" style="display:none">
+    <h3 class="lf-sektion-titel">ℹ️ {{ _('leistungsfinder.kombinationshinweise') }}</h3>
+    <div id="lf-kombi-liste"></div>
+  </div>
+
+  <!-- Weiterführende Links -->
+  <div class="lf-links">
+    <a href="{{ request.app.state.ingress_entry }}/pflegegrad/" class="btn btn-secondary">🧮 {{ _('nav.pflegegradrechner') }}</a>
+    <a href="{{ request.app.state.ingress_entry }}/budget/" class="btn btn-secondary">📊 {{ _('nav.budget') }}</a>
+    <a href="{{ request.app.state.ingress_entry }}/entlastung/" class="btn btn-secondary">💚 {{ _('nav.entlastungsbetrag') }}</a>
+  </div>
+
+</div>
+
+<style>
+.lf-eingabe-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 1.25rem 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.lf-eingabe-grid { display: flex; flex-direction: column; gap: 1.1rem; }
+.lf-label { display: block; font-size: .82rem; font-weight: 700; color: #718096;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: .45rem; }
+.lf-pg-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
+.lf-pg-btn {
+  padding: .4rem .9rem; border-radius: 7px; border: 1.5px solid #e2e8f0;
+  background: #f7fafc; font-weight: 600; font-size: .88rem; cursor: pointer;
+  transition: all .15s; color: #4a5568;
+}
+.lf-pg-btn:hover { border-color: #2C5F8A; background: #ebf8ff; }
+.lf-pg-btn.active { background: #2C5F8A; color: #fff; border-color: #2C5F8A; }
+.lf-toggle-group { display: flex; flex-wrap: wrap; gap: .4rem; }
+.lf-toggle {
+  padding: .4rem 1rem; border-radius: 7px; border: 1.5px solid #e2e8f0;
+  background: #f7fafc; font-size: .88rem; cursor: pointer; transition: all .15s; color: #4a5568;
+}
+.lf-toggle:hover { border-color: #2C5F8A; background: #ebf8ff; }
+.lf-toggle.active { background: #2C5F8A; color: #fff; border-color: #2C5F8A; }
+/* Ergebnis */
+.lf-zusammenfassung {
+  background: #ebf8ff; border-left: 4px solid #2C5F8A; border-radius: 0 8px 8px 0;
+  padding: .75rem 1rem; font-size: .92rem; color: #1a365d; margin-bottom: 1rem;
+}
+.lf-summen-row {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+}
+.lf-summe-box {
+  flex: 1; min-width: 140px; background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 8px; padding: .75rem 1rem; text-align: center;
+}
+.lf-summe-betrag { font-size: 1.4rem; font-weight: 700; color: #2C5F8A; }
+.lf-summe-label { font-size: .78rem; color: #718096; margin-top: .15rem; }
+.lf-sektion { margin-bottom: 1.25rem; }
+.lf-sektion-titel { font-size: .95rem; font-weight: 600; color: #4a5568; margin-bottom: .6rem; }
+.lf-posten-liste { display: flex; flex-direction: column; gap: .5rem; }
+.lf-posten {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: .65rem .9rem;
+}
+.lf-posten-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.lf-posten-titel { font-size: .88rem; font-weight: 600; color: #2d3748; }
+.lf-posten-betrag { font-size: .9rem; font-weight: 700; color: #2C5F8A; white-space: nowrap; }
+.lf-posten-meta { font-size: .75rem; color: #718096; margin-top: .15rem; }
+.lf-posten-info { font-size: .8rem; color: #4a5568; margin-top: .25rem; line-height: 1.45; }
+.lf-posten-hinweis {
+  font-size: .78rem; color: #7d5a00; background: #fffbeb;
+  border-left: 2px solid #f6c64a; padding: .3rem .5rem;
+  border-radius: 0 4px 4px 0; margin-top: .3rem;
+}
+.lf-kombi-item {
+  background: #ebf8ff; border-left: 3px solid #2C5F8A; border-radius: 0 6px 6px 0;
+  padding: .45rem .75rem; font-size: .84rem; color: #1a365d; margin-bottom: .4rem;
+}
+.lf-links { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+@media (max-width: 640px) {
+  .lf-summen-row { flex-direction: column; }
+  .lf-posten-header { flex-direction: column; }
+}
+</style>
+
+<script>
+let _pg = 0, _setting = 'haeuslich', _art = 'pflegegeld';
+
+// URL-Parameter auslesen (z.B. ?pg=3 vom Pflegegradrechner)
+const _urlParams = new URLSearchParams(window.location.search);
+if (_urlParams.has('pg')) {
+  const pgFromUrl = parseInt(_urlParams.get('pg'));
+  if (pgFromUrl >= 0 && pgFromUrl <= 5) _pg = pgFromUrl;
+}
+
+function setPG(pg) {
+  _pg = pg;
+  document.querySelectorAll('.lf-pg-btn').forEach(b => b.classList.toggle('active', +b.dataset.pg === pg));
+}
+function setSetting(val) {
+  _setting = val;
+  document.querySelectorAll('#setting-buttons .lf-toggle').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+  document.getElementById('art-gruppe').style.display = val === 'stationaer' ? 'none' : '';
+}
+function setArt(val) {
+  _art = val;
+  document.querySelectorAll('#art-buttons .lf-toggle').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+}
+
+function fmt(betrag, einheit) {
+  return betrag.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ' + einheit;
+}
+
+function renderPosten(liste, containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = liste.map(p => `
+    <div class="lf-posten">
+      <div class="lf-posten-header">
+        <span class="lf-posten-titel">${p.titel}</span>
+        <span class="lf-posten-betrag">${fmt(p.betrag, p.einheit)}</span>
+      </div>
+      <div class="lf-posten-meta">${p.paragraf}</div>
+      <div class="lf-posten-info">${p.info}</div>
+      ${p.hinweis ? `<div class="lf-posten-hinweis">⚠️ ${p.hinweis}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function berechnen() {
+  const btn = document.getElementById('btn-berechnen');
+  btn.disabled = true;
+  const url = `/leistungsfinder/berechnen?pflegegrad=${_pg}&setting=${_setting}&art=${_art}`;
+  const data = await fetch(url).then(r => r.json());
+  btn.disabled = false;
+
+  document.getElementById('lf-zusammenfassung').textContent = data.zusammenfassung;
+
+  document.getElementById('lf-summen').innerHTML = `
+    <div class="lf-summe-box">
+      <div class="lf-summe-betrag">${data.summe_monatlich.toLocaleString('de-DE', {minimumFractionDigits:2})} €</div>
+      <div class="lf-summe-label">monatlich</div>
+    </div>
+    <div class="lf-summe-box">
+      <div class="lf-summe-betrag">${data.summe_jaehrlich.toLocaleString('de-DE', {minimumFractionDigits:2})} €</div>
+      <div class="lf-summe-label">jährlich (inkl. Monatswerte)</div>
+    </div>
+  `;
+
+  renderPosten(data.monatlich, 'lf-monatlich-liste');
+  document.getElementById('lf-monatlich-wrap').style.display = data.monatlich.length ? '' : 'none';
+
+  renderPosten(data.jaehrlich, 'lf-jaehrlich-liste');
+  document.getElementById('lf-jaehrlich-wrap').style.display = data.jaehrlich.length ? '' : 'none';
+
+  renderPosten(data.einmalig, 'lf-einmalig-liste');
+  document.getElementById('lf-einmalig-wrap').style.display = data.einmalig.length ? '' : 'none';
+
+  const kombi = document.getElementById('lf-kombi-wrap');
+  if (data.kombinations_hinweise.length) {
+    document.getElementById('lf-kombi-liste').innerHTML =
+      data.kombinations_hinweise.map(h => `<div class="lf-kombi-item">${h}</div>`).join('');
+    kombi.style.display = '';
+  } else {
+    kombi.style.display = 'none';
+  }
+
+  document.getElementById('lf-ergebnis').style.display = 'block';
+  document.getElementById('lf-ergebnis').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Buttons initial setzen
+setPG(_pg);
+
+// Auto-berechnen beim Laden
+berechnen();
+</script>
+{% endblock %}
