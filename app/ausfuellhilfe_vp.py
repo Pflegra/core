@@ -209,7 +209,7 @@ def erstelle_ausfuellhilfe_pdf(
     # Fußzeile Seite 1
     story.append(Spacer(1, 0.5*cm))
     story.append(Paragraph(
-        f"Erstellt mit Pflegra · Nachweis der Verhinderungspflege § 39 SGB XI · {date.today().year}",
+        f"Erstellt mit pflegra.app · Nachweis der Verhinderungspflege § 39 SGB XI · {date.today().year}",
         s["fuss"]
     ))
 
@@ -330,7 +330,7 @@ def erstelle_ausfuellhilfe_pdf(
 
     story.append(Spacer(1, 0.5*cm))
     story.append(Paragraph(
-        f"Erstellt mit Pflegra · Nachweis der Verhinderungspflege § 39 SGB XI · {date.today().year}",
+        f"Erstellt mit pflegra.app · Nachweis der Verhinderungspflege § 39 SGB XI · {date.today().year}",
         s["fuss"]
     ))
 

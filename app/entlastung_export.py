@@ -209,7 +209,7 @@ def erstelle_entlastung_pdf(
     story.append(Spacer(1, 0.5*cm))
     story.append(HRFlowable(width="100%", thickness=0.5, color=FARBE_GRAU))
     story.append(Paragraph(
-        f"Erstellt mit Pflegra · Entlastungsbetrag § 45b SGB XI · {jahr}",
+        f"Erstellt mit pflegra.app · Entlastungsbetrag § 45b SGB XI · {jahr}",
         s["fuss"]
     ))
 

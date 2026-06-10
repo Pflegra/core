@@ -237,7 +237,7 @@ def erstelle_vollmacht_pdf(
     story.append(HRFlowable(width="100%", thickness=0.3, color=FARBE_TRENN))
     story.append(Spacer(1, 0.2*cm))
     story.append(Paragraph(
-        "Erstellt mit Pflegra  ·  Vollmacht Pflegeversicherung",
+        "Erstellt mit pflegra.app  ·  Vollmacht Pflegeversicherung",
         s["fuss"]
     ))
 

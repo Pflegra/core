@@ -319,7 +319,7 @@ def exportiere_monat_pdf(
     story.append(HRFlowable(width="100%", thickness=0.3, color=FARBE_TRENN))
     story.append(Spacer(1, 0.2 * cm))
     story.append(Paragraph(
-        f"Erstellt mit Pflegra    {MONATE_DE[monat]} {jahr}    {person}",
+        f"Erstellt mit pflegra.app    {MONATE_DE[monat]} {jahr}    {person}",
         s["fusszeile"]
     ))
 
@@ -402,7 +402,7 @@ def exportiere_jahres_pdf(
     story.append(HRFlowable(width="100%", thickness=0.3, color=FARBE_TRENN))
     story.append(Spacer(1, 0.2 * cm))
     story.append(Paragraph(
-        f"Erstellt mit Pflegra    Jahresbersicht {jahr}    {person}",
+        f"Erstellt mit pflegra.app    Jahresbersicht {jahr}    {person}",
         s["fusszeile"]
     ))
 
@@ -475,7 +475,7 @@ def _seiten_rahmen(canvas, doc):
     canvas.drawString(
         2.5 * cm,
         1.5 * cm,
-        "Erstellt mit Pflegra",
+        "Erstellt mit pflegra.app",
     )
     # Trennlinie
     canvas.setStrokeColor(FARBE_TRENN)
@@ -631,7 +631,7 @@ def exportiere_mehrere_monate_pdf(
     story.append(HRFlowable(width="100%", thickness=0.3, color=FARBE_TRENN))
     story.append(Spacer(1, 0.2 * cm))
     story.append(Paragraph(
-        f"Erstellt mit Pflegra    {', '.join(monate_namen)} {jahr}    {person}",
+        f"Erstellt mit pflegra.app    {', '.join(monate_namen)} {jahr}    {person}",
         s["fusszeile"]
     ))
 
@@ -844,7 +844,7 @@ def exportiere_pflegegrad_pdf(
     elemente.append(Spacer(1, 0.2*cm))
     elemente.append(Paragraph(
         "⚠️ Dieses Dokument ist eine Orientierungshilfe und ersetzt keine offizielle "
-        "Begutachtung durch den MDK/Medicproof. Erstellt mit Pflegra — Self-hosted Care Management.",
+        "Begutachtung durch den MDK/Medicproof. Erstellt mit pflegra.app — Self-hosted Care Management.",
         s["klein"],
     ))
 
