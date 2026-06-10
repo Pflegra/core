@@ -243,7 +243,8 @@
 .dash-pg-links { display: flex; gap: .4rem; flex-wrap: wrap; }
 @media (max-width: 480px) {
   .dash-pg-links { flex-wrap: wrap; }
-  .dash-pg-links .btn { flex: 1 1 calc(50% - .2rem); justify-content: center; min-width: 120px; }
+  .dash-pg-links .btn { flex: 1 1 calc(50% - .2rem); justify-content: center; min-width: 0; }
+  .dash-pg-links .btn:last-child:nth-child(odd) { flex: 1 1 100%; }
   .dash-pg-box { min-width: 0; width: 100%; }
 }
 .dash-hinweis-box {
