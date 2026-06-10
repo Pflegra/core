@@ -112,7 +112,23 @@ async def gutachten_analysieren(
     return RedirectResponse(f"/gutachten/{analyse_id}", status_code=303)
 
 
-@router.get("/{analyse_id}", response_class=HTMLResponse)
+@router.get("/neueste")
+async def gutachten_neueste(request: Request):
+    """Weiterleitung zur neuesten Analyse."""
+    from web.auth import login_erforderlich
+    guard = login_erforderlich(request)
+    if guard:
+        return guard
+
+    owner_id = get_owner_id(request)
+    analysen = _lade_analysen(request, owner_id)
+
+    if analysen:
+        return redirect(request, f"/gutachten/{analysen[0]['id']}", 303)
+    return redirect(request, "/gutachten/", 303)
+
+
+
 async def gutachten_detail(request: Request, analyse_id: str):
     """Detailansicht einer Gutachten-Analyse."""
     from web.auth import login_erforderlich
