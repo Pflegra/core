@@ -487,6 +487,14 @@ async def index(request: Request):
     except Exception:
         pass
 
+    # Letzte Gutachten-Analysen
+    letzte_gutachten = []
+    try:
+        from web.routers.gutachten import _lade_analysen
+        letzte_gutachten = _lade_analysen(request, owner_id)[:3]
+    except Exception:
+        pass
+
     return TEMPLATES.TemplateResponse(request, "index.html", {
         **base_ctx(request),
         "karten": karten,
@@ -496,6 +504,7 @@ async def index(request: Request):
         "nicht_ausgeschoepft": nicht_ausgeschoepft,
         "leistungsvorschau": leistungsvorschau,
         "fristen": fristen,
+        "letzte_gutachten": letzte_gutachten,
     })
 
 

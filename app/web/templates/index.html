@@ -16,7 +16,7 @@
         <span class="stat-chip-label">{{ _('dashboard.eintraege') }}</span>
     </a>
     <a href="{{ request.app.state.ingress_entry }}/budget/" class="stat-chip">
-        <span class="stat-chip-wert">{{ "%.1f"|format(statistik.stunden_gesamt) }}</span>
+        <span class="stat-chip-wert">{{ statistik.stunden_gesamt | int }}</span>
         <span class="stat-chip-label">{{ _('dashboard.stunden', jahr=aktuelles_jahr) }}</span>
     </a>
     <a href="{{ request.app.state.ingress_entry }}/versicherte/" class="stat-chip">
@@ -118,6 +118,33 @@
     </div>
   </div>
   {% endfor %}
+</div>
+{% endif %}
+
+{# ── Letzte Gutachten ── #}
+{% if letzte_gutachten %}
+<div style="margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+        <h2 style="font-size:.88rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📋 Letzte Gutachten-Analysen</h2>
+        <a href="{{ request.app.state.ingress_entry }}/gutachten/" style="font-size:.8rem;color:var(--primary)">Alle anzeigen →</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.4rem">
+        {% for g in letzte_gutachten %}
+        <a href="{{ request.app.state.ingress_entry }}/gutachten/{{ g.id }}"
+           style="display:flex;align-items:center;justify-content:space-between;
+                  padding:.6rem .9rem;background:var(--card-bg);border:1px solid var(--border);
+                  border-radius:var(--radius);text-decoration:none;color:var(--text)">
+            <span style="font-size:.88rem;font-weight:500">
+                {{ g.person or 'Unbekannt' }}
+                {% if g.pflegegrad %}
+                <span style="margin-left:.4rem;padding:.1rem .35rem;border-radius:4px;
+                             font-size:.72rem;font-weight:700;background:#dbeafe;color:#1e40af">PG {{ g.pflegegrad }}</span>
+                {% endif %}
+            </span>
+            <span style="font-size:.75rem;color:var(--text-muted)">{{ g.erstellt_am }}</span>
+        </a>
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 

@@ -58,7 +58,7 @@
   "dashboard": {
     "titel": "Übersicht",
     "eintraege": "Einträge",
-    "personen": "Personen",
+    "personen": "Versicherte",
     "abrechnungsjahre": "Abrechnungsjahre",
     "budget_status": "Budget {jahr}",
     "noch_verfuegbar": "noch {betrag} verfügbar",
@@ -67,7 +67,7 @@
     "budgetplanung_link": "Budgetplanung",
     "export_link": "Export",
     "antrag_link": "Antrag",
-    "stunden": "Stunden {jahr}",
+    "stunden": "Std. Pflege {jahr}",
     "eintraege_count": "{n} Einträge",
     "ausfuellhilfe_link": "Ausfüllhilfe",
     "neuer_eintrag": "+ Neuer Eintrag",
