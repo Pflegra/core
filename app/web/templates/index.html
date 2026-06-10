@@ -241,6 +241,11 @@
 .dash-pg-punkte-zeile { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: .25rem; }
 .dash-pg-meta { font-size: .75rem; color: #718096; margin-bottom: .65rem; display: flex; gap: .3rem; flex-wrap: wrap; }
 .dash-pg-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .dash-pg-links { flex-wrap: wrap; }
+  .dash-pg-links .btn { flex: 1 1 calc(50% - .2rem); justify-content: center; min-width: 120px; }
+  .dash-pg-box { min-width: 0; width: 100%; }
+}
 .dash-hinweis-box {
   background: #fffbeb; border: 1px solid #f6c64a; border-radius: 12px;
   padding: 1rem 1.2rem; flex: 1; min-width: 260px;
