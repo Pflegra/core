@@ -505,14 +505,15 @@ async def index(request: Request):
     except Exception:
         pass
     beratung_fristen = []
+    letzte_beratungen = []
     try:
         from web.routers.pflegeberatung import _lade_eintraege
         alle_beratungen = _lade_eintraege(request, owner_id)
-        # Pro Person nur den neuesten Eintrag
         seen = set()
         for b in alle_beratungen:
             if b.person not in seen:
                 seen.add(b.person)
+                letzte_beratungen.append(b)
                 if b.tage_bis_termin is not None and b.tage_bis_termin <= 60:
                     beratung_fristen.append(b)
     except Exception:
@@ -530,6 +531,7 @@ async def index(request: Request):
         "letzte_gutachten": letzte_gutachten,
         "letzte_dokumente": letzte_dokumente,
         "beratung_fristen": beratung_fristen,
+        "letzte_beratungen": letzte_beratungen,
     })
 
 
