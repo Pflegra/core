@@ -49,6 +49,17 @@
       <a href="{{ request.app.state.ingress_entry }}/leistungsfinder/?pg={{ letzter_pg.pflegegrad }}" class="btn btn-sm btn-primary">💶 {{ _('dashboard.leistungen_anzeigen') }}</a>
       <a href="{{ request.app.state.ingress_entry }}/pflegegrad/" class="btn btn-sm btn-secondary">🧮 {{ _('dashboard.neu_berechnen') }}</a>
       <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" class="btn btn-sm btn-secondary">📈 {{ _('dashboard.verlauf_link') }}</a>
+      {% if nicht_ausgeschoepft %}
+      <span class="dash-info-tooltip">
+        💡
+        <span class="dash-info-tooltip-box">
+          <strong>Leistungen noch nicht genutzt:</strong><br>
+          {% for h in nicht_ausgeschoepft %}
+          {{ h.leistung }}{% if h.person %} · {{ h.person }}{% endif %} — {{ "%.0f"|format(h.betrag) }} €/Mo<br>
+          {% endfor %}
+        </span>
+      </span>
+      {% endif %}
     </div>
   </div>
   {% endif %}
@@ -70,103 +81,84 @@
   </div>
   {% endif %}
 
-  {% if nicht_ausgeschoepft %}
-  <div class="dash-hinweis-box">
-    <div class="dash-hinweis-titel">💡 {{ _('dashboard.nicht_ausgeschoepft') }}</div>
-    {% for h in nicht_ausgeschoepft %}
-    <div class="dash-hinweis-item">
-      <div class="dash-hinweis-info">
-        <span class="dash-hinweis-leistung">{{ h.leistung }}</span>
-        {% if h.person %}<span class="dash-hinweis-person">{{ h.person }}</span>{% endif %}
+  {% if fristen or beratung_fristen %}
+  <div class="dash-pg-box">
+    <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">📅 Fristen &amp; Hinweise</div>
+    {% for f in fristen %}
+    <div class="frist-item frist-{{ f.dringlichkeit }}">
+      <div class="frist-info">
+        <div class="frist-haupttext">{{ f.titel }}{% if f.person %} <span class="frist-person">· {{ f.person }}</span>{% endif %}</div>
+        <div class="frist-beschreibung">{{ f.beschreibung }}</div>
       </div>
-      <span class="dash-hinweis-betrag">{{ "%.0f"|format(h.betrag) }} €/Mo</span>
-      <a href="{{ h.link }}" class="btn btn-sm btn-primary">{{ _('dashboard.jetzt_erfassen') }}</a>
+      <div class="frist-rechts">
+        <div class="frist-datum">
+          {% if f.tage_bis_faellig < 0 %}<span class="frist-abgelaufen">abgelaufen</span>
+          {% elif f.tage_bis_faellig == 0 %}<span class="frist-heute">heute</span>
+          {% elif f.tage_bis_faellig <= 7 %}<span class="frist-bald">in {{ f.tage_bis_faellig }} Tagen</span>
+          {% else %}{{ f.faellig_str }}{% endif %}
+        </div>
+        {% if f.link %}<a href="{{ f.link }}" class="btn btn-sm btn-primary">→</a>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% for b in beratung_fristen %}
+    <div class="frist-item frist-{% if b.tage_bis_termin < 0 %}rot{% elif b.tage_bis_termin <= 14 %}gelb{% else %}gelb{% endif %}">
+      <div class="frist-info">
+        <div class="frist-haupttext">Pflegeberatung § 37.3 <span class="frist-person">· {{ b.person }}</span></div>
+        <div class="frist-beschreibung">Nächster Pflichtnachweis halbjährlich fällig</div>
+      </div>
+      <div class="frist-rechts">
+        <div class="frist-datum">
+          {% if b.tage_bis_termin < 0 %}<span class="frist-abgelaufen">überfällig</span>
+          {% elif b.tage_bis_termin == 0 %}<span class="frist-heute">heute</span>
+          {% else %}{{ b.naechster_termin_str }}{% endif %}
+        </div>
+        <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" class="btn btn-sm btn-primary">→</a>
+      </div>
     </div>
     {% endfor %}
   </div>
   {% endif %}
 
-</div>
-{% endif %}
-
-{% if fristen or beratung_fristen %}
-<div class="fristen-box">
-  <div class="fristen-titel">📅 Fristen &amp; Hinweise</div>
-  {% for f in fristen %}
-  <div class="frist-item frist-{{ f.dringlichkeit }}">
-    <div class="frist-info">
-      <div class="frist-haupttext">
-        {{ f.titel }}{% if f.person %} <span class="frist-person">· {{ f.person }}</span>{% endif %}
-      </div>
-      <div class="frist-beschreibung">{{ f.beschreibung }}</div>
-    </div>
-    <div class="frist-rechts">
-      <div class="frist-datum">
-        {% if f.tage_bis_faellig < 0 %}
-          <span class="frist-abgelaufen">abgelaufen</span>
-        {% elif f.tage_bis_faellig == 0 %}
-          <span class="frist-heute">heute</span>
-        {% elif f.tage_bis_faellig <= 7 %}
-          <span class="frist-bald">in {{ f.tage_bis_faellig }} Tagen</span>
-        {% else %}
-          {{ f.faellig_str }}
-        {% endif %}
-      </div>
-      {% if f.link %}
-      <a href="{{ f.link }}" class="btn btn-sm btn-primary">→</a>
-      {% endif %}
-    </div>
-  </div>
-  {% endfor %}
-  {% for b in beratung_fristen %}
-  <div class="frist-item frist-{% if b.tage_bis_termin < 0 %}rot{% elif b.tage_bis_termin <= 14 %}gelb{% else %}gelb{% endif %}">
-    <div class="frist-info">
-      <div class="frist-haupttext">
-        Pflegeberatung § 37.3 <span class="frist-person">· {{ b.person }}</span>
-      </div>
-      <div class="frist-beschreibung">Nächster Pflichtnachweis halbjährlich fällig</div>
-    </div>
-    <div class="frist-rechts">
-      <div class="frist-datum">
-        {% if b.tage_bis_termin < 0 %}
-          <span class="frist-abgelaufen">überfällig</span>
-        {% elif b.tage_bis_termin == 0 %}
-          <span class="frist-heute">heute</span>
-        {% else %}
-          {{ b.naechster_termin_str }}
-        {% endif %}
-      </div>
-      <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" class="btn btn-sm btn-primary">→</a>
-    </div>
-  </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-{# ── Letzte Gutachten ── #}
-{% if letzte_gutachten %}
-<div style="margin-bottom:1.5rem">
+  {% if letzte_gutachten %}
+  <div class="dash-pg-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-        <h2 style="font-size:.88rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📋 Letzte Gutachten-Analysen</h2>
-        <a href="{{ request.app.state.ingress_entry }}/gutachten/" style="font-size:.8rem;color:var(--primary)">Alle anzeigen →</a>
+      <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📋 Letzte Gutachten</div>
+      <a href="{{ request.app.state.ingress_entry }}/gutachten/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
     </div>
-    <div style="display:flex;flex-direction:column;gap:.4rem">
-        {% for g in letzte_gutachten %}
-        <a href="{{ request.app.state.ingress_entry }}/gutachten/{{ g.id }}"
-           style="display:flex;align-items:center;justify-content:space-between;
-                  padding:.6rem .9rem;background:var(--card-bg);border:1px solid var(--border);
-                  border-radius:var(--radius);text-decoration:none;color:var(--text)">
-            <span style="font-size:.88rem;font-weight:500">
-                {{ g.person or 'Unbekannt' }}
-                {% if g.pflegegrad %}
-                <span style="margin-left:.4rem;padding:.1rem .35rem;border-radius:4px;
-                             font-size:.72rem;font-weight:700;background:#dbeafe;color:#1e40af">PG {{ g.pflegegrad }}</span>
-                {% endif %}
-            </span>
-            <span style="font-size:.75rem;color:var(--text-muted)">{{ g.erstellt_am }}</span>
-        </a>
-        {% endfor %}
+    {% for g in letzte_gutachten %}
+    <a href="{{ request.app.state.ingress_entry }}/gutachten/{{ g.id }}"
+       style="display:flex;align-items:center;justify-content:space-between;
+              padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);
+              border-radius:6px;text-decoration:none;color:var(--text);margin-bottom:.3rem">
+      <span style="font-size:.85rem;font-weight:500">
+        {{ g.person or 'Unbekannt' }}
+        {% if g.pflegegrad %}<span style="margin-left:.3rem;padding:.1rem .3rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#dbeafe;color:#1e40af">PG {{ g.pflegegrad }}</span>{% endif %}
+      </span>
+      <span style="font-size:.72rem;color:var(--text-muted)">{{ g.erstellt_am }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if letzte_dokumente %}
+  <div class="dash-pg-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+      <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📁 Dokumente</div>
+      <a href="{{ request.app.state.ingress_entry }}/dokumente/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
     </div>
+    {% for d in letzte_dokumente %}
+    <a href="{{ request.app.state.ingress_entry }}/dokumente/{{ d.id }}/herunterladen"
+       style="display:flex;align-items:center;justify-content:space-between;
+              padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);
+              border-radius:6px;text-decoration:none;color:var(--text);margin-bottom:.3rem">
+      <span style="font-size:.85rem;font-weight:500">{{ d.titel }}</span>
+      <span style="font-size:.72rem;color:var(--text-muted)">{{ d.person }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
 </div>
 {% endif %}
 
@@ -290,6 +282,18 @@
 .dash-pg-punkte-zeile { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: .25rem; }
 .dash-pg-meta { font-size: .75rem; color: #718096; margin-bottom: .65rem; display: flex; gap: .3rem; flex-wrap: wrap; }
 .dash-pg-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+.dash-info-tooltip {
+  position: relative; cursor: pointer;
+  font-size: 1rem; line-height: 1;
+  display: inline-flex; align-items: center;
+}
+.dash-info-tooltip-box {
+  display: none; position: absolute; bottom: calc(100% + 6px); left: 0;
+  background: #1a2233; color: #fff; font-size: .78rem; line-height: 1.5;
+  padding: .5rem .75rem; border-radius: 8px; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2); z-index: 100; min-width: 220px;
+}
+.dash-info-tooltip:hover .dash-info-tooltip-box { display: block; }
 @media (max-width: 480px) {
   .dash-pg-links { flex-wrap: wrap; }
   .dash-pg-links .btn { flex: 1 1 calc(50% - .2rem); justify-content: center; min-width: 0; }

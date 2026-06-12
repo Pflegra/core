@@ -497,7 +497,13 @@ async def index(request: Request):
     except Exception:
         pass
 
-    # Pflegeberatung Fristen
+    # Letzte Dokumente
+    letzte_dokumente = []
+    try:
+        from web.routers.dokumente import _lade_dokumente
+        letzte_dokumente = _lade_dokumente(request, owner_id)[:3]
+    except Exception:
+        pass
     beratung_fristen = []
     try:
         from web.routers.pflegeberatung import _lade_eintraege
@@ -522,6 +528,7 @@ async def index(request: Request):
         "leistungsvorschau": leistungsvorschau,
         "fristen": fristen,
         "letzte_gutachten": letzte_gutachten,
+        "letzte_dokumente": letzte_dokumente,
         "beratung_fristen": beratung_fristen,
     })
 
