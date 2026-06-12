@@ -383,6 +383,25 @@ class DbSchema:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_pflegeberatung_owner ON pflegeberatung (owner_id, person, datum)")
                 conn.execute("UPDATE schema_version SET version = 17")
 
+            if v < 18:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS dokumente (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id     INTEGER NOT NULL DEFAULT 1,
+                        person       TEXT    NOT NULL DEFAULT '',
+                        kategorie    TEXT    NOT NULL DEFAULT 'sonstiges',
+                        titel        TEXT    NOT NULL DEFAULT '',
+                        datei_pfad   TEXT    NOT NULL DEFAULT '',
+                        datei_name   TEXT    NOT NULL DEFAULT '',
+                        datei_groesse INTEGER NOT NULL DEFAULT 0,
+                        notiz        TEXT    NOT NULL DEFAULT '',
+                        datum        TEXT    NOT NULL DEFAULT '',
+                        created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_dokumente_owner ON dokumente (owner_id, person, kategorie)")
+                conn.execute("UPDATE schema_version SET version = 18")
+
     def schema_version(self) -> int:
         try:
             with self.connect() as conn:
