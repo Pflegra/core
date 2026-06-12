@@ -87,8 +87,14 @@
     {% for f in fristen %}
     <div class="frist-item frist-{{ f.dringlichkeit }}">
       <div class="frist-info">
-        <div class="frist-haupttext">{{ f.titel }}{% if f.person %} <span class="frist-person">· {{ f.person }}</span>{% endif %}</div>
-        <div class="frist-beschreibung">{{ f.beschreibung }}</div>
+        <div class="frist-haupttext">{{ f.titel }}{% if f.person %} <span class="frist-person">· {{ f.person }}</span>{% endif %}
+          {% if f.beschreibung %}
+          <span class="dash-info-tooltip" style="vertical-align:middle;margin-left:.3rem">
+            ℹ️
+            <span class="dash-info-tooltip-box">{{ f.beschreibung }}</span>
+          </span>
+          {% endif %}
+        </div>
       </div>
       <div class="frist-rechts">
         <div class="frist-datum">
@@ -104,8 +110,12 @@
     {% for b in beratung_fristen %}
     <div class="frist-item frist-{% if b.tage_bis_termin < 0 %}rot{% elif b.tage_bis_termin <= 14 %}gelb{% else %}gelb{% endif %}">
       <div class="frist-info">
-        <div class="frist-haupttext">Pflegeberatung § 37.3 <span class="frist-person">· {{ b.person }}</span></div>
-        <div class="frist-beschreibung">Nächster Pflichtnachweis halbjährlich fällig</div>
+        <div class="frist-haupttext">Pflegeberatung § 37.3 <span class="frist-person">· {{ b.person }}</span>
+          <span class="dash-info-tooltip" style="vertical-align:middle;margin-left:.3rem">
+            ℹ️
+            <span class="dash-info-tooltip-box">Nächster Pflichtnachweis halbjährlich fällig</span>
+          </span>
+        </div>
       </div>
       <div class="frist-rechts">
         <div class="frist-datum">
@@ -138,6 +148,34 @@
       <span style="font-size:.72rem;color:var(--text-muted)">{{ g.erstellt_am }}</span>
     </a>
     {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if letzte_beratungen %}
+  <div class="dash-pg-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+      <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">🤝 Pflegeberatung</div>
+      <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
+    </div>
+    {% for b in letzte_beratungen %}
+    <div style="padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:.3rem">
+      <div style="font-size:.85rem;font-weight:500;margin-bottom:.15rem">{{ b.person }}</div>
+      <div style="font-size:.75rem;color:var(--text-muted)">
+        Letzte Beratung: {{ b.datum[8:10] }}.{{ b.datum[5:7] }}.{{ b.datum[0:4] }}
+      </div>
+      <div style="font-size:.75rem;margin-top:.1rem">
+        Nächste fällig: <strong>{{ b.naechster_termin_str }}</strong>
+        {% if b.status == 'überfällig' %}
+        <span style="margin-left:.3rem;color:#b91c1c">🔴 überfällig</span>
+        {% elif b.status == 'bald' %}
+        <span style="margin-left:.3rem;color:#b45309">🟡 in {{ b.tage_bis_termin }} Tagen</span>
+        {% else %}
+        <span style="margin-left:.3rem;color:#065f46">🟢 OK</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/neu" class="btn btn-ghost btn-sm" style="margin-top:.3rem;width:100%;justify-content:center">+ Beratung erfassen</a>
   </div>
   {% endif %}
 
