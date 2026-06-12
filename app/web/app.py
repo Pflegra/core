@@ -23,7 +23,7 @@ from services.import_service import ImportService
 from services.backup_service import BackupService
 from logging_setup import setup_logging
 
-from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten
+from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung
 from web.routers.login import router as login_router
 from web.auth import login_erforderlich, hash_passwort
 from web.csrf import CSRF_COOKIE, generiere_csrf_token, get_csrf_token, pruefe_csrf_request, csrf_fehler
@@ -294,6 +294,7 @@ app.include_router(pflegegrad.router)
 app.include_router(leistungsfinder.router)
 app.include_router(tagebuch.router)
 app.include_router(statistiken.router)
+app.include_router(pflegeberatung.router)
 app.include_router(widerspruch.router)
 app.include_router(gutachten.router)
 from fastapi.responses import JSONResponse
@@ -495,6 +496,21 @@ async def index(request: Request):
     except Exception:
         pass
 
+    # Pflegeberatung Fristen
+    beratung_fristen = []
+    try:
+        from web.routers.pflegeberatung import _lade_eintraege
+        alle_beratungen = _lade_eintraege(request, owner_id)
+        # Pro Person nur den neuesten Eintrag
+        seen = set()
+        for b in alle_beratungen:
+            if b.person not in seen:
+                seen.add(b.person)
+                if b.tage_bis_termin is not None and b.tage_bis_termin <= 60:
+                    beratung_fristen.append(b)
+    except Exception:
+        pass
+
     return TEMPLATES.TemplateResponse(request, "index.html", {
         **base_ctx(request),
         "karten": karten,
@@ -505,6 +521,7 @@ async def index(request: Request):
         "leistungsvorschau": leistungsvorschau,
         "fristen": fristen,
         "letzte_gutachten": letzte_gutachten,
+        "beratung_fristen": beratung_fristen,
     })
 
 

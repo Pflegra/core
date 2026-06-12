@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Pflegeberatung § 37.3 – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🤝 Pflegeberatung <small style="font-size:.6em;color:var(--text-muted)">§ 37.3 SGB XI</small></h1>
+    <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/neu" class="btn btn-primary">+ Beratung erfassen</a>
+</div>
+
+<div style="font-size:.82rem;color:var(--text-muted);margin-bottom:1.25rem;padding:.6rem .9rem;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border)">
+    ℹ️ Ab 2026 gilt für alle Pflegegrade 2–5 einheitlich: Pflichtnachweis <strong>halbjährlich</strong> (§ 37.3 SGB XI, BEEP-Gesetz). Fehlende Nachweise können zur Kürzung des Pflegegeldes führen.
+</div>
+
+{# ── Filter ── #}
+{% if personen %}
+<div style="margin-bottom:1rem">
+    <form method="get" style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <select name="person" onchange="this.form.submit()" style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+            <option value="">Alle Personen</option>
+            {% for p in personen %}
+            <option value="{{ p.name }}" {% if filter_person == p.name %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+{% endif %}
+
+{# ── Einträge ── #}
+{% if eintraege %}
+<div style="display:flex;flex-direction:column;gap:.6rem">
+    {% for e in eintraege %}
+    <div class="form-card" style="padding:.85rem 1rem">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+            <div>
+                <div style="font-weight:600;font-size:.95rem;margin-bottom:.2rem">
+                    {{ e.person }}
+                    {% if e.status == 'überfällig' %}
+                    <span style="margin-left:.4rem;padding:.1rem .4rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#fee2e2;color:#b91c1c">⚠ überfällig</span>
+                    {% elif e.status == 'bald' %}
+                    <span style="margin-left:.4rem;padding:.1rem .4rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#fef3c7;color:#b45309">⏰ bald fällig</span>
+                    {% else %}
+                    <span style="margin-left:.4rem;padding:.1rem .4rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#d1fae5;color:#065f46">✓ ok</span>
+                    {% endif %}
+                </div>
+                <div style="font-size:.82rem;color:var(--text-muted)">
+                    Beratung am {% if e.datum %}{{ e.datum[8:10] }}.{{ e.datum[5:7] }}.{{ e.datum[0:4] }}{% endif %}
+                    {% if e.berater %} · {{ e.berater }}{% endif %}
+                </div>
+                {% if e.notiz %}
+                <div style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem">{{ e.notiz }}</div>
+                {% endif %}
+                <div style="font-size:.8rem;color:var(--text-muted);margin-top:.3rem">
+                    Nächster Pflichttermin: <strong>{{ e.naechster_termin_str }}</strong>
+                    {% if e.tage_bis_termin is not none %}
+                    {% if e.tage_bis_termin < 0 %}
+                    <span style="color:#b91c1c">({{ e.tage_bis_termin | abs }} Tage überfällig)</span>
+                    {% elif e.tage_bis_termin == 0 %}
+                    <span style="color:#b45309">(heute fällig)</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">(in {{ e.tage_bis_termin }} Tagen)</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div style="display:flex;gap:.4rem;flex-shrink:0">
+                {% if e.datei_name %}
+                <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/{{ e.id }}/nachweis"
+                   class="btn btn-ghost btn-sm" title="Nachweis herunterladen">📄 {{ e.datei_name }}</a>
+                {% endif %}
+                <form method="post" action="{{ request.app.state.ingress_entry }}/pflegeberatung/{{ e.id }}/loeschen"
+                      onsubmit="return confirm('Eintrag wirklich löschen?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c">🗑</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="form-card" style="text-align:center;padding:2.5rem 1rem">
+    <div style="font-size:2rem;margin-bottom:.75rem">🤝</div>
+    <div style="font-weight:600;margin-bottom:.4rem">Noch keine Beratungen erfasst</div>
+    <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+        Erfasse deinen ersten Pflichtnachweis nach § 37.3 SGB XI
+    </div>
+    <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/neu" class="btn btn-primary">+ Beratung erfassen</a>
+</div>
+{% endif %}
+{% endblock %}

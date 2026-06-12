@@ -366,6 +366,23 @@ class DbSchema:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_zeit ON audit_log (zeitstempel)")
                 conn.execute("UPDATE schema_version SET version = 16")
 
+            if v < 17:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS pflegeberatung (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id     INTEGER NOT NULL DEFAULT 1,
+                        person       TEXT    NOT NULL DEFAULT '',
+                        datum        TEXT    NOT NULL,
+                        berater      TEXT    NOT NULL DEFAULT '',
+                        notiz        TEXT    NOT NULL DEFAULT '',
+                        datei_pfad   TEXT    NOT NULL DEFAULT '',
+                        datei_name   TEXT    NOT NULL DEFAULT '',
+                        created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+                    )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_pflegeberatung_owner ON pflegeberatung (owner_id, person, datum)")
+                conn.execute("UPDATE schema_version SET version = 17")
+
     def schema_version(self) -> int:
         try:
             with self.connect() as conn:

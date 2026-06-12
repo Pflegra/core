@@ -89,7 +89,7 @@
 </div>
 {% endif %}
 
-{% if fristen %}
+{% if fristen or beratung_fristen %}
 <div class="fristen-box">
   <div class="fristen-titel">📅 Fristen &amp; Hinweise</div>
   {% for f in fristen %}
@@ -115,6 +115,28 @@
       {% if f.link %}
       <a href="{{ f.link }}" class="btn btn-sm btn-primary">→</a>
       {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% for b in beratung_fristen %}
+  <div class="frist-item frist-{% if b.tage_bis_termin < 0 %}rot{% elif b.tage_bis_termin <= 14 %}gelb{% else %}gelb{% endif %}">
+    <div class="frist-info">
+      <div class="frist-haupttext">
+        Pflegeberatung § 37.3 <span class="frist-person">· {{ b.person }}</span>
+      </div>
+      <div class="frist-beschreibung">Nächster Pflichtnachweis halbjährlich fällig</div>
+    </div>
+    <div class="frist-rechts">
+      <div class="frist-datum">
+        {% if b.tage_bis_termin < 0 %}
+          <span class="frist-abgelaufen">überfällig</span>
+        {% elif b.tage_bis_termin == 0 %}
+          <span class="frist-heute">heute</span>
+        {% else %}
+          {{ b.naechster_termin_str }}
+        {% endif %}
+      </div>
+      <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" class="btn btn-sm btn-primary">→</a>
     </div>
   </div>
   {% endfor %}

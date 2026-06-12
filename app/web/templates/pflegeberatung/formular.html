@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Beratung erfassen – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🤝 Beratung erfassen</h1>
+</div>
+
+<div class="form-card" style="max-width:560px">
+    <form method="post" action="{{ request.app.state.ingress_entry }}/pflegeberatung/neu" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="form-group">
+            <label>Person <span style="color:var(--error)">*</span></label>
+            <select name="person" required style="width:100%">
+                <option value="">Person wählen …</option>
+                {% for p in personen %}
+                <option value="{{ p.name }}" {% if person_vorwahl == p.name %}selected{% endif %}>{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Datum der Beratung <span style="color:var(--error)">*</span></label>
+            <input type="date" name="datum" value="{{ heute }}" required style="width:100%">
+        </div>
+
+        <div class="form-group">
+            <label>Anbieter</label>
+            <select name="berater" style="width:100%">
+                <option value="">Bitte wählen …</option>
+                <option value="Pflegedienst">Pflegedienst</option>
+                <option value="Pflegeberatung">Pflegeberatung</option>
+                <option value="Sonstige">Sonstige</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Ansprechpartner</label>
+            <input type="text" name="notiz" placeholder="z.B. Frau Müller, Caritas …" style="width:100%">
+        </div>
+
+        <div class="form-group">
+            <label>Nachweis (PDF oder Bild, optional)</label>
+            <input type="file" name="nachweis" accept=".pdf,.jpg,.jpeg,.png"
+                   style="width:100%;padding:.4rem;background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">Max. 20 MB · PDF, JPG oder PNG</div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+            <button type="submit" class="btn btn-primary">💾 Speichern</button>
+            <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" class="btn btn-ghost">Abbrechen</a>
+        </div>
+    </form>
+</div>
+
+<div style="margin-top:1.5rem;padding:.75rem 1rem;background:var(--bg);border-radius:var(--radius-sm);
+            border:1px solid var(--border);font-size:.82rem;color:var(--text-muted);max-width:560px">
+    ℹ️ Ab 2026: Pflichtnachweis halbjährlich für alle Pflegegrade 2–5 (§ 37.3 SGB XI). Pflegra berechnet automatisch den nächsten Fristtermin.
+</div>
+{% endblock %}
