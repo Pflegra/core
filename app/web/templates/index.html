@@ -304,6 +304,8 @@
                class="btn btn-ghost btn-sm">📝 {{ _('dashboard.antrag_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/dokumente/?person={{ k.name | urlencode }}"
                class="btn btn-ghost btn-sm">📁 Dokumente</a>
+            <a href="{{ request.app.state.ingress_entry }}/zeitachse/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📅 Zeitachse</a>
         </div>
 
     </div>
