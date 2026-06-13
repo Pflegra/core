@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Offene Aufgaben – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📋 Offene Aufgaben</h1>
+</div>
+
+{% if aufgaben %}
+<div style="display:flex;flex-direction:column;gap:.6rem">
+    {% for a in aufgaben %}
+    <div style="display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;
+                background:var(--panel);border-radius:var(--radius);
+                box-shadow:var(--shadow);
+                border-left:4px solid
+                {% if a.ampel == 'rot' %}#dc2626
+                {% elif a.ampel == 'orange' %}#ea580c
+                {% elif a.ampel == 'gelb' %}#d97706
+                {% else %}#16a34a{% endif %}">
+        <span style="font-size:1.4rem;flex-shrink:0">{{ a.ampel_emoji }}</span>
+        <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:.95rem">
+                {{ a.titel }}
+                {% if a.person %}<span style="font-weight:400;color:var(--text-muted);margin-left:.4rem">· {{ a.person }}</span>{% endif %}
+            </div>
+            <div style="font-size:.8rem;color:var(--text-muted);margin-top:.1rem">
+                {{ a.tage_text }} · fällig am {{ a.faellig_str }}
+            </div>
+            {% if a.hinweis %}
+            <div style="font-size:.78rem;color:var(--text-muted);margin-top:.2rem">{{ a.hinweis }}</div>
+            {% endif %}
+        </div>
+        {% if a.link %}
+        <a href="{{ request.app.state.ingress_entry }}{{ a.link }}" class="btn btn-ghost btn-sm" style="flex-shrink:0">→</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<div style="margin-top:1.5rem;font-size:.8rem;color:var(--text-muted);text-align:center">
+    🔴 überfällig · 🟠 1–7 Tage · 🟡 8–30 Tage · 🟢 über 30 Tage
+</div>
+
+{% else %}
+<div class="form-card" style="text-align:center;padding:2.5rem 1rem">
+    <div style="font-size:2rem;margin-bottom:.75rem">✅</div>
+    <div style="font-weight:600;margin-bottom:.4rem">Keine offenen Aufgaben</div>
+    <div style="font-size:.85rem;color:var(--text-muted)">
+        Aktuell sind keine Fristen oder Aufgaben fällig.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

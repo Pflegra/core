@@ -23,7 +23,7 @@ from services.import_service import ImportService
 from services.backup_service import BackupService
 from logging_setup import setup_logging
 
-from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung, dokumente
+from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung, dokumente, aufgaben
 from web.routers.login import router as login_router
 from web.auth import login_erforderlich, hash_passwort
 from web.csrf import CSRF_COOKIE, generiere_csrf_token, get_csrf_token, pruefe_csrf_request, csrf_fehler
@@ -296,6 +296,7 @@ app.include_router(tagebuch.router)
 app.include_router(statistiken.router)
 app.include_router(pflegeberatung.router)
 app.include_router(dokumente.router)
+app.include_router(aufgaben.router)
 app.include_router(widerspruch.router)
 app.include_router(gutachten.router)
 from fastapi.responses import JSONResponse
@@ -522,7 +523,13 @@ async def index(request: Request):
     except Exception:
         pass
 
-    # Nächste Aktion berechnen
+    # Aufgaben berechnen
+    offene_aufgaben = []
+    try:
+        from services.aufgaben_service import berechne_aufgaben
+        offene_aufgaben = berechne_aufgaben(fristen, letzte_beratungen)
+    except Exception:
+        pass
     naechste_aktion = None
     try:
         from datetime import date as _date
@@ -559,6 +566,7 @@ async def index(request: Request):
         "leistungsvorschau": leistungsvorschau,
         "fristen": fristen,
         "naechste_aktion": naechste_aktion,
+        "offene_aufgaben": offene_aufgaben,
         "letzte_gutachten": letzte_gutachten,
         "letzte_dokumente": letzte_dokumente,
         "dokumente_gesamt": dokumente_gesamt,
