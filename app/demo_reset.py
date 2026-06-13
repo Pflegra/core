@@ -151,29 +151,57 @@ def demo_reset(db) -> None:
                 """, e)
             log.info("Demo-Tagebucheinträge angelegt (%d)", len(demo_eintraege))
 
-        # Muster-Entlastungsbuchungen
+        # Muster-Entlastungsbuchungen — Budget grün (nicht überschritten)
         with db._schema.connect() as conn:
             heute = date.today()
             demo_buchungen = []
-            for m in range(1, heute.month + 1):
-                # 1-3 Buchungen pro Monat, zusammen max 131€
+            # Nur für vergangene Monate bis einschließlich letzten Monat
+            for m in range(1, heute.month):
                 demo_buchungen += [
-                    (uid, DEMO_PERSON, f"{heute.year}-{m:02d}-05", 45.00,
+                    (uid, DEMO_PERSON, f"{heute.year}-{m:02d}-05", 65.00,
                      "Ambulanter Pflegedienst Muster", "Hauswirtschaftliche Versorgung", f"RE-{heute.year}{m:02d}-001"),
-                    (uid, DEMO_PERSON, f"{heute.year}-{m:02d}-18", 50.00,
+                    (uid, DEMO_PERSON, f"{heute.year}-{m:02d}-20", 55.00,
                      "Betreuungsgruppe Musterhausen", "Tagesbetreuung", f"RE-{heute.year}{m:02d}-002"),
                 ]
-                if m % 2 == 0:
-                    demo_buchungen.append(
-                        (uid, DEMO_PERSON, f"{heute.year}-{m:02d}-25", 36.00,
-                         "Ambulanter Pflegedienst Muster", "Betreuungsleistung", f"RE-{heute.year}{m:02d}-003")
-                    )
             conn.executemany("""
                 INSERT INTO entlastung_buchungen
                     (owner_id, person, datum, betrag, anbieter, beschreibung, beleg_nr)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, demo_buchungen)
             log.info("Demo-Entlastungsbuchungen angelegt (%d Buchungen)", len(demo_buchungen))
+
+        # Muster-Pflegeberatung
+        with db._schema.connect() as conn:
+            conn.execute("DELETE FROM pflegeberatung WHERE owner_id=?", (uid,))
+            heute = date.today()
+            # Letzter Beratungseinsatz vor ~4 Monaten
+            letzter = heute - timedelta(days=120)
+            conn.execute("""
+                INSERT INTO pflegeberatung
+                    (owner_id, person, datum, berater, notiz, datei_pfad, datei_name)
+                VALUES (?, ?, ?, ?, ?, '', '')
+            """, (uid, DEMO_PERSON, letzter.isoformat(), "Pflegedienst", "Pflegeberatung nach § 37.3 SGB XI"))
+            log.info("Demo-Pflegeberatung angelegt")
+
+        # Muster-Dokumente
+        with db._schema.connect() as conn:
+            conn.execute("DELETE FROM dokumente WHERE owner_id=?", (uid,))
+            heute = date.today()
+            demo_docs = [
+                (uid, DEMO_PERSON, "gutachten", "MD-Gutachten Pflegegrad 3",
+                 "", "MD_Gutachten_2024.pdf", 0, "Begutachtung durch MDK", f"{heute.year-1}-11-15"),
+                (uid, DEMO_PERSON, "pflegekasse", "Bescheid Pflegegrad 3",
+                 "", "Bescheid_PG3_AOK.pdf", 0, "Anerkennungsbescheid der AOK", f"{heute.year-1}-12-01"),
+                (uid, DEMO_PERSON, "pflegeberatung", f"Beratungsnachweis {letzter.strftime('%B %Y')}",
+                 "", f"Beratungsnachweis_{letzter.year}_{letzter.month:02d}.pdf", 0, "", letzter.isoformat()),
+            ]
+            conn.executemany("""
+                INSERT INTO dokumente
+                    (owner_id, person, kategorie, titel, datei_pfad, datei_name, datei_groesse, notiz, datum)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, demo_docs)
+            log.info("Demo-Dokumente angelegt (%d)", len(demo_docs))
+
     except Exception as exc:
         log.error("Demo-Reset Fehler: %s", exc, exc_info=True)
 
