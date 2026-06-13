@@ -197,17 +197,20 @@
 
   {% if letzte_dokumente %}
   <div class="dash-pg-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📁 Dokumente</div>
       <a href="{{ request.app.state.ingress_entry }}/dokumente/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
+    </div>
+    <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      {{ dokumente_gesamt }} Dokument{% if dokumente_gesamt != 1 %}e{% endif %} gesamt
     </div>
     {% for d in letzte_dokumente %}
     <a href="{{ request.app.state.ingress_entry }}/dokumente/{{ d.id }}/herunterladen"
        style="display:flex;align-items:center;justify-content:space-between;
               padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);
               border-radius:6px;text-decoration:none;color:var(--text);margin-bottom:.3rem">
-      <span style="font-size:.85rem;font-weight:500">{{ d.titel }}</span>
-      <span style="font-size:.72rem;color:var(--text-muted)">{{ d.person }}</span>
+      <span style="font-size:.85rem;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.titel }}</span>
+      <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0;margin-left:.4rem">{{ d.datum_de or d.created_at[:10] }}</span>
     </a>
     {% endfor %}
   </div>

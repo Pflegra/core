@@ -499,9 +499,12 @@ async def index(request: Request):
 
     # Letzte Dokumente
     letzte_dokumente = []
+    dokumente_gesamt = 0
     try:
         from web.routers.dokumente import _lade_dokumente
-        letzte_dokumente = _lade_dokumente(request, owner_id)[:3]
+        alle_dokumente = _lade_dokumente(request, owner_id)
+        dokumente_gesamt = len(alle_dokumente)
+        letzte_dokumente = alle_dokumente[:3]
     except Exception:
         pass
     beratung_fristen = []
@@ -539,6 +542,8 @@ async def index(request: Request):
                 naechste_aktion = {"emoji": "🚨", "text": f"{titel}", "hinweis": "überfällig", "klasse": "rot"}
             elif tage <= 14:
                 naechste_aktion = {"emoji": "⚠️", "text": f"{titel}", "hinweis": f"fällig am {datum}", "klasse": "gelb"}
+            elif tage <= 30:
+                naechste_aktion = {"emoji": "⏰", "text": f"{titel}", "hinweis": f"fällig am {datum}", "klasse": "gelb"}
             elif tage <= 60:
                 naechste_aktion = {"emoji": "📅", "text": f"{titel}", "hinweis": f"fällig am {datum}", "klasse": "blau"}
     except Exception:
@@ -556,6 +561,7 @@ async def index(request: Request):
         "naechste_aktion": naechste_aktion,
         "letzte_gutachten": letzte_gutachten,
         "letzte_dokumente": letzte_dokumente,
+        "dokumente_gesamt": dokumente_gesamt,
         "beratung_fristen": beratung_fristen,
         "letzte_beratungen": letzte_beratungen,
     })
