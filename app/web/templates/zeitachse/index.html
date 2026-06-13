@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Zeitachse – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📅 Zeitachse</h1>
+</div>
+
+{# ── Filter ── #}
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem">
+    <form method="get" style="display:flex;gap:.5rem;flex-wrap:wrap">
+        {% if personen %}
+        <select name="person" onchange="this.form.submit()" style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+            <option value="">Alle Personen</option>
+            {% for p in personen %}
+            <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        {% if jahre %}
+        <select name="jahr" onchange="this.form.submit()" style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+            <option value="">Alle Jahre</option>
+            {% for j in jahre %}
+            <option value="{{ j }}" {% if filter_jahr == j %}selected{% endif %}>{{ j }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        {% if filter_person or filter_jahr %}
+        <a href="{{ request.app.state.ingress_entry }}/zeitachse/" class="btn btn-ghost btn-sm">✕ Filter löschen</a>
+        {% endif %}
+    </form>
+</div>
+
+{# ── Legende ── #}
+<div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.78rem;color:var(--text-muted)">
+    {% for typ, info in ereignis_typen.items() %}
+    <span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{{ info.farbe }};margin-right:.25rem"></span>
+        {{ info.emoji }} {{ info.label }}
+    </span>
+    {% endfor %}
+</div>
+
+{# ── Zeitachse ── #}
+{% if ereignisse %}
+<div style="position:relative">
+    {# Vertikale Linie #}
+    <div style="position:absolute;left:110px;top:0;bottom:0;width:2px;background:var(--border);z-index:0"></div>
+
+    {% set ns = namespace(letzter_monat='') %}
+    {% for e in ereignisse %}
+
+        {# Monats-Header #}
+        {% if e.monat_jahr != ns.letzter_monat %}
+        {% set ns.letzter_monat = e.monat_jahr %}
+        <div style="display:flex;align-items:center;gap:1rem;margin:{% if loop.index > 1 %}1.5rem{% else %}0{% endif %} 0 .75rem">
+            <div style="width:100px;font-size:.75rem;font-weight:700;color:var(--text-muted);text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0">
+                {{ e.monat_jahr }}
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--border);border:2px solid var(--panel);z-index:1;flex-shrink:0;margin-left:2px"></div>
+        </div>
+        {% endif %}
+
+        {# Ereignis ── #}
+        <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:.5rem;position:relative">
+            <div style="width:100px;font-size:.78rem;color:var(--text-muted);text-align:right;flex-shrink:0;padding-top:.3rem">
+                {{ e.datum_de }}
+            </div>
+            <div style="width:14px;height:14px;border-radius:50%;background:{{ e.info.farbe }};border:2px solid var(--panel);z-index:1;flex-shrink:0;margin-top:.35rem;{% if e.zukunft %}opacity:.5;border-style:dashed{% endif %}"></div>
+            <div style="flex:1;padding:.4rem .75rem;background:var(--panel);border-radius:var(--radius-sm);border:1px solid var(--border);{% if e.zukunft %}opacity:.7;border-style:dashed{% endif %}">
+                <div style="font-size:.88rem;font-weight:600;color:{% if e.zukunft %}var(--text-muted){% else %}var(--text){% endif %}">
+                    {{ e.info.emoji }} {{ e.titel }}
+                    {% if e.zukunft %}<span style="font-size:.72rem;font-weight:400;margin-left:.4rem;color:var(--text-muted)">(geplant)</span>{% endif %}
+                    {% if not filter_person and e.person %}<span style="font-size:.75rem;font-weight:400;color:var(--text-muted);margin-left:.4rem">· {{ e.person }}</span>{% endif %}
+                </div>
+                {% if e.notiz %}
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:.15rem">{{ e.notiz }}</div>
+                {% endif %}
+            </div>
+            {% if e.link %}
+            <a href="{{ request.app.state.ingress_entry }}{{ e.link }}" style="font-size:.75rem;color:var(--primary);text-decoration:none;padding-top:.35rem;flex-shrink:0">→</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="form-card" style="text-align:center;padding:2.5rem 1rem">
+    <div style="font-size:2rem;margin-bottom:.75rem">📅</div>
+    <div style="font-weight:600;margin-bottom:.4rem">Noch keine Ereignisse</div>
+    <div style="font-size:.85rem;color:var(--text-muted)">
+        Erfasse Pflegeberatungen, Gutachten und Dokumente um die Zeitachse zu füllen.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

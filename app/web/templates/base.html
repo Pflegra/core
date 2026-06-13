@@ -566,6 +566,7 @@ small.text-muted { font-size: .78rem; }
                     <li><a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" {% if request.url.path.find('/pflegeberatung') != -1 %}class="active"{% endif %}>🤝 Pflegeberatung</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/dokumente/" {% if request.url.path.find('/dokumente') != -1 %}class="active"{% endif %}>📁 Dokumente</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/aufgaben/" {% if request.url.path.find('/aufgaben') != -1 %}class="active"{% endif %}>📋 Aufgaben</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/zeitachse/" {% if request.url.path.find('/zeitachse') != -1 %}class="active"{% endif %}>📅 Zeitachse</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/statistiken/" {% if request.url.path.find('/statistiken') != -1 %}class="active"{% endif %}>📊 {{ _('nav.statistiken') }}</a></li>
                     <li class="nav-dropdown-sep"></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/versicherte/" {% if request.url.path.find('/versicherte') != -1 %}class="active"{% endif %}>🏥 {{ _('nav.versicherte') }}</a></li>
