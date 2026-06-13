@@ -302,6 +302,8 @@
                class="btn btn-ghost btn-sm">⬇ {{ _('dashboard.export_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/antraege/?person={{ k.name | urlencode }}"
                class="btn btn-ghost btn-sm">📝 {{ _('dashboard.antrag_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/dokumente/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📁 Dokumente</a>
         </div>
 
     </div>
