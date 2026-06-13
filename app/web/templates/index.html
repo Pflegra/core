@@ -29,6 +29,22 @@
     </a>
 </div>
 
+{# ── Nächste Aktion ── #}
+{% if naechste_aktion %}
+<div style="display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;
+            margin-bottom:1rem;border-radius:10px;font-size:.88rem;
+            {% if naechste_aktion.klasse == 'rot' %}background:#fee2e2;border:1px solid #fca5a5;
+            {% elif naechste_aktion.klasse == 'gelb' %}background:#fef3c7;border:1px solid #fcd34d;
+            {% else %}background:#dbeafe;border:1px solid #93c5fd;{% endif %}">
+    <span style="font-size:1.1rem">{{ naechste_aktion.emoji }}</span>
+    <span>
+        <strong>Nächste Aktion:</strong>
+        {{ naechste_aktion.text }}
+        <span style="opacity:.75">· {{ naechste_aktion.hinweis }}</span>
+    </span>
+</div>
+{% endif %}
+
 {# ── Pflegegrad + Nicht ausgeschöpfte Leistungen ── #}
 {% if letzter_pg or nicht_ausgeschoepft %}
 <div class="dashboard-info-row">

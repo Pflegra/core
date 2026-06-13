@@ -519,6 +519,31 @@ async def index(request: Request):
     except Exception:
         pass
 
+    # Nächste Aktion berechnen
+    naechste_aktion = None
+    try:
+        from datetime import date as _date
+        kandidaten = []
+        # Fristen
+        for f in fristen:
+            if f.tage_bis_faellig is not None:
+                kandidaten.append((f.tage_bis_faellig, f.titel, f.faellig_str if hasattr(f, 'faellig_str') else ""))
+        # Beratungsfristen
+        for b in beratung_fristen:
+            if b.tage_bis_termin is not None:
+                kandidaten.append((b.tage_bis_termin, f"Pflegeberatung § 37.3 · {b.person}", b.naechster_termin_str))
+        if kandidaten:
+            kandidaten.sort(key=lambda x: x[0])
+            tage, titel, datum = kandidaten[0]
+            if tage < 0:
+                naechste_aktion = {"emoji": "🚨", "text": f"{titel}", "hinweis": "überfällig", "klasse": "rot"}
+            elif tage <= 14:
+                naechste_aktion = {"emoji": "⚠️", "text": f"{titel}", "hinweis": f"fällig am {datum}", "klasse": "gelb"}
+            elif tage <= 60:
+                naechste_aktion = {"emoji": "📅", "text": f"{titel}", "hinweis": f"fällig am {datum}", "klasse": "blau"}
+    except Exception:
+        pass
+
     return TEMPLATES.TemplateResponse(request, "index.html", {
         **base_ctx(request),
         "karten": karten,
@@ -528,6 +553,7 @@ async def index(request: Request):
         "nicht_ausgeschoepft": nicht_ausgeschoepft,
         "leistungsvorschau": leistungsvorschau,
         "fristen": fristen,
+        "naechste_aktion": naechste_aktion,
         "letzte_gutachten": letzte_gutachten,
         "letzte_dokumente": letzte_dokumente,
         "beratung_fristen": beratung_fristen,
