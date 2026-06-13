@@ -42,45 +42,39 @@
 </div>
 
 {# ── Zeitachse ── #}
-{% if ereignisse %}
+{% if nach_monat %}
 <div style="position:relative">
-    {# Vertikale Linie #}
     <div style="position:absolute;left:110px;top:0;bottom:0;width:2px;background:var(--border);z-index:0"></div>
 
-    {% set ns = namespace(letzter_monat='') %}
-    {% for e in ereignisse %}
+    {% for monat, monat_ereignisse in nach_monat.items() %}
 
-        {# Monats-Header #}
-        {% if e.monat_jahr != ns.letzter_monat %}
-        {% set ns.letzter_monat = e.monat_jahr %}
-        <div style="display:flex;align-items:center;gap:1rem;margin:{% if loop.index > 1 %}1.5rem{% else %}0{% endif %} 0 .75rem">
-            <div style="width:100px;font-size:.75rem;font-weight:700;color:var(--text-muted);text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0">
-                {{ e.monat_jahr }}
-            </div>
-            <div style="width:18px;height:18px;border-radius:50%;background:var(--border);border:2px solid var(--panel);z-index:1;flex-shrink:0;margin-left:2px"></div>
+    <div style="display:flex;align-items:center;gap:1rem;margin:{% if not loop.first %}1.5rem{% else %}0{% endif %} 0 .75rem">
+        <div style="width:100px;font-size:.75rem;font-weight:700;color:var(--text-muted);text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0">
+            {{ monat }}
         </div>
-        {% endif %}
+        <div style="width:18px;height:18px;border-radius:50%;background:var(--border);border:2px solid var(--panel);z-index:1;flex-shrink:0;margin-left:2px"></div>
+    </div>
 
-        {# Ereignis ── #}
-        <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:.5rem;position:relative">
-            <div style="width:100px;font-size:.78rem;color:var(--text-muted);text-align:right;flex-shrink:0;padding-top:.3rem">
-                {{ e.datum_de }}
+    {% for e in monat_ereignisse %}
+    <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:.5rem;position:relative">
+        <div style="width:100px;font-size:.78rem;color:var(--text-muted);text-align:right;flex-shrink:0;padding-top:.3rem">
+            {{ e.datum_de }}
+        </div>
+        <div style="width:14px;height:14px;border-radius:50%;background:{{ e.info.farbe }};border:2px solid var(--panel);z-index:1;flex-shrink:0;margin-top:.35rem;{% if e.zukunft %}opacity:.5{% endif %}"></div>
+        <div style="flex:1;padding:.4rem .75rem;background:var(--panel);border-radius:var(--radius-sm);border:1px solid var(--border);{% if e.zukunft %}opacity:.7;border-style:dashed{% endif %}{% if e.link %};cursor:pointer{% endif %}"
+             {% if e.link %}onclick="window.location='{{ request.app.state.ingress_entry }}{{ e.link }}'"{% endif %}>
+            <div style="font-size:.88rem;font-weight:600;color:{% if e.zukunft %}var(--text-muted){% else %}var(--text){% endif %}">
+                {{ e.info.emoji }} {{ e.titel }}
+                {% if e.zukunft %}<span style="font-size:.72rem;font-weight:400;margin-left:.4rem;color:var(--text-muted)">(geplant)</span>{% endif %}
+                {% if not filter_person and e.person %}<span style="font-size:.75rem;font-weight:400;color:var(--text-muted);margin-left:.4rem">· {{ e.person }}</span>{% endif %}
             </div>
-            <div style="width:14px;height:14px;border-radius:50%;background:{{ e.info.farbe }};border:2px solid var(--panel);z-index:1;flex-shrink:0;margin-top:.35rem;{% if e.zukunft %}opacity:.5;border-style:dashed{% endif %}"></div>
-            <div style="flex:1;padding:.4rem .75rem;background:var(--panel);border-radius:var(--radius-sm);border:1px solid var(--border);{% if e.zukunft %}opacity:.7;border-style:dashed{% endif %}">
-                <div style="font-size:.88rem;font-weight:600;color:{% if e.zukunft %}var(--text-muted){% else %}var(--text){% endif %}">
-                    {{ e.info.emoji }} {{ e.titel }}
-                    {% if e.zukunft %}<span style="font-size:.72rem;font-weight:400;margin-left:.4rem;color:var(--text-muted)">(geplant)</span>{% endif %}
-                    {% if not filter_person and e.person %}<span style="font-size:.75rem;font-weight:400;color:var(--text-muted);margin-left:.4rem">· {{ e.person }}</span>{% endif %}
-                </div>
-                {% if e.notiz %}
-                <div style="font-size:.75rem;color:var(--text-muted);margin-top:.15rem">{{ e.notiz }}</div>
-                {% endif %}
-            </div>
-            {% if e.link %}
-            <a href="{{ request.app.state.ingress_entry }}{{ e.link }}" style="font-size:.75rem;color:var(--primary);text-decoration:none;padding-top:.35rem;flex-shrink:0">→</a>
+            {% if e.notiz %}
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:.15rem">{{ e.notiz }}</div>
             {% endif %}
         </div>
+    </div>
+    {% endfor %}
+
     {% endfor %}
 </div>
 
