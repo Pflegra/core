@@ -1,38 +1,5 @@
 # Changelog
 
-## v1.4.0 (14.06.2026)
-
-### Neu
-
-- Aufgabenübersicht: zentrale Seite mit allen offenen Aufgaben und Fristen
-  - Ampelfarben zeigen Dringlichkeit: rot (überfällig), orange (1–7 Tage), gelb (8–30 Tage), grün (> 30 Tage)
-- Zeitachse: chronologische Ereignisübersicht pro versicherter Person
-  - Pflegeberatungen, Gutachten, Pflegegrad-Änderungen, Dokumente, Entlastungsbuchungen und Fristen auf einen Blick
-
-### Verbessert
-
-- Dashboard neu strukturiert und auf die versicherten Personen fokussiert
-- Wichtige Informationen wie Aufgaben, Budget und nächste Termine sind jetzt direkt auf den Personenkarten sichtbar
-- Pflegegrad-Badge, Aufgaben-Badge und Nächste-Aufgabe-Bereich sind direkt anklickbar und führen zur passenden Aufgabenübersicht
-- Bei einer einzelnen versicherten Person wird die Karte automatisch zentriert dargestellt
-- Statistik-Kacheln entfernt, da diese Informationen auf den Personenkarten vollständig abgebildet sind
-
-## v1.3.3 (12.06.2026)
-
-### Neu
-
-- Pflegeberatungs-Kachel auf dem Dashboard
-- Nächste-Aktion-Kachel auf dem Dashboard
-- Dokumentenarchiv pro versicherter Person
-
-## v1.3.0 (10.06.2026)
-
-### Neu
-
-- PWA-Verbesserungen: Manifest-Shortcuts, Offline-Fallback, Cache-first Service Worker
-- PWA-Installationsbanner mit 7-Tage-Dismissal
-- Mobile- und Touch-UI verbessert
-
 ## v1.2.1 (08.06.2026)
 
 ### Sicherheit

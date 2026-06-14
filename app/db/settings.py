@@ -19,8 +19,6 @@ class UserSettings:
     stundensatz:          float = 20.0
     standard_person:      str   = ""
     standard_jahr:        int   = 0
-    benachrichtigung_email: int = 0
-    benachrichtigung_push:  int = 0
 
     @classmethod
     def from_row(cls, r) -> "UserSettings":
@@ -33,8 +31,6 @@ class UserSettings:
             stundensatz=r["stundensatz"],
             standard_person=r["standard_person"],
             standard_jahr=r["standard_jahr"],
-            benachrichtigung_email=r["benachrichtigung_email"] if "benachrichtigung_email" in r.keys() else 0,
-            benachrichtigung_push=r["benachrichtigung_push"] if "benachrichtigung_push" in r.keys() else 0,
         )
 
 
@@ -57,9 +53,8 @@ class UserSettingsRepo:
             conn.execute("""
                 INSERT INTO user_settings
                     (user_id, absender_name, absender_adresse, absender_mail,
-                     absender_geburtsdatum, stundensatz, standard_person, standard_jahr,
-                     benachrichtigung_email, benachrichtigung_push)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     absender_geburtsdatum, stundensatz, standard_person, standard_jahr)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(user_id) DO UPDATE SET
                     absender_name=excluded.absender_name,
                     absender_adresse=excluded.absender_adresse,
@@ -67,12 +62,9 @@ class UserSettingsRepo:
                     absender_geburtsdatum=excluded.absender_geburtsdatum,
                     stundensatz=excluded.stundensatz,
                     standard_person=excluded.standard_person,
-                    standard_jahr=excluded.standard_jahr,
-                    benachrichtigung_email=excluded.benachrichtigung_email,
-                    benachrichtigung_push=excluded.benachrichtigung_push
+                    standard_jahr=excluded.standard_jahr
             """, (s.user_id, s.absender_name, s.absender_adresse, s.absender_mail,
-                  s.absender_geburtsdatum, s.stundensatz, s.standard_person, s.standard_jahr,
-                  s.benachrichtigung_email, s.benachrichtigung_push))
+                  s.absender_geburtsdatum, s.stundensatz, s.standard_person, s.standard_jahr))
 
 
 class PlanungsRepo:

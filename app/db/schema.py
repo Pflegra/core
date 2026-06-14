@@ -402,67 +402,6 @@ class DbSchema:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_dokumente_owner ON dokumente (owner_id, person, kategorie)")
                 conn.execute("UPDATE schema_version SET version = 18")
 
-            if v < 19:
-                # Erinnerungs-Konfiguration (Admin-global)
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS erinnerungen_config (
-                        schluessel  TEXT PRIMARY KEY,
-                        wert        TEXT NOT NULL DEFAULT ''
-                    )
-                """)
-                # Standard-Vorlaufzeiten eintragen
-                defaults = [
-                    ("vorlauf_pflegeberatung", "14"),
-                    ("vorlauf_entlastungsbetrag", "30"),
-                    ("vorlauf_fristen", "14"),
-                    ("smtp_host", ""),
-                    ("smtp_port", "587"),
-                    ("smtp_user", ""),
-                    ("smtp_passwort", ""),
-                    ("smtp_absender", ""),
-                    ("smtp_tls", "1"),
-                    ("push_vapid_public", ""),
-                    ("push_vapid_private", ""),
-                    ("push_aktiv", "0"),
-                    ("erinnerung_stunde", "8"),
-                ]
-                for k, v_default in defaults:
-                    conn.execute(
-                        "INSERT OR IGNORE INTO erinnerungen_config (schluessel, wert) VALUES (?, ?)",
-                        (k, v_default)
-                    )
-                # Benachrichtigungseinstellungen in user_settings ergänzen
-                conn.execute("ALTER TABLE user_settings ADD COLUMN benachrichtigung_email INTEGER NOT NULL DEFAULT 0")
-                conn.execute("ALTER TABLE user_settings ADD COLUMN benachrichtigung_push  INTEGER NOT NULL DEFAULT 0")
-                # Push-Subscriptions Tabelle
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS push_subscriptions (
-                        id        INTEGER PRIMARY KEY AUTOINCREMENT,
-                        owner_id  INTEGER NOT NULL,
-                        endpoint  TEXT NOT NULL UNIQUE,
-                        p256dh    TEXT NOT NULL DEFAULT \'\',
-                        auth      TEXT NOT NULL DEFAULT \'\',
-                        created_at TEXT NOT NULL DEFAULT (datetime(\'now\'))
-                    )
-                """)
-                conn.execute("CREATE INDEX IF NOT EXISTS idx_push_owner ON push_subscriptions (owner_id)")
-                # Erinnerungsverlauf
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS erinnerungen_log (
-                        id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                        owner_id   INTEGER NOT NULL,
-                        zeitpunkt  TEXT NOT NULL DEFAULT (datetime('now')),
-                        kanal      TEXT NOT NULL DEFAULT 'email',
-                        person     TEXT NOT NULL DEFAULT '',
-                        typ        TEXT NOT NULL DEFAULT '',
-                        titel      TEXT NOT NULL DEFAULT '',
-                        datum      TEXT NOT NULL DEFAULT '',
-                        erfolg     INTEGER NOT NULL DEFAULT 1
-                    )
-                """)
-                conn.execute("CREATE INDEX IF NOT EXISTS idx_erinnerungen_log_owner ON erinnerungen_log (owner_id, zeitpunkt)")
-                conn.execute("UPDATE schema_version SET version = 19")
-
     def schema_version(self) -> int:
         try:
             with self.connect() as conn:
@@ -475,5 +414,3 @@ class DbSchema:
 #  EintragsRepo
 
 # Migration v16 wird in migrate() ergänzt — siehe unten
-
-# v19 wird in migrate() ergänzt — Erinnerungen
