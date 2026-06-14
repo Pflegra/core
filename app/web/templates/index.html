@@ -72,21 +72,23 @@
                 {# Status-Badges #}
                 <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.3rem">
                     {% if k.vers and k.vers.pflegegrad %}
-                    <span style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:700;
+                    <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf?person={{ k.name | urlencode }}"
+                       style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:700;text-decoration:none;
                                  background:{% if k.vers.pflegegrad == 1 %}#f0fdf4;color:#16a34a
                                  {% elif k.vers.pflegegrad == 2 %}#eff6ff;color:#1d4ed8
                                  {% elif k.vers.pflegegrad == 3 %}#fef3c7;color:#b45309
                                  {% elif k.vers.pflegegrad == 4 %}#fff7ed;color:#c2410c
                                  {% else %}#fef2f2;color:#b91c1c{% endif %}">
                         PG {{ k.vers.pflegegrad }}
-                    </span>
+                    </a>
                     {% endif %}
                     {% set p_aufgaben = offene_aufgaben | selectattr('person', 'equalto', k.name) | list %}
                     {% if p_aufgaben %}
-                    <span style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:600;
+                    <a href="{{ request.app.state.ingress_entry }}/aufgaben/?person={{ k.name | urlencode }}"
+                       style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:600;text-decoration:none;
                                  background:#fef3c7;color:#b45309">
                         {{ p_aufgaben|length }} Aufgabe{% if p_aufgaben|length != 1 %}n{% endif %}
-                    </span>
+                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -158,15 +160,17 @@
         {% set person_aufgaben = offene_aufgaben | selectattr('person', 'equalto', k.name) | list %}
         {% if person_aufgaben %}
         {% set a = person_aufgaben[0] %}
-        <div style="margin-top:.6rem;padding:.5rem .75rem;border-radius:6px;font-size:.8rem;
-                    border-left:3px solid {% if a.ampel == 'rot' %}#dc2626{% elif a.ampel == 'orange' %}#ea580c{% elif a.ampel == 'gelb' %}#d97706{% else %}#16a34a{% endif %};
-                    background:{% if a.ampel == 'rot' %}#fff5f5{% elif a.ampel == 'orange' %}#fff8f0{% elif a.ampel == 'gelb' %}#fffbeb{% else %}#f0fdf4{% endif %}">
+        <a href="{{ request.app.state.ingress_entry }}/aufgaben/?person={{ k.name | urlencode }}"
+           style="display:block;margin-top:.6rem;padding:.5rem .75rem;border-radius:6px;font-size:.8rem;
+                  text-decoration:none;color:inherit;
+                  border-left:3px solid {% if a.ampel == 'rot' %}#dc2626{% elif a.ampel == 'orange' %}#ea580c{% elif a.ampel == 'gelb' %}#d97706{% else %}#16a34a{% endif %};
+                  background:{% if a.ampel == 'rot' %}#fff5f5{% elif a.ampel == 'orange' %}#fff8f0{% elif a.ampel == 'gelb' %}#fffbeb{% else %}#f0fdf4{% endif %}">
             <span style="font-weight:600">{{ a.ampel_emoji }} Nächste Aufgabe:</span>
             {{ a.titel }} · <span style="color:var(--text-muted)">{{ a.faellig_str }}</span>
             {% if person_aufgaben|length > 1 %}
             <span style="color:var(--text-muted)"> · +{{ person_aufgaben|length - 1 }} weitere</span>
             {% endif %}
-        </div>
+        </a>
         {% endif %}
 
     </div>
