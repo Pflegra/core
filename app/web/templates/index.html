@@ -8,27 +8,6 @@
     <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="btn btn-primary">{{ _('dashboard.neuer_eintrag') }}</a>
 </div>
 
-{# ── Kennzahlen — kompakt ── #}
-<div class="stat-leiste" style="margin-bottom:.75rem">
-    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" class="stat-chip" style="{% if offene_aufgaben|selectattr('ampel','equalto','rot')|list %}border-color:#dc2626;color:#dc2626;font-weight:700{% elif offene_aufgaben|selectattr('ampel','equalto','orange')|list %}border-color:#ea580c;color:#ea580c{% elif offene_aufgaben|selectattr('ampel','equalto','gelb')|list %}border-color:#d97706;color:#d97706{% endif %}">
-        <span class="stat-chip-wert">{{ offene_aufgaben|length }}</span>
-        <span class="stat-chip-label">Offene Aufgaben</span>
-    </a>
-    <a href="{{ request.app.state.ingress_entry }}/versicherte/" class="stat-chip">
-        <span class="stat-chip-wert">{{ statistik.personen_anzahl }}</span>
-        <span class="stat-chip-label">{{ _('dashboard.personen') }}</span>
-    </a>
-    <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="stat-chip">
-        <span class="stat-chip-wert">{{ statistik.eintraege_gesamt }}</span>
-        <span class="stat-chip-label">{{ _('dashboard.eintraege') }}</span>
-    </a>
-    <a href="{{ request.app.state.ingress_entry }}/budget/" class="stat-chip">
-        <span class="stat-chip-wert">{{ statistik.stunden_gesamt | int }}</span>
-        <span class="stat-chip-label">{{ _('dashboard.stunden', jahr=aktuelles_jahr) }}</span>
-    </a>
-</div>
-
-
 {# ── Offene Aufgaben — nur wenn dringend ── #}
 {% set dringende = offene_aufgaben | selectattr('ampel', 'in', ['rot', 'orange']) | list %}
 {% if dringende %}
@@ -54,7 +33,7 @@
 
 {# ── Personenkarten ── #}
 {% if karten %}
-<div class="personen-karten">
+<div class="personen-karten{% if karten|length == 1 %} personen-karten--single{% endif %}">
     {% for k in karten %}
     <div class="personen-karte">
 
