@@ -3,14 +3,21 @@
 
 {% block content %}
 
-{# ── Kopfzeile ── #}
 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem">
     <h1>{{ _('dashboard.titel') }}</h1>
     <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="btn btn-primary">{{ _('dashboard.neuer_eintrag') }}</a>
 </div>
 
-{# ── Statistik-Leiste ── #}
-<div class="stat-leiste">
+{# ── Kennzahlen — kompakt ── #}
+<div class="stat-leiste" style="margin-bottom:.75rem">
+    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" class="stat-chip" style="{% if offene_aufgaben|selectattr('ampel','equalto','rot')|list %}border-color:#dc2626;color:#dc2626;font-weight:700{% elif offene_aufgaben|selectattr('ampel','equalto','orange')|list %}border-color:#ea580c;color:#ea580c{% elif offene_aufgaben|selectattr('ampel','equalto','gelb')|list %}border-color:#d97706;color:#d97706{% endif %}">
+        <span class="stat-chip-wert">{{ offene_aufgaben|length }}</span>
+        <span class="stat-chip-label">Offene Aufgaben</span>
+    </a>
+    <a href="{{ request.app.state.ingress_entry }}/versicherte/" class="stat-chip">
+        <span class="stat-chip-wert">{{ statistik.personen_anzahl }}</span>
+        <span class="stat-chip-label">{{ _('dashboard.personen') }}</span>
+    </a>
     <a href="{{ request.app.state.ingress_entry }}/eintraege/" class="stat-chip">
         <span class="stat-chip-wert">{{ statistik.eintraege_gesamt }}</span>
         <span class="stat-chip-label">{{ _('dashboard.eintraege') }}</span>
@@ -19,209 +26,29 @@
         <span class="stat-chip-wert">{{ statistik.stunden_gesamt | int }}</span>
         <span class="stat-chip-label">{{ _('dashboard.stunden', jahr=aktuelles_jahr) }}</span>
     </a>
-    <a href="{{ request.app.state.ingress_entry }}/versicherte/" class="stat-chip">
-        <span class="stat-chip-wert">{{ statistik.personen_anzahl }}</span>
-        <span class="stat-chip-label">{{ _('dashboard.personen') }}</span>
-    </a>
-    <a href="{{ request.app.state.ingress_entry }}/budget/" class="stat-chip">
-        <span class="stat-chip-wert">{{ statistik.jahre_anzahl }}</span>
-        <span class="stat-chip-label">{{ _('dashboard.abrechnungsjahre') }}</span>
-    </a>
-    {% if offene_aufgaben %}
-    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" class="stat-chip" style="{% if offene_aufgaben|selectattr('ampel', 'equalto', 'rot')|list %}border-color:#dc2626;color:#dc2626{% elif offene_aufgaben|selectattr('ampel', 'equalto', 'orange')|list %}border-color:#ea580c;color:#ea580c{% elif offene_aufgaben|selectattr('ampel', 'equalto', 'gelb')|list %}border-color:#d97706;color:#d97706{% endif %}">
-        <span class="stat-chip-wert">{{ offene_aufgaben|length }}</span>
-        <span class="stat-chip-label">Offene Aufgaben</span>
-    </a>
-    {% endif %}
 </div>
 
-{# ── Nächste Aktion ── #}
-{% if naechste_aktion %}
-<div style="display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;
-            margin-bottom:1rem;border-radius:10px;font-size:.88rem;
-            {% if naechste_aktion.klasse == 'rot' %}background:#fee2e2;border:1px solid #fca5a5;
-            {% elif naechste_aktion.klasse == 'gelb' %}background:#fef3c7;border:1px solid #fcd34d;
-            {% else %}background:#dbeafe;border:1px solid #93c5fd;{% endif %}">
-    <span style="font-size:1.1rem">{{ naechste_aktion.emoji }}</span>
-    <span>
-        <strong>Nächste Aktion:</strong>
-        {{ naechste_aktion.text }}
-        <span style="opacity:.75">· {{ naechste_aktion.hinweis }}</span>
-    </span>
+
+{# ── Offene Aufgaben — nur wenn dringend ── #}
+{% set dringende = offene_aufgaben | selectattr('ampel', 'in', ['rot', 'orange']) | list %}
+{% if dringende %}
+<div style="margin-bottom:1rem;padding:.6rem 1rem;border-radius:10px;
+            background:#fff7ed;border:1px solid #fed7aa;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+    <span style="font-size:1rem">⚠️</span>
+    <span style="font-size:.88rem;font-weight:600;color:#c2410c">{{ dringende|length }} dringende Aufgabe{% if dringende|length != 1 %}n{% endif %}:</span>
+    {% for a in dringende %}
+    <a href="{{ request.app.state.ingress_entry }}{{ a.link }}" style="font-size:.82rem;color:#c2410c;text-decoration:underline">
+        {{ a.titel }}{% if a.person %} ({{ a.person }}){% endif %} · {{ a.faellig_str }}
+    </a>{% if not loop.last %}<span style="color:#fed7aa">|</span>{% endif %}
+    {% endfor %}
 </div>
-{% endif %}
-
-{# ── Pflegegrad + Nicht ausgeschöpfte Leistungen ── #}
-{% if letzter_pg or nicht_ausgeschoepft %}
-<div class="dashboard-info-row">
-
-  {% if letzter_pg %}
-  <div class="dash-pg-box">
-    <div class="dash-pg-hauptwert">
-      <span class="dash-pg-badge-gross pg-farbe-{{ letzter_pg.pflegegrad }}">
-        {% if letzter_pg.pflegegrad == 0 %}Kein PG{% else %}Pflegegrad {{ letzter_pg.pflegegrad }}{% endif %}
-      </span>
-    </div>
-    <div class="dash-pg-punkte-zeile">{{ "%.1f"|format(letzter_pg.gesamtpunkte) }} {{ _('dashboard.gesamtpunkte') }}</div>
-    <div class="dash-pg-meta">
-      <span>{{ _('dashboard.zuletzt_berechnet') }}:</span>
-      <span>{{ letzter_pg.datum }}{% if letzter_pg.person %} · {{ letzter_pg.person }}{% endif %}</span>
-    </div>
-    <div class="dash-pg-links">
-      <a href="{{ request.app.state.ingress_entry }}/leistungsfinder/?pg={{ letzter_pg.pflegegrad }}" class="btn btn-sm btn-primary">💶 {{ _('dashboard.leistungen_anzeigen') }}</a>
-      <a href="{{ request.app.state.ingress_entry }}/pflegegrad/" class="btn btn-sm btn-secondary">🧮 {{ _('dashboard.neu_berechnen') }}</a>
-      <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" class="btn btn-sm btn-secondary">📈 {{ _('dashboard.verlauf_link') }}</a>
-      {% if nicht_ausgeschoepft %}
-      <span class="dash-info-tooltip">
-        💡
-        <span class="dash-info-tooltip-box">
-          <strong>Leistungen noch nicht genutzt:</strong><br>
-          {% for h in nicht_ausgeschoepft %}
-          {{ h.leistung }}{% if h.person %} · {{ h.person }}{% endif %} — {{ "%.0f"|format(h.betrag) }} €/Mo<br>
-          {% endfor %}
-        </span>
-      </span>
-      {% endif %}
-    </div>
-  </div>
-  {% endif %}
-
-  {% if leistungsvorschau %}
-  <div class="dash-leistungen-box">
-    <div class="dash-leistungen-titel">💶 Verfügbare Leistungen</div>
-    {% for l in leistungsvorschau %}
-    <div class="dash-leistung-zeile">
-      <span class="dash-leistung-name">{{ l.titel }}</span>
-      <span class="dash-leistung-betrag">{{ "%.0f"|format(l.betrag) }} {{ l.einheit }}</span>
-    </div>
-    {% endfor %}
-    <div style="margin-top:.6rem">
-      <a href="{{ request.app.state.ingress_entry }}/leistungsfinder/?pg={{ letzter_pg.pflegegrad }}" class="btn btn-sm btn-secondary" style="font-size:.78rem">
-        {{ _('dashboard.leistungen_anzeigen') }} →
-      </a>
-    </div>
-  </div>
-  {% endif %}
-
-  {% if fristen or beratung_fristen %}
-  <div class="dash-pg-box">
-    <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">📅 Fristen &amp; Hinweise</div>
-    {% for f in fristen %}
-    <div class="frist-item frist-{{ f.dringlichkeit }}">
-      <div class="frist-info">
-        <div class="frist-haupttext">{{ f.titel }}{% if f.person %} <span class="frist-person">· {{ f.person }}</span>{% endif %}
-          {% if f.beschreibung %}
-          <span class="dash-info-tooltip" style="vertical-align:middle;margin-left:.3rem">
-            ℹ️
-            <span class="dash-info-tooltip-box">{{ f.beschreibung }}</span>
-          </span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="frist-rechts">
-        <div class="frist-datum">
-          {% if f.tage_bis_faellig < 0 %}<span class="frist-abgelaufen">abgelaufen</span>
-          {% elif f.tage_bis_faellig == 0 %}<span class="frist-heute">heute</span>
-          {% elif f.tage_bis_faellig <= 7 %}<span class="frist-bald">in {{ f.tage_bis_faellig }} Tagen</span>
-          {% else %}{{ f.faellig_str }}{% endif %}
-        </div>
-        {% if f.link %}<a href="{{ f.link }}" class="btn btn-sm btn-primary">→</a>{% endif %}
-      </div>
-    </div>
-    {% endfor %}
-    {% for b in beratung_fristen %}
-    <div class="frist-item frist-{% if b.tage_bis_termin < 0 %}rot{% elif b.tage_bis_termin <= 14 %}gelb{% else %}gelb{% endif %}">
-      <div class="frist-info">
-        <div class="frist-haupttext">Pflegeberatung § 37.3 <span class="frist-person">· {{ b.person }}</span>
-          <span class="dash-info-tooltip" style="vertical-align:middle;margin-left:.3rem">
-            ℹ️
-            <span class="dash-info-tooltip-box">Nächster Pflichtnachweis halbjährlich fällig</span>
-          </span>
-        </div>
-      </div>
-      <div class="frist-rechts">
-        <div class="frist-datum">
-          {% if b.tage_bis_termin < 0 %}<span class="frist-abgelaufen">überfällig</span>
-          {% elif b.tage_bis_termin == 0 %}<span class="frist-heute">heute</span>
-          {% else %}{{ b.naechster_termin_str }}{% endif %}
-        </div>
-        <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" class="btn btn-sm btn-primary">→</a>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  {% if letzte_gutachten %}
-  <div class="dash-pg-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-      <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📋 Letzte Gutachten</div>
-      <a href="{{ request.app.state.ingress_entry }}/gutachten/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
-    </div>
-    {% for g in letzte_gutachten %}
-    <a href="{{ request.app.state.ingress_entry }}/gutachten/{{ g.id }}"
-       style="display:flex;align-items:center;justify-content:space-between;
-              padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);
-              border-radius:6px;text-decoration:none;color:var(--text);margin-bottom:.3rem">
-      <span style="font-size:.85rem;font-weight:500">
-        {{ g.person or 'Unbekannt' }}
-        {% if g.pflegegrad %}<span style="margin-left:.3rem;padding:.1rem .3rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#dbeafe;color:#1e40af">PG {{ g.pflegegrad }}</span>{% endif %}
-      </span>
-      <span style="font-size:.72rem;color:var(--text-muted)">{{ g.erstellt_am }}</span>
-    </a>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  {% if letzte_beratungen %}
-  <div class="dash-pg-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-      <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">🤝 Pflegeberatung</div>
-      <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
-    </div>
-    {% for b in letzte_beratungen %}
-    <div style="padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:.3rem">
-      <div style="font-size:.85rem;font-weight:500;margin-bottom:.15rem">{{ b.person }}</div>
-      <div style="font-size:.75rem;color:var(--text-muted)">
-        Letzte Beratung: {{ b.datum[8:10] }}.{{ b.datum[5:7] }}.{{ b.datum[0:4] }}
-      </div>
-      <div style="font-size:.75rem;margin-top:.1rem">
-        Nächste fällig: <strong>{{ b.naechster_termin_str }}</strong>
-        {% if b.status == 'überfällig' %}
-        <span style="margin-left:.3rem;color:#b91c1c">🔴 überfällig</span>
-        {% elif b.status == 'bald' %}
-        <span style="margin-left:.3rem;color:#b45309">🟡 in {{ b.tage_bis_termin }} Tagen</span>
-        {% else %}
-        <span style="margin-left:.3rem;color:#065f46">🟢 OK</span>
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %}
-    <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/neu" class="btn btn-ghost btn-sm" style="margin-top:.3rem;width:100%;justify-content:center">+ Beratung erfassen</a>
-  </div>
-  {% endif %}
-
-  {% if letzte_dokumente %}
-  <div class="dash-pg-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
-      <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">📁 Dokumente</div>
-      <a href="{{ request.app.state.ingress_entry }}/dokumente/" style="font-size:.78rem;color:var(--primary)">Alle →</a>
-    </div>
-    <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
-      {{ dokumente_gesamt }} Dokument{% if dokumente_gesamt != 1 %}e{% endif %} gesamt
-    </div>
-    {% for d in letzte_dokumente %}
-    <a href="{{ request.app.state.ingress_entry }}/dokumente/{{ d.id }}/herunterladen"
-       style="display:flex;align-items:center;justify-content:space-between;
-              padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);
-              border-radius:6px;text-decoration:none;color:var(--text);margin-bottom:.3rem">
-      <span style="font-size:.85rem;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.titel }}</span>
-      <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0;margin-left:.4rem">{{ d.datum_de or d.created_at[:10] }}</span>
-    </a>
-    {% endfor %}
-  </div>
-  {% endif %}
-
+{% elif offene_aufgaben %}
+<div style="margin-bottom:.75rem;padding:.4rem .9rem;border-radius:8px;
+            background:#fef9c3;border:1px solid #fde68a;font-size:.82rem;color:#854d0e;
+            display:flex;align-items:center;gap:.5rem">
+    📅 <strong>{{ offene_aufgaben|length }} offene Aufgabe{% if offene_aufgaben|length != 1 %}n{% endif %}</strong>
+    · nächste: {{ offene_aufgaben[0].titel }} am {{ offene_aufgaben[0].faellig_str }}
+    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" style="margin-left:auto;color:#854d0e;text-decoration:underline">Alle →</a>
 </div>
 {% endif %}
 
@@ -246,19 +73,18 @@
         </div>
 
         <div class="pk-daten">
-            {% if k.vers and k.vers.geburtsdatum or k.vers and k.vers.versicherungsnr %}
-            <div class="pk-inline-zeile">
-                {% if k.vers.geburtsdatum %}
-                <span class="pk-icon-item">📅 {{ k.vers.geburtsdatum }}</span>
+            {% set p_docs = letzte_dokumente | selectattr('person', 'equalto', k.name) | list %}
+            {% set p_beratung = letzte_beratungen | selectattr('person', 'equalto', k.name) | first | default(none) %}
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;color:var(--text-muted)">
+                {% if k.vers and k.vers.geburtsdatum %}
+                <span>📅 {{ k.vers.geburtsdatum }}</span>
                 {% endif %}
-                {% if k.vers.versicherungsnr %}
-                <span class="pk-icon-item">🪪 {{ k.vers.versicherungsnr }}</span>
+                {% if p_beratung %}
+                <span>🤝 Beratung {{ p_beratung.datum[8:10] }}.{{ p_beratung.datum[5:7] }}.{{ p_beratung.datum[0:4] }}
+                  <span style="color:{{ '#16a34a' if p_beratung.status == 'ok' else '#d97706' }}">· nächste {{ p_beratung.naechster_termin_str }}</span>
+                </span>
                 {% endif %}
             </div>
-            {% endif %}
-            {% if k.vers and k.vers.adresse %}
-            <div class="pk-icon-item">📍 {{ k.vers.adresse | replace("\r\n", ", ") | replace("\r", ", ") | replace("\n", ", ") }}</div>
-            {% endif %}
         </div>
 
         {% if k.budget %}
@@ -308,12 +134,27 @@
                class="btn btn-ghost btn-sm">📅 Zeitachse</a>
         </div>
 
+        {# ── Nächste Aufgabe für diese Person ── #}
+        {% set person_aufgaben = offene_aufgaben | selectattr('person', 'equalto', k.name) | list %}
+        {% if person_aufgaben %}
+        {% set a = person_aufgaben[0] %}
+        <div style="margin-top:.6rem;padding:.5rem .75rem;border-radius:6px;font-size:.8rem;
+                    border-left:3px solid {% if a.ampel == 'rot' %}#dc2626{% elif a.ampel == 'orange' %}#ea580c{% elif a.ampel == 'gelb' %}#d97706{% else %}#16a34a{% endif %};
+                    background:{% if a.ampel == 'rot' %}#fff5f5{% elif a.ampel == 'orange' %}#fff8f0{% elif a.ampel == 'gelb' %}#fffbeb{% else %}#f0fdf4{% endif %}">
+            <span style="font-weight:600">{{ a.ampel_emoji }} Nächste Aufgabe:</span>
+            {{ a.titel }} · <span style="color:var(--text-muted)">{{ a.faellig_str }}</span>
+            {% if person_aufgaben|length > 1 %}
+            <span style="color:var(--text-muted)"> · +{{ person_aufgaben|length - 1 }} weitere</span>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </div>
     {% endfor %}
-
-    <a href="{{ request.app.state.ingress_entry }}/versicherte/neu" class="personen-karte personen-karte-neu">
-        <div class="pk-neu-icon">+</div>
-        <div class="pk-neu-text">{{ _('versicherte.hinzufuegen') }}</div>
+</div>
+<div style="margin-top:.75rem">
+    <a href="{{ request.app.state.ingress_entry }}/versicherte/neu" class="btn btn-ghost btn-sm">
+        + {{ _('versicherte.hinzufuegen') }}
     </a>
 </div>
 {% else %}
@@ -325,11 +166,6 @@
 </div>
 {% endif %}
 
-<div class="quick-actions" style="margin-top:1.5rem">
-    <a href="{{ request.app.state.ingress_entry }}/import/" class="btn btn-ghost">⬆ {{ _('nav.import') }}</a>
-    {% if is_admin %}<a href="{{ request.app.state.ingress_entry }}/backup/" class="btn btn-ghost">💾 {{ _('nav.backup') }}</a>{% endif %}
-    <a href="{{ request.app.state.ingress_entry }}/einstellungen/" class="btn btn-ghost">⚙ {{ _('nav.einstellungen') }}</a>
-</div>
 
 <style>
 .dashboard-info-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
@@ -426,4 +262,68 @@
 .frist-bald { color: #d97706; }
 </style>
 
+
+{# ── Letzte Aktivitäten ── #}
+<div style="margin-top:1rem">
+  <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">
+    🕐 Letzte Aktivitäten
+  </div>
+  <div style="display:flex;flex-direction:column;gap:.35rem">
+
+    {% if letzte_gutachten %}{% for g in letzte_gutachten %}
+    <a href="{{ request.app.state.ingress_entry }}/gutachten/{{ g.id }}"
+       style="display:flex;align-items:center;gap:.75rem;padding:.5rem .85rem;
+              background:var(--panel);border-radius:var(--radius-sm);border:1px solid var(--border);
+              text-decoration:none;color:var(--text)">
+      <span style="font-size:.85rem">📋</span>
+      <div style="flex:1;min-width:0">
+        <span style="font-size:.85rem;font-weight:500">Gutachten-Analyse</span>
+        {% if g.pflegegrad %}<span style="margin-left:.3rem;padding:.05rem .3rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#dbeafe;color:#1e40af">PG {{ g.pflegegrad }}</span>{% endif %}
+        {% if g.person %}<span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ g.person }}</span>{% endif %}
+      </div>
+      <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0">{{ g.erstellt_am }}</span>
+    </a>
+    {% endfor %}{% endif %}
+
+    {% if letzte_beratungen %}{% for b in letzte_beratungen %}
+    <a href="{{ request.app.state.ingress_entry }}/pflegeberatung/"
+       style="display:flex;align-items:center;gap:.75rem;padding:.5rem .85rem;
+              background:var(--panel);border-radius:var(--radius-sm);border:1px solid var(--border);
+              text-decoration:none;color:var(--text)">
+      <span style="font-size:.85rem">🤝</span>
+      <div style="flex:1;min-width:0">
+        <span style="font-size:.85rem;font-weight:500">Pflegeberatung</span>
+        <span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ b.person }}</span>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:.72rem;color:var(--text-muted)">{{ b.datum[8:10] }}.{{ b.datum[5:7] }}.{{ b.datum[0:4] }}</div>
+        <div style="font-size:.7rem;color:{{ '#dc2626' if b.status == 'überfällig' else ('#d97706' if b.status == 'bald' else '#16a34a') }}">
+          Nächste: {{ b.naechster_termin_str }}
+        </div>
+      </div>
+    </a>
+    {% endfor %}{% endif %}
+
+    {% if letzte_dokumente %}{% for d in letzte_dokumente %}
+    <a href="{{ request.app.state.ingress_entry }}/dokumente/{{ d.id }}/herunterladen"
+       style="display:flex;align-items:center;gap:.75rem;padding:.5rem .85rem;
+              background:var(--panel);border-radius:var(--radius-sm);border:1px solid var(--border);
+              text-decoration:none;color:var(--text)">
+      <span style="font-size:.85rem">📄</span>
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <span style="font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">{{ d.titel }}</span>
+        <span style="font-size:.75rem;color:var(--text-muted)">{{ d.person }}</span>
+      </div>
+      <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0">{{ d.datum_de or d.created_at[:10] }}</span>
+    </a>
+    {% endfor %}{% endif %}
+
+  </div>
+</div>
+
+<div class="quick-actions" style="margin-top:1.5rem">
+    <a href="{{ request.app.state.ingress_entry }}/import/" class="btn btn-ghost">⬆ {{ _('nav.import') }}</a>
+    {% if is_admin %}<a href="{{ request.app.state.ingress_entry }}/backup/" class="btn btn-ghost">💾 {{ _('nav.backup') }}</a>{% endif %}
+    <a href="{{ request.app.state.ingress_entry }}/einstellungen/" class="btn btn-ghost">⚙ {{ _('nav.einstellungen') }}</a>
+</div>
 {% endblock %}
