@@ -69,6 +69,26 @@
                 {% if k.vers and k.vers.krankenkasse %}
                 <div class="pk-kk">{{ k.vers.krankenkasse }}</div>
                 {% endif %}
+                {# Status-Badges #}
+                <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.3rem">
+                    {% if k.vers and k.vers.pflegegrad %}
+                    <span style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:700;
+                                 background:{% if k.vers.pflegegrad == 1 %}#f0fdf4;color:#16a34a
+                                 {% elif k.vers.pflegegrad == 2 %}#eff6ff;color:#1d4ed8
+                                 {% elif k.vers.pflegegrad == 3 %}#fef3c7;color:#b45309
+                                 {% elif k.vers.pflegegrad == 4 %}#fff7ed;color:#c2410c
+                                 {% else %}#fef2f2;color:#b91c1c{% endif %}">
+                        PG {{ k.vers.pflegegrad }}
+                    </span>
+                    {% endif %}
+                    {% set p_aufgaben = offene_aufgaben | selectattr('person', 'equalto', k.name) | list %}
+                    {% if p_aufgaben %}
+                    <span style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:600;
+                                 background:#fef3c7;color:#b45309">
+                        {{ p_aufgaben|length }} Aufgabe{% if p_aufgaben|length != 1 %}n{% endif %}
+                    </span>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -277,8 +297,9 @@
               text-decoration:none;color:var(--text)">
       <span style="font-size:.85rem">📋</span>
       <div style="flex:1;min-width:0">
-        <span style="font-size:.85rem;font-weight:500">Gutachten-Analyse</span>
-        {% if g.pflegegrad %}<span style="margin-left:.3rem;padding:.05rem .3rem;border-radius:4px;font-size:.7rem;font-weight:700;background:#dbeafe;color:#1e40af">PG {{ g.pflegegrad }}</span>{% endif %}
+        <span style="font-size:.85rem;font-weight:500">
+          {% if g.pflegegrad %}Pflegegrad {{ g.pflegegrad }} erkannt{% else %}Gutachten analysiert{% endif %}
+        </span>
         {% if g.person %}<span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ g.person }}</span>{% endif %}
       </div>
       <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0">{{ g.erstellt_am }}</span>
@@ -292,7 +313,7 @@
               text-decoration:none;color:var(--text)">
       <span style="font-size:.85rem">🤝</span>
       <div style="flex:1;min-width:0">
-        <span style="font-size:.85rem;font-weight:500">Pflegeberatung</span>
+        <span style="font-size:.85rem;font-weight:500">Pflegeberatung durchgeführt</span>
         <span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ b.person }}</span>
       </div>
       <div style="text-align:right;flex-shrink:0">
@@ -311,8 +332,8 @@
               text-decoration:none;color:var(--text)">
       <span style="font-size:.85rem">📄</span>
       <div style="flex:1;min-width:0;overflow:hidden">
-        <span style="font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">{{ d.titel }}</span>
-        <span style="font-size:.75rem;color:var(--text-muted)">{{ d.person }}</span>
+        <span style="font-size:.85rem;font-weight:500">Dokument hochgeladen</span>
+        <span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ d.titel }}{% if d.person %} · {{ d.person }}{% endif %}</span>
       </div>
       <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0">{{ d.datum_de or d.created_at[:10] }}</span>
     </a>
