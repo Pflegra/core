@@ -8,7 +8,7 @@
     <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="btn btn-primary">{{ _('dashboard.neuer_eintrag') }}</a>
 </div>
 
-{# ── Offene Aufgaben Banner ── #}
+{# ── Offene Aufgaben — nur wenn dringend ── #}
 {% set dringende = offene_aufgaben | selectattr('ampel', 'in', ['rot', 'orange']) | list %}
 {% if dringende %}
 <div style="margin-bottom:1rem;padding:.6rem 1rem;border-radius:10px;
@@ -16,11 +16,10 @@
     <span style="font-size:1rem">⚠️</span>
     <span style="font-size:.88rem;font-weight:600;color:#c2410c">{{ dringende|length }} dringende Aufgabe{% if dringende|length != 1 %}n{% endif %}:</span>
     {% for a in dringende %}
-    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" style="font-size:.82rem;color:#c2410c;text-decoration:underline">
+    <a href="{{ request.app.state.ingress_entry }}{{ a.link }}" style="font-size:.82rem;color:#c2410c;text-decoration:underline">
         {{ a.titel }}{% if a.person %} ({{ a.person }}){% endif %} · {{ a.faellig_str }}
     </a>{% if not loop.last %}<span style="color:#fed7aa">|</span>{% endif %}
     {% endfor %}
-    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" style="margin-left:auto;font-size:.82rem;color:#c2410c;text-decoration:underline">Alle →</a>
 </div>
 {% elif offene_aufgaben %}
 <div style="margin-bottom:.75rem;padding:.4rem .9rem;border-radius:8px;
@@ -49,7 +48,7 @@
                 {% if k.vers and k.vers.krankenkasse %}
                 <div class="pk-kk">{{ k.vers.krankenkasse }}</div>
                 {% endif %}
-                {# Status-Badges — klickbar #}
+                {# Status-Badges #}
                 <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.3rem">
                     {% if k.vers and k.vers.pflegegrad %}
                     <a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf?person={{ k.name | urlencode }}"
@@ -75,6 +74,7 @@
         </div>
 
         <div class="pk-daten">
+            {% set p_docs = letzte_dokumente | selectattr('person', 'equalto', k.name) | list %}
             {% set p_beratung = letzte_beratungen | selectattr('person', 'equalto', k.name) | first | default(none) %}
             <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;color:var(--text-muted)">
                 {% if k.vers and k.vers.geburtsdatum %}
@@ -135,12 +135,12 @@
                class="btn btn-ghost btn-sm">📅 Zeitachse</a>
         </div>
 
-        {# ── Nächste Aufgabe — klickbar ── #}
+        {# ── Nächste Aufgabe für diese Person ── #}
         {% set person_aufgaben = offene_aufgaben | selectattr('person', 'equalto', k.name) | list %}
         {% if person_aufgaben %}
         {% set a = person_aufgaben[0] %}
         <a href="{{ request.app.state.ingress_entry }}/aufgaben/?person={{ k.name | urlencode }}"
-           style="display:block;padding:.5rem .75rem;border-radius:6px;font-size:.8rem;
+           style="display:block;margin-top:.6rem;padding:.5rem .75rem;border-radius:6px;font-size:.8rem;
                   text-decoration:none;color:inherit;
                   border-left:3px solid {% if a.ampel == 'rot' %}#dc2626{% elif a.ampel == 'orange' %}#ea580c{% elif a.ampel == 'gelb' %}#d97706{% else %}#16a34a{% endif %};
                   background:{% if a.ampel == 'rot' %}#fff5f5{% elif a.ampel == 'orange' %}#fff8f0{% elif a.ampel == 'gelb' %}#fffbeb{% else %}#f0fdf4{% endif %}">
@@ -169,8 +169,105 @@
 </div>
 {% endif %}
 
+
+<style>
+.dashboard-info-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.dash-pg-box {
+  background: #fff; border: 2px solid #2C5F8A; border-radius: 12px;
+  padding: 1.1rem 1.3rem; min-width: 220px; flex: 0 0 auto;
+  box-shadow: 0 2px 8px rgba(44,95,138,.1);
+}
+.dash-pg-hauptwert { margin-bottom: .5rem; }
+.dash-pg-badge-gross {
+  font-weight: 800; border-radius: 8px; padding: .35rem .9rem;
+  font-size: 1.25rem; color: #fff; display: inline-block;
+}
+.pg-farbe-0 { background: #718096; } .pg-farbe-1 { background: #38a169; }
+.pg-farbe-2 { background: #d69e2e; } .pg-farbe-3 { background: #dd6b20; }
+.pg-farbe-4 { background: #e53e3e; } .pg-farbe-5 { background: #9b2c2c; }
+.dash-pg-punkte-zeile { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: .25rem; }
+.dash-pg-meta { font-size: .75rem; color: #718096; margin-bottom: .65rem; display: flex; gap: .3rem; flex-wrap: wrap; }
+.dash-pg-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+.dash-info-tooltip {
+  position: relative; cursor: pointer;
+  font-size: 1rem; line-height: 1;
+  display: inline-flex; align-items: center;
+}
+.dash-info-tooltip-box {
+  display: none; position: absolute; bottom: calc(100% + 6px); left: 0;
+  background: #1a2233; color: #fff; font-size: .78rem; line-height: 1.5;
+  padding: .5rem .75rem; border-radius: 8px; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2); z-index: 100; min-width: 220px;
+}
+.dash-info-tooltip:hover .dash-info-tooltip-box { display: block; }
+@media (max-width: 480px) {
+  .dash-pg-links { flex-wrap: wrap; }
+  .dash-pg-links .btn { flex: 1 1 calc(50% - .2rem); justify-content: center; min-width: 0; }
+  .dash-pg-links .btn:last-child:nth-child(odd) { flex: 1 1 100%; }
+  .dash-pg-box { min-width: 0; width: 100%; }
+}
+.dash-hinweis-box {
+  background: #fffbeb; border: 1px solid #f6c64a; border-radius: 12px;
+  padding: 1rem 1.2rem; flex: 1; min-width: 260px;
+}
+.dash-hinweis-titel { font-size: .85rem; font-weight: 700; color: #7d5a00; margin-bottom: .6rem; }
+.dash-hinweis-item {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  padding: .35rem 0; border-bottom: 1px solid #fef3c7; font-size: .84rem;
+}
+.dash-hinweis-item:last-child { border-bottom: none; }
+.dash-hinweis-info { display: flex; flex-direction: column; flex: 1; }
+.dash-hinweis-leistung { font-weight: 600; color: #2d3748; }
+.dash-hinweis-person { font-size: .75rem; color: #718096; }
+.dash-hinweis-betrag { font-weight: 700; color: #7d5a00; white-space: nowrap; }
+/* Leistungsvorschau */
+.dash-leistungen-box {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 1rem 1.2rem; min-width: 200px; flex: 0 0 auto;
+}
+.dash-leistungen-titel { font-size: .82rem; font-weight: 700; color: #2C5F8A;
+  margin-bottom: .55rem; }
+.dash-leistung-zeile {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .25rem 0; border-bottom: 1px solid #f0f4f8; font-size: .82rem;
+}
+.dash-leistung-zeile:last-of-type { border-bottom: none; }
+.dash-leistung-name { color: #2d3748; }
+.dash-leistung-betrag { font-weight: 600; color: #2C5F8A; white-space: nowrap; margin-left: .5rem; }
+/* Fristenkalender */
+.fristen-box {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  margin-bottom: 1.25rem; overflow: hidden;
+}
+.fristen-titel {
+  font-size: .82rem; font-weight: 700; color: #4a5568;
+  padding: .6rem 1rem; background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.frist-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .6rem 1rem; border-bottom: 1px solid #f0f4f8;
+  border-left: 4px solid transparent;
+}
+.frist-item:last-child { border-bottom: none; }
+.frist-ok      { border-left-color: #68d391; }
+.frist-bald    { border-left-color: #f6c64a; background: #fffbeb; }
+.frist-kritisch { border-left-color: #e53e3e; background: #fff5f5; }
+.frist-info { flex: 1; }
+.frist-haupttext { font-size: .88rem; font-weight: 600; color: #2d3748; }
+.frist-person { font-weight: 400; color: #718096; }
+.frist-beschreibung { font-size: .78rem; color: #718096; margin-top: .1rem; line-height: 1.4; }
+.frist-rechts { display: flex; align-items: center; gap: .5rem; flex-shrink: 0; }
+.frist-datum { font-size: .82rem; font-weight: 600; color: #4a5568; white-space: nowrap; }
+.frist-abgelaufen { color: #e53e3e; }
+.frist-heute { color: #e53e3e; }
+.frist-bald { color: #d97706; }
+</style>
+
+
 {# ── Letzte Aktivitäten ── #}
-<div style="margin-top:1.5rem">
+<div style="margin-top:1rem">
   <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">
     🕐 Letzte Aktivitäten
   </div>
