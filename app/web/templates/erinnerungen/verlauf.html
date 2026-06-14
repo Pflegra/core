@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Erinnerungsverlauf – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+    <h1>🔔 Erinnerungsverlauf</h1>
+    <a href="{{ request.app.state.ingress_entry }}/erinnerungen/" class="btn btn-outline">⚙️ Einstellungen</a>
+</div>
+
+{% if not verlauf %}
+<div class="card" style="padding:2rem;text-align:center;color:var(--text-muted)">
+    <div style="font-size:2rem;margin-bottom:.5rem">🔕</div>
+    <div>Noch keine Erinnerungen versendet.</div>
+    <div style="font-size:.85rem;margin-top:.5rem">
+        Sobald Erinnerungen verschickt werden, erscheinen sie hier.
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+        <thead>
+            <tr style="border-bottom:2px solid var(--border)">
+                <th style="padding:.6rem 1rem;text-align:left;color:var(--text-muted);font-weight:600">Zeitpunkt</th>
+                <th style="padding:.6rem 1rem;text-align:left;color:var(--text-muted);font-weight:600">Kanal</th>
+                <th style="padding:.6rem 1rem;text-align:left;color:var(--text-muted);font-weight:600">Person</th>
+                <th style="padding:.6rem 1rem;text-align:left;color:var(--text-muted);font-weight:600">Aufgabe</th>
+                <th style="padding:.6rem 1rem;text-align:left;color:var(--text-muted);font-weight:600">Fällig</th>
+                <th style="padding:.6rem 1rem;text-align:center;color:var(--text-muted);font-weight:600">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for e in verlauf %}
+            <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:.6rem 1rem;white-space:nowrap;color:var(--text-muted)">
+                    {{ e.zeitpunkt[:16].replace('T', ' ') if 'T' in e.zeitpunkt else e.zeitpunkt[:16] }}
+                </td>
+                <td style="padding:.6rem 1rem">
+                    {% if e.kanal == 'email' %}
+                        <span style="font-size:.78rem;padding:.15rem .5rem;border-radius:99px;background:#eff6ff;color:#1d4ed8;font-weight:600">📧 E-Mail</span>
+                    {% else %}
+                        <span style="font-size:.78rem;padding:.15rem .5rem;border-radius:99px;background:#f0fdf4;color:#16a34a;font-weight:600">🔔 Push</span>
+                    {% endif %}
+                </td>
+                <td style="padding:.6rem 1rem;font-weight:600">{{ e.person }}</td>
+                <td style="padding:.6rem 1rem">{{ e.titel }}</td>
+                <td style="padding:.6rem 1rem;white-space:nowrap;color:var(--text-muted)">
+                    {% if e.datum %}{{ e.datum[8:10] }}.{{ e.datum[5:7] }}.{{ e.datum[:4] }}{% endif %}
+                </td>
+                <td style="padding:.6rem 1rem;text-align:center">
+                    {% if e.erfolg %}
+                        <span style="color:#16a34a">✅</span>
+                    {% else %}
+                        <span style="color:#dc2626" title="Versand fehlgeschlagen">❌</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div style="font-size:.82rem;color:var(--text-muted);margin-top:.75rem">
+    Die letzten 100 Einträge werden angezeigt.
+</div>
+{% endif %}
+{% endblock %}

@@ -23,7 +23,7 @@ from services.import_service import ImportService
 from services.backup_service import BackupService
 from logging_setup import setup_logging
 
-from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung, dokumente, aufgaben, zeitachse
+from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung, dokumente, aufgaben, zeitachse, erinnerungen
 from web.routers.login import router as login_router
 from web.auth import login_erforderlich, hash_passwort
 from web.csrf import CSRF_COOKIE, generiere_csrf_token, get_csrf_token, pruefe_csrf_request, csrf_fehler
@@ -240,6 +240,31 @@ async def startup():
         log.info("Demo-User Daten initialisiert (owner_id=%d)", demo_u.id)
     starte_demo_reset_scheduler(lambda: app.state.db)
 
+    # Erinnerungen-Scheduler
+    from services.erinnerungen_service import ErinnerungenConfig, erinnerungen_lauf
+    import asyncio, threading
+
+    def _erinnerungen_loop():
+        import time
+        from datetime import datetime
+        letzter_lauf_tag = None
+        while True:
+            try:
+                jetzt = datetime.now()
+                heute = jetzt.date()
+                ecfg = ErinnerungenConfig.aus_db(app.state.db)
+                if jetzt.hour == ecfg.erinnerung_stunde and letzter_lauf_tag != heute:
+                    log.info("Starte Erinnerungen-Lauf...")
+                    erinnerungen_lauf(app.state.db)
+                    letzter_lauf_tag = heute
+            except Exception as exc:
+                log.error("Erinnerungen-Scheduler Fehler: %s", exc, exc_info=True)
+            time.sleep(60)
+
+    t = threading.Thread(target=_erinnerungen_loop, daemon=True, name="erinnerungen-scheduler")
+    t.start()
+    log.info("Erinnerungen-Scheduler gestartet")
+
     log.info("Pflegra gestartet  DATA_DIR=%s  DB=%s  Users=%d",
              DATA_DIR, db_pfad, db.user_anzahl())
 
@@ -297,6 +322,7 @@ app.include_router(statistiken.router)
 app.include_router(pflegeberatung.router)
 app.include_router(dokumente.router)
 app.include_router(aufgaben.router)
+app.include_router(erinnerungen.router)
 app.include_router(zeitachse.router)
 app.include_router(widerspruch.router)
 app.include_router(gutachten.router)

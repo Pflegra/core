@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block title %}Erinnerungen – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+    <h1>🔔 Erinnerungen</h1>
+    <a href="{{ request.app.state.ingress_entry }}/erinnerungen/verlauf" class="btn btn-outline">📋 Verlauf</a>
+</div>
+
+{% if ok %}
+<div class="alert alert-success" style="margin-bottom:1rem">Einstellungen gespeichert.</div>
+{% endif %}
+{% if fehler %}
+<div class="alert alert-danger" style="margin-bottom:1rem">{{ fehler }}</div>
+{% endif %}
+
+<form method="post" action="{{ request.app.state.ingress_entry }}/erinnerungen/speichern">
+
+{# ── Meine Benachrichtigungen ── #}
+<div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header"><strong>Meine Benachrichtigungen</strong></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:1rem">
+
+{% if not settings.absender_mail %}
+        <div style="padding:.75rem 1rem;border-radius:8px;background:#fffbeb;border:1px solid #fcd34d;font-size:.88rem">
+            ⚠️ <strong>Keine E-Mail-Adresse hinterlegt.</strong>
+            Erinnerungen per E-Mail können erst genutzt werden, wenn eine E-Mail-Adresse in den
+            <a href="{{ request.app.state.ingress_entry }}/einstellungen/">Einstellungen</a> hinterlegt wurde.
+        </div>
+        {% endif %}
+        <label style="display:flex;align-items:flex-start;gap:.75rem;cursor:pointer{% if not settings.absender_mail %};opacity:.5;pointer-events:none{% endif %}">
+            <input type="checkbox" name="benachrichtigung_email" value="1"
+                   {% if settings.benachrichtigung_email and settings.absender_mail %}checked{% endif %}
+                   {% if not settings.absender_mail %}disabled{% endif %}
+                   style="margin-top:.2rem;width:18px;height:18px">
+            <div>
+                <div style="font-weight:600">📧 E-Mail-Benachrichtigungen</div>
+                <div style="font-size:.85rem;color:var(--text-muted)">
+                    Erinnerungen werden an <strong>{{ settings.absender_mail }}</strong> gesendet.
+                </div>
+            </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:.75rem;cursor:pointer">
+            <input type="checkbox" name="benachrichtigung_push" value="1"
+                   id="push-checkbox"
+                   {% if settings.benachrichtigung_push %}checked{% endif %}
+                   style="margin-top:.2rem;width:18px;height:18px">
+            <div>
+                <div style="font-weight:600">🔔 Browser-Benachrichtigungen (Push) <span style="font-size:.7rem;padding:.1rem .4rem;border-radius:99px;background:#fef3c7;color:#b45309;font-weight:700;vertical-align:middle">Beta</span></div>
+                <div style="font-size:.85rem;color:var(--text-muted)">
+                    Benachrichtigungen direkt im Browser oder als PWA auf dem Smartphone.
+                    {% if not cfg.push_aktiv %}
+                    <span style="color:#b45309">(Push ist vom Administrator noch nicht aktiviert.)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </label>
+
+        {% if settings.absender_mail and cfg.smtp_konfiguriert %}
+        <div>
+            <button type="button" id="smtp-test-btn" class="btn btn-outline"
+                    style="font-size:.85rem">
+                📨 Test-E-Mail senden
+            </button>
+            <span id="smtp-test-result" style="margin-left:.75rem;font-size:.85rem"></span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── Admin-Bereich ── #}
+{% if ist_admin %}
+<div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header"><strong>⚙️ Vorlaufzeiten</strong>
+        <span style="font-size:.8rem;color:var(--text-muted);font-weight:400;margin-left:.5rem">
+            Wie viele Tage im Voraus soll erinnert werden?
+        </span>
+    </div>
+    <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem">
+        <div>
+            <label class="form-label">Pflegeberatung (Tage)</label>
+            <input type="number" name="vorlauf_pflegeberatung" class="form-control"
+                   value="{{ cfg.vorlauf_pflegeberatung }}" min="1" max="90">
+        </div>
+        <div>
+            <label class="form-label">Entlastungsbetrag (Tage)</label>
+            <input type="number" name="vorlauf_entlastungsbetrag" class="form-control"
+                   value="{{ cfg.vorlauf_entlastungsbetrag }}" min="1" max="90">
+        </div>
+        <div>
+            <label class="form-label">Allgemeine Fristen (Tage)</label>
+            <input type="number" name="vorlauf_fristen" class="form-control"
+                   value="{{ cfg.vorlauf_fristen }}" min="1" max="90">
+        </div>
+        <div>
+            <label class="form-label">Uhrzeit (Stunde)</label>
+            <input type="number" name="erinnerung_stunde" class="form-control"
+                   value="{{ cfg.erinnerung_stunde }}" min="0" max="23">
+            <div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">
+                Täglich um {{ '%02d'|format(cfg.erinnerung_stunde) }}:00 Uhr
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header"><strong>📧 E-Mail (SMTP)</strong></div>
+    <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
+        <div>
+            <label class="form-label">SMTP-Server</label>
+            <input type="text" name="smtp_host" class="form-control"
+                   value="{{ cfg.smtp_host }}" placeholder="smtp.gmail.com">
+        </div>
+        <div>
+            <label class="form-label">Port</label>
+            <input type="number" name="smtp_port" class="form-control"
+                   value="{{ cfg.smtp_port }}">
+        </div>
+        <div>
+            <label class="form-label">Benutzername</label>
+            <input type="text" name="smtp_user" class="form-control"
+                   value="{{ cfg.smtp_user }}" placeholder="pflegra@example.com"
+                   autocomplete="off">
+        </div>
+        <div>
+            <label class="form-label">Passwort</label>
+            <input type="password" name="smtp_passwort" class="form-control"
+                   placeholder="{% if cfg.smtp_passwort %}(gesetzt — leer lassen zum Beibehalten){% else %}App-Passwort{% endif %}"
+                   autocomplete="new-password">
+        </div>
+        <div>
+            <label class="form-label">Absender-Adresse</label>
+            <input type="text" name="smtp_absender" class="form-control"
+                   value="{{ cfg.smtp_absender }}" placeholder="Pflegra <pflegra@example.com>">
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;padding-top:1.5rem">
+            <input type="checkbox" name="smtp_tls" value="1" id="smtp-tls"
+                   {% if cfg.smtp_tls %}checked{% endif %}
+                   style="width:16px;height:16px">
+            <label for="smtp-tls" style="cursor:pointer">STARTTLS verwenden</label>
+        </div>
+    </div>
+    <div class="card-body" style="padding-top:0;font-size:.82rem;color:var(--text-muted)">
+        Tipp für Gmail: Unter „Google-Konto → Sicherheit → App-Passwörter" ein App-Passwort erstellen
+        und hier eintragen. Kein normales Google-Passwort verwenden.
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header">
+        <strong>🔔 Browser-Push (Web Push / VAPID)</strong>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:1rem">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+            <input type="checkbox" name="push_aktiv" value="1"
+                   {% if cfg.push_aktiv %}checked{% endif %}
+                   style="width:16px;height:16px">
+            Push-Benachrichtigungen aktivieren
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div>
+                <label class="form-label">VAPID Public Key</label>
+                <input type="text" name="push_vapid_public" class="form-control"
+                       value="{{ cfg.push_vapid_public }}" placeholder="BA...">
+            </div>
+            <div>
+                <label class="form-label">VAPID Private Key</label>
+                <input type="password" name="push_vapid_private" class="form-control"
+                       placeholder="{% if cfg.push_vapid_private %}(gesetzt){% else %}Private Key{% endif %}">
+            </div>
+        </div>
+        <div style="font-size:.82rem;color:var(--text-muted)">
+            VAPID-Keys generieren:
+            <code>pip install py-vapid && python -m py_vapid --gen</code>
+            oder online unter <strong>web-push-codelab.glitch.me</strong>.
+            Für den Betrieb muss <code>pywebpush</code> installiert sein.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div style="display:flex;gap:.75rem">
+    <button type="submit" class="btn btn-primary">Einstellungen speichern</button>
+    <a href="{{ request.app.state.ingress_entry }}/" class="btn btn-outline">Zurück</a>
+</div>
+</form>
+
+<script>
+// SMTP-Test
+const btn = document.getElementById('smtp-test-btn');
+if (btn) {
+    btn.addEventListener('click', async () => {
+        const result = document.getElementById('smtp-test-result');
+        btn.disabled = true;
+        result.textContent = 'Wird gesendet...';
+        result.style.color = 'var(--text-muted)';
+        try {
+            const r = await fetch('{{ request.app.state.ingress_entry }}/erinnerungen/smtp-test', {method:'POST'});
+            const data = await r.json();
+            if (data.ok) {
+                result.textContent = '✅ ' + data.nachricht;
+                result.style.color = '#16a34a';
+            } else {
+                result.textContent = '❌ ' + data.fehler;
+                result.style.color = '#dc2626';
+            }
+        } catch(e) {
+            result.textContent = '❌ Verbindungsfehler';
+            result.style.color = '#dc2626';
+        }
+        btn.disabled = false;
+    });
+}
+
+// Push-Subscription
+const pushCheckbox = document.getElementById('push-checkbox');
+if (pushCheckbox && 'serviceWorker' in navigator && 'PushManager' in window) {
+    pushCheckbox.addEventListener('change', async () => {
+        if (pushCheckbox.checked) {
+            try {
+                const perm = await Notification.requestPermission();
+                if (perm !== 'granted') {
+                    pushCheckbox.checked = false;
+                    return;
+                }
+                const reg = await navigator.serviceWorker.ready;
+                const vapidKey = '{{ cfg.push_vapid_public }}';
+                if (!vapidKey) return;
+                const sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: vapidKey
+                });
+                await fetch('{{ request.app.state.ingress_entry }}/erinnerungen/push-subscribe', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(sub.toJSON())
+                });
+            } catch(e) {
+                pushCheckbox.checked = false;
+            }
+        } else {
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.getSubscription();
+                if (sub) {
+                    await fetch('{{ request.app.state.ingress_entry }}/erinnerungen/push-unsubscribe', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({endpoint: sub.endpoint})
+                    });
+                    await sub.unsubscribe();
+                }
+            } catch(e) {}
+        }
+    });
+}
+</script>
+{% endblock %}
