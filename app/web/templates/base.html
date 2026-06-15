@@ -328,20 +328,19 @@ details[open] summary { margin-bottom: .75rem; }
 .stat-label { font-size: .8rem; color: var(--text-muted); }
 
 /* ── Stat-Leiste (neue Dashboard-Variante) ── */
-.stat-leiste { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-.stat-chip { display: flex; flex-direction: column; align-items: center; padding: .6rem 1.2rem;
-    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
-    text-decoration: none; transition: box-shadow .15s; min-width: 90px; }
-.stat-chip:hover { box-shadow: 0 2px 10px rgba(0,0,0,.1); }
-.stat-chip-wert { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
-.stat-chip-label { font-size: .75rem; color: var(--text-muted); margin-top: .1rem; }
+.stat-leiste { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.stat-chip { display: flex; align-items: center; gap: .4rem; padding: .3rem .75rem;
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 99px;
+    text-decoration: none; transition: box-shadow .15s; }
+.stat-chip:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.stat-chip-wert { font-size: .95rem; font-weight: 700; color: var(--primary); }
+.stat-chip-label { font-size: .78rem; color: var(--text-muted); }
 
 /* ── Personenkarten ── */
 .personen-karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 1.25rem; margin-bottom: 1rem; }
-.personen-karten:has(.personen-karte:only-of-type) { grid-template-columns: minmax(320px, 700px); }
-.personen-karten--single { grid-template-columns: minmax(320px, 700px) !important; justify-content: center; }
+.personen-karten--single { grid-template-columns: minmax(460px, 800px); justify-content: center; }
 .personen-karte { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 1.25rem; display: flex; flex-direction: column; gap: .9rem;
+    padding: 1.6rem; display: flex; flex-direction: column; gap: 1.1rem;
     box-shadow: 0 1px 4px rgba(0,0,0,.06); transition: box-shadow .15s, transform .15s; }
 .personen-karte:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); transform: translateY(-2px); }
 
@@ -358,12 +357,12 @@ details[open] summary { margin-bottom: .75rem; }
     padding: .35rem .9rem; margin: -1.25rem -1.25rem .75rem -1.25rem;
     border-radius: var(--radius) var(--radius) 0 0; }
 
-.pk-kopf { display: flex; align-items: center; gap: .75rem; }
-.pk-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+.pk-kopf { display: flex; align-items: center; gap: .9rem; }
+.pk-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--primary);
     color: #fff; font-weight: 700; font-size: 1rem; display: flex; align-items: center;
     justify-content: center; flex-shrink: 0; }
 .pk-name-block { flex: 1; min-width: 0; }
-.pk-name { font-weight: 600; font-size: 1.05rem; color: var(--text); }
+.pk-name { font-weight: 600; font-size: 1.15rem; color: var(--text); }
 .pk-kk { font-size: .8rem; color: var(--text-muted); margin-top: .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .pk-daten { display: flex; flex-direction: column; gap: .35rem;
@@ -517,14 +516,14 @@ small.text-muted { font-size: .78rem; }
     .pk-aktionen .btn-sm { flex: 1; text-align: center; font-size: .75rem; }
 
     /* ── Stat-Leiste — immer 4 in einer Reihe ── */
-    .stat-leiste { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; }
-    .stat-chip { min-width: 0; padding: .5rem .4rem; }
-    .stat-chip-wert { font-size: 1.1rem; }
-    .stat-chip-label { font-size: .65rem; }
+    .stat-leiste { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .stat-chip { padding: .25rem .6rem; }
+    .stat-chip-wert { font-size: .85rem; }
+    .stat-chip-label { font-size: .7rem; }
 }
 
 @media (max-width: 400px) {
-    .stat-chip-wert { font-size: 1rem; }
+    .stat-chip-wert { font-size: .8rem; }
     .pk-name { font-size: .95rem; }
 }
 
@@ -570,6 +569,7 @@ small.text-muted { font-size: .78rem; }
                     <li><a href="{{ request.app.state.ingress_entry }}/dokumente/" {% if request.url.path.find('/dokumente') != -1 %}class="active"{% endif %}>📁 Dokumente</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/aufgaben/" {% if request.url.path.find('/aufgaben') != -1 %}class="active"{% endif %}>📋 Aufgaben</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/zeitachse/" {% if request.url.path.find('/zeitachse') != -1 %}class="active"{% endif %}>📅 Zeitachse</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/erinnerungen/" {% if request.url.path.find('/erinnerungen') != -1 %}class="active"{% endif %}>🔔 Erinnerungen</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/statistiken/" {% if request.url.path.find('/statistiken') != -1 %}class="active"{% endif %}>📊 {{ _('nav.statistiken') }}</a></li>
                     <li class="nav-dropdown-sep"></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/versicherte/" {% if request.url.path.find('/versicherte') != -1 %}class="active"{% endif %}>🏥 {{ _('nav.versicherte') }}</a></li>
