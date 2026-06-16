@@ -394,8 +394,9 @@ async def index(request: Request):
     aktuelles_jahr = konfig.standard_jahr or date.today().year
 
     from web.auth import get_aktueller_user
+    from web.routers.deps import get_owner_id
     user = get_aktueller_user(request)
-    owner_id = user.id if user else 0
+    owner_id = get_owner_id(request)
 
     personen = db.personen(owner_id)
     alle_eintraege = db.alle(owner_id)
