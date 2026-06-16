@@ -7,6 +7,11 @@ mkdir -p "${DATA_DIR}/logs"
 export PFLEGRA_DATA="${DATA_DIR}"
 
 echo "Starte Pflegra auf Port 8000..."
+
+# Auto-Backup-Scheduler im Hintergrund starten
+python3 /app/backup_scheduler.py >> "${DATA_DIR}/logs/backup.log" 2>&1 &
+echo "Backup-Scheduler gestartet (PID $!)"
+
 exec python3 -m uvicorn web.app:app \
     --host 0.0.0.0 \
     --port 8000 \
