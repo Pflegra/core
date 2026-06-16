@@ -43,6 +43,28 @@ class AuditEvent:
     # Gutachten
     GUTACHTEN_ANALYSE   = "gutachten_analyse"
 
+    # Einträge (Pflegeleistungen)
+    EINTRAG_ERSTELLT    = "eintrag_erstellt"
+    EINTRAG_BEARBEITET  = "eintrag_bearbeitet"
+    EINTRAG_GELOESCHT   = "eintrag_geloescht"
+
+    # Personen / Versicherte
+    PERSON_ERSTELLT     = "person_erstellt"
+    PERSON_GELOESCHT    = "person_geloescht"
+
+    # Dokumente
+    DOKUMENT_HOCHGELADEN = "dokument_hochgeladen"
+    DOKUMENT_GELOESCHT  = "dokument_geloescht"
+
+    # Pflegeberatung
+    PFLEGEBERATUNG_ERSTELLT = "pflegeberatung_erstellt"
+    PFLEGEBERATUNG_GELOESCHT = "pflegeberatung_geloescht"
+
+    # Kontakte
+    KONTAKT_ERSTELLT    = "kontakt_erstellt"
+    KONTAKT_BEARBEITET  = "kontakt_bearbeitet"
+    KONTAKT_GELOESCHT   = "kontakt_geloescht"
+
 
 @dataclass
 class AuditEintrag:

@@ -102,6 +102,22 @@ def base_ctx(request: Request) -> dict:
     }
 
 
+def audit_log(request: Request, aktion: str, details: str = "") -> None:
+    """Schreibt einen Audit-Eintrag mit actor + effective_user aus dem Request."""
+    from db.audit import AuditRepo
+    from web.auth import get_aktueller_user_id, get_effective_user_id
+    actor_id    = get_aktueller_user_id(request) or 0
+    effective_id = get_effective_user_id(request) or actor_id
+    ip = request.client.host if request.client else ""
+    AuditRepo(get_db(request)._schema).loggen(
+        aktion=aktion,
+        actor_user_id=actor_id,
+        effective_user_id=effective_id,
+        details=details,
+        ip_adresse=ip,
+    )
+
+
 def redirect(request: Request, path: str, status_code: int = 303):
     """RedirectResponse mit automatischem root_path Prefix für Ingress-Kompatibilität."""
     from fastapi.responses import RedirectResponse

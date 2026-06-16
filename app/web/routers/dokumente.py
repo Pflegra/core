@@ -13,7 +13,8 @@ from typing import Optional
 from fastapi import APIRouter, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse
 
-from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect
+from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect, audit_log
+from db.audit import AuditEvent
 
 log = logging.getLogger(__name__)
 
@@ -213,6 +214,8 @@ async def dokument_neu_post(
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (owner_id, person.strip(), kategorie, titel.strip(), str(pfad), datei.filename, len(inhalt), notiz.strip(), datum))
 
+    audit_log(request, AuditEvent.DOKUMENT_HOCHGELADEN,
+              f"{titel.strip()} · {kategorie} · {person.strip()}")
     return redirect(request, f"/dokumente/?person={person}", 303)
 
 
@@ -265,4 +268,6 @@ async def dokument_loeschen(request: Request, dok_id: int):
     with db._schema.connect() as conn:
         conn.execute("DELETE FROM dokumente WHERE id=? AND owner_id=?", (dok_id, owner_id))
 
+    audit_log(request, AuditEvent.DOKUMENT_GELOESCHT,
+              f"{dok.titel if dok else dok_id} · {person}")
     return redirect(request, f"/dokumente/?person={person}", 303)

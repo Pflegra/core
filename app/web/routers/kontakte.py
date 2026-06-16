@@ -11,7 +11,8 @@ from typing import Optional
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
 
-from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect
+from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect, audit_log
+from db.audit import AuditEvent
 
 log = logging.getLogger(__name__)
 
@@ -156,6 +157,8 @@ async def kontakt_neu_post(
             (owner_id, person.strip(), typ, name.strip(), ansprechpartner.strip(),
              telefon.strip(), email.strip(), adresse.strip(), kundennummer.strip(), notiz.strip())
         )
+    audit_log(request, AuditEvent.KONTAKT_ERSTELLT,
+              f"{KONTAKT_TYPEN.get(typ, typ)} · {name.strip()} · {person.strip()}")
     return redirect(request, f"/kontakte/?person={person}")
 
 
@@ -212,6 +215,8 @@ async def kontakt_bearbeiten_post(
              email.strip(), adresse.strip(), kundennummer.strip(), notiz.strip(),
              kontakt_id, owner_id)
         )
+    audit_log(request, AuditEvent.KONTAKT_BEARBEITET,
+              f"{KONTAKT_TYPEN.get(typ, typ)} · {name.strip()} · {person.strip()} (ID {kontakt_id})")
     return redirect(request, f"/kontakte/?person={person}")
 
 
@@ -229,4 +234,6 @@ async def kontakt_loeschen(request: Request, kontakt_id: int):
     person = kontakt.person if kontakt else ""
     with db._schema.connect() as conn:
         conn.execute("DELETE FROM kontakte WHERE id=? AND owner_id=?", (kontakt_id, owner_id))
+    audit_log(request, AuditEvent.KONTAKT_GELOESCHT,
+              f"{kontakt.name if kontakt else kontakt_id} · {person}")
     return redirect(request, f"/kontakte/?person={person}")

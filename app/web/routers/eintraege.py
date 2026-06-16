@@ -15,8 +15,8 @@ from models import (
 )
 
 from web.routers.deps import redirect,\
-     TEMPLATES, base_ctx, get_db, get_konfig, get_owner_id
-from web.validation import Validierungsfehler, validiere_eintrag
+     TEMPLATES, base_ctx, get_db, get_konfig, get_owner_id, audit_log
+from db.audit import AuditEvent
 
 router = APIRouter(prefix="/eintraege", tags=["Einträge"])
 
@@ -142,6 +142,8 @@ async def eintrag_neu_speichern(
         eintrag = PflegeEintrag.from_datum(**felder)
         eintrag.owner_id = get_owner_id(request)
         db.insert(eintrag)
+        audit_log(request, AuditEvent.EINTRAG_ERSTELLT,
+                  f"{eintrag.art} · {eintrag.person} · {eintrag.datum}")
         return redirect(request, "/eintraege/?ok=1", 303)
     except (Validierungsfehler, ValueError) as exc:
         return TEMPLATES.TemplateResponse(request, "eintraege/formular.html",
@@ -196,6 +198,8 @@ async def eintrag_bearbeiten_speichern(
         eintrag = PflegeEintrag.from_datum(**felder)
         eintrag.id = eintrag_id
         db.update(eintrag)
+        audit_log(request, AuditEvent.EINTRAG_BEARBEITET,
+                  f"{eintrag.art} · {eintrag.person} · {eintrag.datum} (ID {eintrag_id})")
         return redirect(request, "/eintraege/?ok=1", 303)
     except (Validierungsfehler, ValueError) as exc:
         alle = db.alle(get_owner_id(request))
@@ -225,5 +229,6 @@ async def eintraege_bulk_loeschen(
 @router.post("/{eintrag_id}/loeschen")
 async def eintrag_loeschen(request: Request, eintrag_id: int):
     db = get_db(request)
+    audit_log(request, AuditEvent.EINTRAG_GELOESCHT, f"Eintrag ID {eintrag_id}")
     db.loeschen(eintrag_id)
     return redirect(request, "/eintraege/?geloescht=1", 303)

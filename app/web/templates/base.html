@@ -539,6 +539,15 @@ small.text-muted { font-size: .78rem; }
     </style>
 </head>
 <body>
+{% if impersonation_aktiv and effective_user %}
+<div style="background:#e65c00;color:#fff;text-align:center;padding:.4rem 1rem;font-size:.82rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:1rem;position:sticky;top:0;z-index:9999">
+  <span>👤 Du arbeitest gerade als <strong>{{ effective_user.username }}</strong></span>
+  <form method="post" action="{{ request.app.state.ingress_entry }}/admin/impersonation/stop" style="margin:0">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit" style="background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);color:#fff;padding:.2rem .75rem;border-radius:4px;font-size:.8rem;cursor:pointer;font-weight:600">✕ Beenden</button>
+  </form>
+</div>
+{% endif %}
     <nav class="navbar">
         <div class="nav-brand">
             <a href="{{ request.app.state.ingress_entry }}/" style="display:flex;align-items:center;text-decoration:none">

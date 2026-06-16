@@ -15,7 +15,8 @@ from typing import Optional
 from fastapi import APIRouter, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse
 
-from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect
+from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect, audit_log
+from db.audit import AuditEvent
 
 log = logging.getLogger(__name__)
 
@@ -212,6 +213,8 @@ async def pflegeberatung_neu_post(
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (owner_id, person.strip(), datum, berater.strip(), notiz.strip(), datei_pfad, datei_name))
 
+    audit_log(request, AuditEvent.PFLEGEBERATUNG_ERSTELLT,
+              f"{person.strip()} · {datum} · {berater.strip()}")
     return redirect(request, "/pflegeberatung/", 303)
 
 
@@ -263,4 +266,6 @@ async def pflegeberatung_loeschen(request: Request, eintrag_id: int):
     with db._schema.connect() as conn:
         conn.execute("DELETE FROM pflegeberatung WHERE id=? AND owner_id=?", (eintrag_id, owner_id))
 
+    audit_log(request, AuditEvent.PFLEGEBERATUNG_GELOESCHT,
+              f"{eintrag.person if eintrag else eintrag_id} · {eintrag.datum if eintrag else ''}")
     return redirect(request, "/pflegeberatung/", 303)
