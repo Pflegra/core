@@ -1,5 +1,139 @@
 # Changelog
 
+## v1.5.1 (16.06.2026)
+
+### Neu
+
+- Kontaktverwaltung pro versicherter Person
+  - Kontakttypen: Hausarzt, Pflegekasse, Pflegedienst, Beratungsstelle, Sonstiger Kontakt
+  - Felder: Name, Ansprechpartner, Telefon, E-Mail, Adresse, Kundennummer, Notiz
+  - Direkter Aufruf per `tel:` und `mailto:` Links
+  - Button „Kontakte" direkt auf der Versicherten-Karte im Dashboard
+- Auto-Backup-Fix: Backup-Scheduler wird jetzt beim Containerstart automatisch gestartet
+- Windows EXE: Logging-Fix für den Betrieb ohne Terminal
+
+### Technisch
+
+- Neue Tabelle `kontakte` (DB Schema v20)
+- Neuer Router `/kontakte/`
+
+---
+
+## v1.5.0 (15.06.2026)
+
+### Neu
+
+- E-Mail-Benachrichtigungen für Fristen und Pflegeberatungen
+- Web-Push-Benachrichtigungen (PWA, Beta)
+- SMTP-Konfiguration für Administratoren
+- Verlauf aller gesendeten Erinnerungen unter `/erinnerungen/verlauf`
+- Pro Nutzer aktivierbar: E-Mail und/oder Push
+- Vorlaufzeiten konfigurierbar: Pflegeberatung, Entlastungsbetrag, allgemeine Fristen
+- Versandzeit einstellbar (Stunde)
+
+### Technisch
+
+- Neue Tabellen `erinnerungen_config`, `push_subscriptions`, `erinnerungen_log` (DB Schema v19)
+- Neuer Router `/erinnerungen/`
+- Neuer Service `erinnerungen_service.py`
+
+---
+
+## v1.4.1 (14.06.2026)
+
+### Verbessert
+
+- Dashboard komplett auf Versicherte fokussiert
+- Statistik-Kacheln entfernt
+- Aufgaben-Banner oben, gelb/orange/rot je nach Dringlichkeit
+- Nächste Aufgabe direkt auf der Versicherten-Karte
+- Letzte Aktivitäten in menschlicher Sprache
+- Einzelperson wird automatisch zentriert
+- PG-Badge, Aufgaben-Badge und Nächste-Aufgabe-Box klickbar
+
+---
+
+## v1.4.0 (13.06.2026)
+
+### Neu
+
+- Offene Aufgaben unter `/aufgaben/` mit Ampelfarben (rot/orange/gelb/grün)
+- Zeitachse unter `/zeitachse/`: chronologische Übersicht aller Ereignisse
+  - Quellen: Pflegeberatung, Pflegegradverlauf, Dokumente, Entlastungsbuchungen, Gutachten
+  - Filter nach Person und Jahr
+  - Klickbar zu jeweiligem Modul
+- Dokumente- und Zeitachse-Button direkt auf der Versicherten-Karte
+- Dashboard-Chip „Offene Aufgaben" mit Farbmarkierung
+
+### Technisch
+
+- Neuer Service `aufgaben_service.py`
+- Neuer Service `fristen_service.py`
+- Neue Router `/aufgaben/` und `/zeitachse/`
+
+---
+
+## v1.3.3 (12.06.2026)
+
+### Neu
+
+- Dokumentenarchiv pro versicherter Person
+  - Kategorien: Gutachten, Pflegekasse, Pflegeberatung, Widerspruch, Arztbericht, Antrag, Sonstiges
+  - Upload, Download, Löschen
+- Dashboard überarbeitet: Versicherte prominent oben, Pflegeberatungs-Kachel, Nächste-Aktion-Banner
+- Fristen als Info-Tooltip
+
+### Technisch
+
+- Neue Tabelle `dokumente` (DB Schema v18)
+- Neuer Router `/dokumente/`
+
+---
+
+## v1.3.2 (11.06.2026)
+
+### Neu
+
+- Pflegeberatung nach § 37.3 SGB XI
+  - Dokumentation von Beratungsterminen mit Nachweis-Upload
+  - Automatische Fristberechnung (halbjährlich, ab 2026 für PG 2–5)
+  - Anbieter-Dropdown: Pflegedienst, Pflegeberatung, Sonstige
+  - Nachweis-Download und Löschen
+
+### Technisch
+
+- Neue Tabelle `pflegeberatung` (DB Schema v17)
+- Neuer Router `/pflegeberatung/`
+
+---
+
+## v1.3.1 (10.06.2026)
+
+### Neu
+
+- Login mit `next`-Parameter: Redirect nach Login zur ursprünglichen Seite
+- Route `/gutachten/neueste` für direkten Aufruf des letzten Gutachtens
+- Feedback-Button in der App
+- Dashboard: Gutachten-Kachel, Labels „Versicherte" und „Std. Pflege"
+
+### Verbessert
+
+- Demo-Account und Website aktualisiert
+- Gutachten-Screenshot auf der Website prominent platziert
+
+---
+
+## v1.3.0 (09.06.2026)
+
+### Neu
+
+- PWA-Unterstützung: Manifest mit Shortcuts, Service Worker, Offline-Fallback
+- PWA-Installationsbanner mit 7-Tage-Ausblendung
+- Touch-UI: Pflegegrad-Buttons optimiert für mobile Geräte
+- Dropdown-Pfeil für mobile Menüs
+
+---
+
 ## v1.2.1 (08.06.2026)
 
 ### Sicherheit

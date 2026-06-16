@@ -350,10 +350,11 @@
     <div class="hero-tag">Open Source · Self-hosted · Deutschland</div>
     <h1>Pflege verwalten.<br><em>Einfach. Sicher.</em><br>Bei Ihnen.</h1>
     <p class="hero-sub">
-      Pflegegrad, Verhinderungspflege, Entlastungsbetrag und MD-Gutachten an einem Ort verwalten.
+      Pflegegrad, Verhinderungspflege, Entlastungsbetrag, MD-Gutachten, Aufgaben, Dokumente und Erinnerungen — alles an einem Ort.
       Selbst gehostet, kostenlos, ohne Cloud.
     </p>
-    <p class="hero-entstehung">Entstanden aus eigener Erfahrung mit der häuslichen Pflege von Angehörigen.</p>
+    <p class="hero-entstehung">Entwickelt aus eigener Erfahrung als pflegender Angehöriger — für alle, die täglich Verantwortung für einen geliebten Menschen tragen.</p>
+    <div style="margin-bottom:1rem;font-size:.78rem;color:var(--muted)">Aktuelle Version: <strong style="color:var(--primary)">v1.5.1</strong></div>
     <div class="hero-ctas">
       <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-accent-lg">
         🖥 Demo ausprobieren
@@ -382,7 +383,7 @@
     </div>
 
     <div class="hero-screen">
-      <img src="screenshots/gutachten.png" alt="Pflegra Gutachten-Analyse Screenshot">
+      <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
     </div>
 
     <div class="hero-trust">
@@ -404,10 +405,19 @@
       <span style="color:#3ABFAB;font-weight:700">✓</span> Verhinderungspflege &amp; Entlastungsbetrag verwalten
     </div>
     <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
-      <span style="color:#3ABFAB;font-weight:700">✓</span> Leistungsfinder für Pflegegeld &amp; Sachleistungen
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Gutachten-Analyse — MD/MDK-PDF automatisch auswerten
     </div>
     <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
-      <span style="color:#3ABFAB;font-weight:700">✓</span> Gutachten-Analyse — MD/MDK-PDF automatisch auswerten
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Pflegeberatung § 37.3 SGB XI dokumentieren &amp; Fristen überwachen
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Dokumentenarchiv für Gutachten, Bescheide &amp; Nachweise
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Offene Aufgaben mit Ampelfarben &amp; Zeitachse
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Erinnerungen per E-Mail &amp; Push-Benachrichtigung
     </div>
   </div>
 </section>
@@ -419,12 +429,12 @@
     <h2>Pflegra in Aktion</h2>
     <div class="screens-grid">
       <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Gutachten-Analyse</div>
-        <img src="screenshots/gutachten.png" alt="Gutachten-Analyse" loading="eager">
-      </div>
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
         <div class="screen-label">Dashboard</div>
         <img src="screenshots/dashboard.png" alt="Pflegra Dashboard" loading="eager">
+      </div>
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Gutachten-Analyse</div>
+        <img src="screenshots/gutachten.png" alt="Gutachten-Analyse" loading="eager">
       </div>
       <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
         <div class="screen-label">Pflegegradrechner</div>
@@ -443,7 +453,7 @@
     <div class="features-grid">
       <div class="feature-card highlight">
         <div class="feature-icon">📋</div>
-        <div class="feature-title">Gutachten-Analyse <span class="feature-new">Neu</span></div>
+        <div class="feature-title">Gutachten-Analyse</div>
         <div class="feature-desc">MD/MDK-Gutachten als PDF hochladen und automatisch auswerten. Pflegegrad, Punkte, alle 6 Module und Diagnosen werden erkannt.</div>
       </div>
       <div class="feature-card">
@@ -466,15 +476,35 @@
         <div class="feature-title">Entlastungsbetrag</div>
         <div class="feature-desc">Buchungsmaske, Vorjahresguthaben, Übertragsfrist 30. Juni — automatisch überwacht.</div>
       </div>
+      <div class="feature-card highlight">
+        <div class="feature-icon">🤝</div>
+        <div class="feature-title">Pflegeberatung § 37.3 <span class="feature-new">Neu</span></div>
+        <div class="feature-desc">Beratungstermine dokumentieren, Nachweise hochladen, Halbjahres-Fristen automatisch überwachen (ab 2026 Pflicht für PG 2–5).</div>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-icon">📁</div>
+        <div class="feature-title">Dokumentenarchiv <span class="feature-new">Neu</span></div>
+        <div class="feature-desc">Gutachten, Bescheide, Arztberichte und Nachweise pro versicherter Person archivieren — in 7 Kategorien, mit Download.</div>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-icon">✅</div>
+        <div class="feature-title">Aufgaben &amp; Zeitachse <span class="feature-new">Neu</span></div>
+        <div class="feature-desc">Offene Aufgaben mit Ampelfarben (rot/orange/gelb/grün). Chronologische Zeitachse aller Ereignisse pro Person.</div>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Erinnerungen <span class="feature-new">Neu</span></div>
+        <div class="feature-desc">Fristen und Pflegeberatungen per E-Mail oder Push-Benachrichtigung im Browser. Vorlaufzeiten individuell konfigurierbar.</div>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-icon">📞</div>
+        <div class="feature-title">Kontaktverwaltung <span class="feature-new">Neu</span></div>
+        <div class="feature-desc">Hausarzt, Pflegekasse, Pflegedienst und Beratungsstelle pro versicherter Person speichern — mit Direktanruf per Klick.</div>
+      </div>
       <div class="feature-card">
         <div class="feature-icon">📓</div>
         <div class="feature-title">Pflegetagebuch</div>
         <div class="feature-desc">Tägliche Beobachtungen strukturiert festhalten. 9 Kategorien, Stimmungsverlauf, Tags.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📅</div>
-        <div class="feature-title">Fristenkalender</div>
-        <div class="feature-desc">Aktive Hinweise auf auslaufende Fristen: VP-Budget, Entlastungsbetrag-Übertrag, veraltete Einschätzungen.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📄</div>
@@ -544,7 +574,7 @@
           <span class="privacy-point-icon">💾</span>
           <div class="privacy-point-text">
             <strong>Automatische Backups</strong>
-            <span>Tägliche lokale Backups mit konfigurierbarer Aufbewahrungszeit.</span>
+            <span>Tägliche automatische Backups mit integrierter Wiederherstellung — Ihre Daten sind auch bei Serverproblemen sicher.</span>
           </div>
         </div>
       </div>
@@ -567,16 +597,15 @@
 
     <div id="tab-windows" class="install-content active">
       <div class="code-block">
-<span class="comment"># 1. Docker Desktop installieren (einmalig)</span>
-<span class="comment">#    https://www.docker.com/products/docker-desktop</span>
+<span class="comment"># 1. Pflegra-Paket herunterladen und entpacken</span>
+<span class="comment">#    pflegra_windows_v1.5.1.zip → beliebiger Ordner</span>
 
-<span class="comment"># 2. Windows-Paket herunterladen und entpacken</span>
-<span class="comment">#    pflegra_windows_vXX.zip → beliebiger Ordner</span>
-
-<span class="comment"># 3. start.bat doppelklicken → Browser öffnet sich</span></div>
+<span class="comment"># 2. Pflegra.exe doppelklicken</span>
+<span class="comment">#    → Browser öffnet sich automatisch</span>
+<span class="comment">#    → Tray-Symbol erscheint in der Taskleiste</span></div>
       <p class="install-note">
-        Docker Desktop muss installiert und gestartet sein.
-        Beim ersten Start wird das Image automatisch heruntergeladen (~200 MB).
+        Kein Docker, keine Installation nötig. Pflegra läuft direkt als eigenständige Windows-Anwendung.
+        Daten werden lokal gespeichert und bleiben auf Ihrem PC.
         <a href="https://github.com/Pflegra/core/releases" target="_blank">Download →</a>
       </p>
     </div>
@@ -623,7 +652,7 @@ docker run -d -p 8000:8000 \
     <a href="/datenschutz.html">Datenschutz</a>
     <a href="https://github.com/Pflegra/core/blob/main/README.md" target="_blank">Dokumentation</a>
   </div>
-  <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt</div>
+  <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt · <a href="https://github.com/Pflegra/core/releases" target="_blank" style="color:rgba(255,255,255,.5)">v1.5.1</a></div>
   <div style="margin-top:.4rem;font-size:.75rem">
     Pflegra dient der persönlichen Orientierung und ersetzt keine Beratung durch Pflegekassen oder den MDK.
   </div>
