@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Kontakte – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📞 Kontakte</h1>
+    <a href="{{ request.app.state.ingress_entry }}/kontakte/neu{% if filter_person %}?person={{ filter_person }}{% endif %}"
+       class="btn btn-primary">+ Kontakt hinzufügen</a>
+</div>
+
+{# ── Filter ── #}
+{% if personen %}
+<div style="margin-bottom:1.25rem">
+    <form method="get" style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <select name="person" onchange="this.form.submit()"
+                style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+            <option value="">Alle Personen</option>
+            {% for p in personen %}
+            <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+        {% if filter_person %}
+        <a href="{{ request.app.state.ingress_entry }}/kontakte/" class="btn btn-ghost btn-sm">✕ Filter löschen</a>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+
+{# ── Kontakte ── #}
+{% if kontakte %}
+    {% for typ, liste in nach_typ.items() %}
+    <div style="margin-bottom:1.75rem">
+        <div style="font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">
+            {{ typen.get(typ, typ) }}
+            <span style="font-weight:400;font-size:.75rem">({{ liste|length }})</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+            {% for k in liste %}
+            <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.1rem;display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+                <div style="flex:1;min-width:180px">
+                    <div style="font-weight:600;margin-bottom:.2rem">{{ k.name }}</div>
+                    {% if k.person and not filter_person %}
+                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.3rem">{{ k.person }}</div>
+                    {% endif %}
+                    {% if k.ansprechpartner %}
+                    <div style="font-size:.82rem;color:var(--text-muted)">👤 {{ k.ansprechpartner }}</div>
+                    {% endif %}
+                    {% if k.kundennummer %}
+                    <div style="font-size:.82rem;color:var(--text-muted)">🔢 {{ k.kundennummer }}</div>
+                    {% endif %}
+                    {% if k.adresse %}
+                    <div style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem">📍 {{ k.adresse }}</div>
+                    {% endif %}
+                    {% if k.notiz %}
+                    <div style="font-size:.8rem;color:var(--text-muted);margin-top:.3rem;font-style:italic">{{ k.notiz }}</div>
+                    {% endif %}
+                </div>
+                <div style="display:flex;flex-direction:column;gap:.3rem;min-width:140px">
+                    {% if k.telefon %}
+                    <a href="tel:{{ k.telefon }}" style="font-size:.85rem;color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:.3rem">
+                        📱 {{ k.telefon }}
+                    </a>
+                    {% endif %}
+                    {% if k.email %}
+                    <a href="mailto:{{ k.email }}" style="font-size:.85rem;color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:.3rem">
+                        ✉️ {{ k.email }}
+                    </a>
+                    {% endif %}
+                </div>
+                <div style="display:flex;gap:.4rem;flex-shrink:0">
+                    <a href="{{ request.app.state.ingress_entry }}/kontakte/{{ k.id }}/bearbeiten"
+                       class="btn btn-ghost btn-sm">✏️</a>
+                    <form method="post" action="{{ request.app.state.ingress_entry }}/kontakte/{{ k.id }}/loeschen"
+                          onsubmit="return confirm('Kontakt löschen?')" style="margin:0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--error)">🗑️</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="form-card" style="text-align:center;padding:2.5rem 1rem">
+    <div style="font-size:2rem;margin-bottom:.75rem">📞</div>
+    <div style="font-weight:600;margin-bottom:.4rem">Noch keine Kontakte</div>
+    <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+        Speichere wichtige Ansprechpartner wie Hausarzt, Pflegekasse oder Pflegedienst
+    </div>
+    <a href="{{ request.app.state.ingress_entry }}/kontakte/neu" class="btn btn-primary">+ Kontakt hinzufügen</a>
+</div>
+{% endif %}
+{% endblock %}

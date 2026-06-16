@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{% if kontakt %}Kontakt bearbeiten{% else %}Kontakt hinzufügen{% endif %} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📞 {% if kontakt %}Kontakt bearbeiten{% else %}Kontakt hinzufügen{% endif %}</h1>
+</div>
+
+<div class="form-card" style="max-width:580px">
+    <form method="post"
+          action="{{ request.app.state.ingress_entry }}/kontakte/{% if kontakt %}{{ kontakt.id }}/bearbeiten{% else %}neu{% endif %}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        {# Person #}
+        <div class="form-group">
+            <label>Person <span style="color:var(--error)">*</span></label>
+            <select name="person" required style="width:100%">
+                <option value="">Person wählen …</option>
+                {% for p in personen %}
+                <option value="{{ p }}" {% if (kontakt and kontakt.person == p) or vorauswahl_person == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# Typ #}
+        <div class="form-group">
+            <label>Kontakttyp <span style="color:var(--error)">*</span></label>
+            <select name="typ" required style="width:100%">
+                {% for key, label in typen.items() %}
+                <option value="{{ key }}"
+                    {% if (kontakt and kontakt.typ == key) or (not kontakt and vorauswahl_typ == key) %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# Name #}
+        <div class="form-group">
+            <label>Name <span style="color:var(--error)">*</span></label>
+            <input type="text" name="name" required style="width:100%"
+                   placeholder="z.B. Dr. Müller, AOK Bayern, Pflegedienst Sonnenschein …"
+                   value="{{ kontakt.name if kontakt else '' }}">
+        </div>
+
+        {# Ansprechpartner #}
+        <div class="form-group">
+            <label>Ansprechpartner</label>
+            <input type="text" name="ansprechpartner" style="width:100%"
+                   placeholder="z.B. Frau Schmidt"
+                   value="{{ kontakt.ansprechpartner if kontakt else '' }}">
+        </div>
+
+        {# Telefon + E-Mail #}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="form-group">
+                <label>Telefon</label>
+                <input type="tel" name="telefon" style="width:100%"
+                       placeholder="0234 / 123456"
+                       value="{{ kontakt.telefon if kontakt else '' }}">
+            </div>
+            <div class="form-group">
+                <label>E-Mail</label>
+                <input type="email" name="email" style="width:100%"
+                       placeholder="kontakt@example.com"
+                       value="{{ kontakt.email if kontakt else '' }}">
+            </div>
+        </div>
+
+        {# Adresse #}
+        <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" name="adresse" style="width:100%"
+                   placeholder="Musterstraße 1, 12345 Musterstadt"
+                   value="{{ kontakt.adresse if kontakt else '' }}">
+        </div>
+
+        {# Kundennummer (nur relevant für Pflegekasse) #}
+        <div class="form-group">
+            <label>Kundennummer / Versichertennummer</label>
+            <input type="text" name="kundennummer" style="width:100%"
+                   placeholder="z.B. A123456789"
+                   value="{{ kontakt.kundennummer if kontakt else '' }}">
+        </div>
+
+        {# Notiz #}
+        <div class="form-group">
+            <label>Notiz</label>
+            <textarea name="notiz" style="width:100%;min-height:70px;resize:vertical"
+                      placeholder="Weitere Hinweise …">{{ kontakt.notiz if kontakt else '' }}</textarea>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+            <button type="submit" class="btn btn-primary">💾 Speichern</button>
+            <a href="{{ request.app.state.ingress_entry }}/kontakte/{% if kontakt %}?person={{ kontakt.person }}{% endif %}"
+               class="btn btn-ghost">Abbrechen</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
