@@ -584,7 +584,8 @@ small.text-muted { font-size: .78rem; }
                     <li><a href="{{ request.app.state.ingress_entry }}/versicherte/" {% if request.url.path.find('/versicherte') != -1 %}class="active"{% endif %}>Versicherte</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/kontakte/" {% if request.url.path.find('/kontakte') != -1 %}class="active"{% endif %}>Kontakte</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/dokumente/" {% if request.url.path.find('/dokumente') != -1 %}class="active"{% endif %}>Dokumente</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/" {% if request.url.path.find('/tagebuch') != -1 %}class="active"{% endif %}>Pflegetagebuch</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/" {% if request.url.path.find('/tagebuch') != -1 and 'chronik' not in request.url.path %}class="active"{% endif %}>Pflegetagebuch</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/chronik" {% if 'chronik' in request.url.path %}class="active"{% endif %}>Chronik</a></li>
                 </ul>
             </li>
 

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Chronik – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:.75rem">
+    <h1>📖 Chronik</h1>
+    <a href="{{ request.app.state.ingress_entry }}/tagebuch/" class="btn btn-ghost btn-sm">📋 Listenansicht</a>
+</div>
+
+{# ── Person-Filter ── #}
+{% if personen %}
+<form method="get" style="margin-bottom:1.25rem">
+    <select name="person" onchange="this.form.submit()"
+            style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+        <option value="">Alle Personen</option>
+        {% for p in personen %}
+        <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+    </select>
+</form>
+{% endif %}
+
+{# ── Schnelleingabe ── #}
+<div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.5rem">
+    <form method="post" action="{{ request.app.state.ingress_entry }}/tagebuch/chronik/schnell" id="schnell-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {% if filter_person %}
+        <input type="hidden" name="person" value="{{ filter_person }}">
+        {% else %}
+        <div style="margin-bottom:.5rem">
+            <select name="person" required
+                    style="width:100%;padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+                <option value="">Person wählen …</option>
+                {% for p in personen %}
+                <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div style="display:flex;gap:.5rem">
+            <textarea name="inhalt" id="schnell-input" required
+                      placeholder="Was ist heute passiert? Einfach tippen und Enter drücken …"
+                      style="flex:1;padding:.6rem .8rem;border:1px solid var(--border);border-radius:var(--radius-sm);
+                             background:var(--input-bg);font-size:.9rem;resize:none;min-height:44px;max-height:120px;
+                             font-family:inherit;line-height:1.5"
+                      rows="1"></textarea>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end;padding:.55rem 1rem">
+                ➤
+            </button>
+        </div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:.35rem">
+            Strg+Enter zum Speichern · <a href="{{ request.app.state.ingress_entry }}/tagebuch/neu{% if filter_person %}?person={{ filter_person }}{% endif %}" style="color:var(--text-muted)">Detaillierten Eintrag anlegen →</a>
+        </div>
+    </form>
+</div>
+
+{# ── Einträge ── #}
+{% if eintraege %}
+{% set ns = namespace(letztes_datum="") %}
+<div style="display:flex;flex-direction:column;gap:0">
+    {% for e in eintraege %}
+
+    {# Datum-Trenner #}
+    {% if e.datum != ns.letztes_datum %}
+    {% set ns.letztes_datum = e.datum %}
+    <div style="text-align:center;margin:1rem 0 .5rem;position:relative">
+        <span style="background:var(--bg);padding:0 .75rem;font-size:.75rem;color:var(--text-muted);font-weight:600;position:relative;z-index:1">
+            {{ e.datum[8:10] }}.{{ e.datum[5:7] }}.{{ e.datum[0:4] }}
+        </span>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border);z-index:0"></div>
+    </div>
+    {% endif %}
+
+    {# Eintrag #}
+    <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.5rem 0">
+        {# Avatar #}
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:.1rem">
+            {{ e.person[0] if e.person else '?' }}
+        </div>
+
+        {# Bubble #}
+        <div style="flex:1;background:var(--panel);border:1px solid var(--border);
+                    border-radius:0 12px 12px 12px;padding:.65rem .9rem;max-width:680px">
+
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;flex-wrap:wrap">
+                {% if not filter_person %}
+                <span style="font-size:.78rem;font-weight:600;color:var(--primary)">{{ e.person }}</span>
+                <span style="color:var(--border)">·</span>
+                {% endif %}
+                <span style="font-size:.75rem;color:var(--text-muted)">
+                    {{ kategorien_labels.get(e.kategorie, e.kategorie) }}
+                </span>
+                {% if e.stimmung %}
+                <span style="color:var(--border)">·</span>
+                <span style="font-size:.75rem">{{ stimmung_labels.get(e.stimmung, '') }}</span>
+                {% endif %}
+                {% if e.uhrzeit %}
+                <span style="color:var(--border)">·</span>
+                <span style="font-size:.75rem;color:var(--text-muted)">{{ e.uhrzeit }}</span>
+                {% endif %}
+                <span style="margin-left:auto;display:flex;gap:.3rem">
+                    <a href="{{ request.app.state.ingress_entry }}/tagebuch/{{ e.id }}/bearbeiten"
+                       style="font-size:.72rem;color:var(--text-muted);text-decoration:none">✏️</a>
+                    <form method="post" action="{{ request.app.state.ingress_entry }}/tagebuch/{{ e.id }}/loeschen"
+                          onsubmit="return confirm('Eintrag löschen?')" style="margin:0;display:inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" style="background:none;border:none;cursor:pointer;font-size:.72rem;padding:0;color:var(--text-muted)">🗑️</button>
+                    </form>
+                </span>
+            </div>
+
+            {% if e.titel %}
+            <div style="font-weight:600;margin-bottom:.2rem;font-size:.9rem">{{ e.titel }}</div>
+            {% endif %}
+
+            <div style="font-size:.9rem;line-height:1.6;white-space:pre-wrap">{{ e.inhalt }}</div>
+
+            {% if e.tags %}
+            <div style="margin-top:.4rem;display:flex;gap:.3rem;flex-wrap:wrap">
+                {% for tag in e.tags.split(',') %}
+                {% if tag.strip() %}
+                <span style="font-size:.72rem;background:var(--primary-light);color:var(--primary);padding:.1rem .4rem;border-radius:10px">{{ tag.strip() }}</span>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:3rem 1rem;color:var(--text-muted)">
+    <div style="font-size:2.5rem;margin-bottom:.75rem">📖</div>
+    <div style="font-weight:600;margin-bottom:.4rem;color:var(--text)">Noch keine Einträge</div>
+    <div style="font-size:.85rem">Schreib einfach los — was ist heute passiert?</div>
+</div>
+{% endif %}
+
+<script>
+// Auto-resize Textarea
+const ta = document.getElementById('schnell-input');
+if (ta) {
+    ta.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    // Strg+Enter zum Absenden
+    ta.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            document.getElementById('schnell-form').submit();
+        }
+    });
+}
+</script>
+{% endblock %}
