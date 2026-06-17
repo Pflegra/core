@@ -199,3 +199,26 @@ Erste stabile Version von Pflegra.
 - Fernzugriff über Tailscale
 - Docker-Unterstützung für amd64 und arm64
 - Windows-Schnellstart
+
+## v1.5.2 (17.06.2026)
+
+### Neu
+
+- Eigene Fristen & Termine pro versicherter Person
+  - Kategorien: Termin, Dokument/Ausweis, Antrag/Frist, Arzt/Therapie, Behörde/Amt, Sonstiges
+  - Ampelfarben nach Dringlichkeit
+  - Als erledigt markierbar
+  - Button direkt auf der Versicherten-Karte
+- Dashboard zeigt eigene Fristen im Aufgaben-Banner und auf der Personenkarte
+
+### Verbessert
+
+- Navigation komplett umstrukturiert
+  - Gruppen: Pflege, Personen, Organisation, Auswertungen, Verwaltung
+  - Pflegeeinsätze statt Einträge
+  - Übersicht als erster sichtbarer Punkt
+
+### Technisch
+
+- Neue Tabelle `eigene_fristen` (DB Schema v21)
+- Neuer Router `/fristen/`
