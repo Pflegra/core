@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{% if frist %}Frist bearbeiten{% else %}Frist hinzufügen{% endif %} – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📅 {% if frist %}Frist bearbeiten{% else %}Frist hinzufügen{% endif %}</h1>
+</div>
+
+<div class="form-card" style="max-width:520px">
+    <form method="post"
+          action="{{ request.app.state.ingress_entry }}/fristen/{% if frist %}{{ frist.id }}/bearbeiten{% else %}neu{% endif %}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="form-group">
+            <label>Person <span style="color:var(--error)">*</span></label>
+            <select name="person" required style="width:100%">
+                <option value="">Person wählen …</option>
+                {% for p in personen %}
+                <option value="{{ p }}" {% if (frist and frist.person == p) or vorauswahl_person == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Titel <span style="color:var(--error)">*</span></label>
+            <input type="text" name="titel" required style="width:100%"
+                   placeholder="z.B. MD-Begutachtung, Schwerbehindertenausweis verlängern …"
+                   value="{{ frist.titel if frist else '' }}">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="form-group">
+                <label>Datum <span style="color:var(--error)">*</span></label>
+                <input type="date" name="datum" required style="width:100%"
+                       value="{{ frist.datum if frist else '' }}">
+            </div>
+            <div class="form-group">
+                <label>Kategorie</label>
+                <select name="kategorie" style="width:100%">
+                    {% for key, label in kategorien.items() %}
+                    <option value="{{ key }}" {% if frist and frist.kategorie == key %}selected{% elif not frist and key == 'sonstiges' %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Notiz</label>
+            <textarea name="notiz" style="width:100%;min-height:70px;resize:vertical"
+                      placeholder="Weitere Hinweise …">{{ frist.notiz if frist else '' }}</textarea>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+            <button type="submit" class="btn btn-primary">💾 Speichern</button>
+            <a href="{{ request.app.state.ingress_entry }}/fristen/{% if frist %}?person={{ frist.person }}{% endif %}"
+               class="btn btn-ghost">Abbrechen</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

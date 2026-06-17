@@ -56,7 +56,7 @@ class Aufgabe:
         return f"in {t} Tagen"
 
 
-def berechne_aufgaben(fristen: list, beratungen: list) -> list[Aufgabe]:
+def berechne_aufgaben(fristen: list, beratungen: list, eigene_fristen: list = None) -> list[Aufgabe]:
     """
     Sammelt alle offenen Aufgaben aus Fristen und Pflegeberatungen.
     Gibt eine nach Dringlichkeit sortierte Liste zurück.
@@ -82,6 +82,23 @@ def berechne_aufgaben(fristen: list, beratungen: list) -> list[Aufgabe]:
                 faellig=b.naechster_termin,
                 link="/pflegeberatung/",
                 hinweis="Halbjährlicher Pflichtnachweis für Pflegegeld-Bezieher",
+            ))
+
+    # Eigene Fristen (nur offene)
+    if eigene_fristen:
+        from datetime import date as _date
+        for ef in eigene_fristen:
+            if ef.erledigt:
+                continue
+            d = ef.datum_date
+            if d is None:
+                continue
+            aufgaben.append(Aufgabe(
+                titel=ef.titel,
+                person=ef.person,
+                faellig=d,
+                link="/fristen/",
+                hinweis=ef.kategorie_label,
             ))
 
     # Sortieren: überfällig zuerst, dann nach Fälligkeit

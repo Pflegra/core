@@ -23,7 +23,7 @@ from services.import_service import ImportService
 from services.backup_service import BackupService
 from logging_setup import setup_logging
 
-from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung, dokumente, aufgaben, zeitachse, erinnerungen, kontakte
+from web.routers import eintraege, personen, versicherte, budget, export, einstellungen, importieren, backup, antraege, admin, datenpflege, budget_planung, entlastung, pflegegrad, leistungsfinder, tagebuch, statistiken, widerspruch, gutachten, pflegeberatung, dokumente, aufgaben, zeitachse, erinnerungen, kontakte, fristen
 from web.routers.login import router as login_router
 from web.auth import login_erforderlich, hash_passwort
 from web.csrf import CSRF_COOKIE, generiere_csrf_token, get_csrf_token, pruefe_csrf_request, csrf_fehler
@@ -324,6 +324,7 @@ app.include_router(dokumente.router)
 app.include_router(aufgaben.router)
 app.include_router(erinnerungen.router)
 app.include_router(kontakte.router)
+app.include_router(fristen.router)
 app.include_router(zeitachse.router)
 app.include_router(widerspruch.router)
 app.include_router(gutachten.router)
@@ -556,7 +557,9 @@ async def index(request: Request):
     offene_aufgaben = []
     try:
         from services.aufgaben_service import berechne_aufgaben
-        offene_aufgaben = berechne_aufgaben(fristen, letzte_beratungen)
+        from web.routers.fristen import _lade_fristen as _lade_eigene_fristen
+        eigene_fristen = _lade_eigene_fristen(request, owner_id, nur_offen=True)
+        offene_aufgaben = berechne_aufgaben(fristen, letzte_beratungen, eigene_fristen)
     except Exception:
         pass
     naechste_aktion = None

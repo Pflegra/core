@@ -593,6 +593,7 @@ small.text-muted { font-size: .78rem; }
                 <span class="nav-gruppe-label">📅 Organisation</span>
                 <ul class="nav-dropdown">
                     <li><a href="{{ request.app.state.ingress_entry }}/aufgaben/" {% if request.url.path.find('/aufgaben') != -1 %}class="active"{% endif %}>Aufgaben</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/fristen/" {% if request.url.path.find('/fristen') != -1 %}class="active"{% endif %}>Fristen & Termine</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/erinnerungen/" {% if request.url.path.find('/erinnerungen') != -1 %}class="active"{% endif %}>Erinnerungen</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/zeitachse/" {% if request.url.path.find('/zeitachse') != -1 %}class="active"{% endif %}>Zeitachse</a></li>
                 </ul>

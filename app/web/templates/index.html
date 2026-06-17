@@ -131,6 +131,8 @@
                class="btn btn-ghost btn-sm">📝 {{ _('dashboard.antrag_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/dokumente/?person={{ k.name | urlencode }}"
                class="btn btn-ghost btn-sm">📁 Dokumente</a>
+            <a href="{{ request.app.state.ingress_entry }}/fristen/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📅 Fristen</a>
             <a href="{{ request.app.state.ingress_entry }}/kontakte/?person={{ k.name | urlencode }}"
                class="btn btn-ghost btn-sm">📞 Kontakte</a>
             <a href="{{ request.app.state.ingress_entry }}/zeitachse/?person={{ k.name | urlencode }}"

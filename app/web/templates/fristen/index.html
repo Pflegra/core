@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Fristen – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📅 Fristen & Termine</h1>
+    <a href="{{ request.app.state.ingress_entry }}/fristen/neu{% if filter_person %}?person={{ filter_person }}{% endif %}"
+       class="btn btn-primary">+ Frist hinzufügen</a>
+</div>
+
+{# ── Filter ── #}
+{% if personen %}
+<div style="margin-bottom:1.25rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+    <form method="get" style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <select name="person" onchange="this.form.submit()"
+                style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+            <option value="">Alle Personen</option>
+            {% for p in personen %}
+            <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+        {% if zeige_erledigt %}
+        <input type="hidden" name="erledigt" value="alle">
+        {% endif %}
+    </form>
+    <form method="get">
+        {% if filter_person %}<input type="hidden" name="person" value="{{ filter_person }}">{% endif %}
+        {% if zeige_erledigt %}
+        <button type="submit" class="btn btn-ghost btn-sm">Nur offene anzeigen</button>
+        {% else %}
+        <input type="hidden" name="erledigt" value="alle">
+        <button type="submit" class="btn btn-ghost btn-sm">Auch erledigte anzeigen</button>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+
+{# ── Liste ── #}
+{% if fristen %}
+<div style="display:flex;flex-direction:column;gap:.5rem">
+    {% for f in fristen %}
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.1rem;
+                display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap;
+                {% if f.ist_erledigt %}opacity:.55{% endif %}">
+        <div style="font-size:1.2rem;padding-top:.1rem">{{ f.ampel_emoji }}</div>
+        <div style="flex:1;min-width:180px">
+            <div style="font-weight:600;{% if f.ist_erledigt %}text-decoration:line-through{% endif %}">{{ f.titel }}</div>
+            {% if not filter_person %}
+            <div style="font-size:.75rem;color:var(--text-muted)">{{ f.person }}</div>
+            {% endif %}
+            <div style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem">
+                {{ f.kategorie_label }} · {{ f.datum_str }}
+                {% if not f.ist_erledigt and f.tage is not none %}
+                <span style="margin-left:.5rem;color:{% if f.ampel == 'rot' %}var(--error){% elif f.ampel == 'orange' %}#e65c00{% elif f.ampel == 'gelb' %}#854d0e{% else %}var(--ok-color){% endif %}">
+                    ({% if f.tage < 0 %}{{ f.tage|abs }} Tage überfällig{% elif f.tage == 0 %}heute{% elif f.tage == 1 %}morgen{% else %}in {{ f.tage }} Tagen{% endif %})
+                </span>
+                {% endif %}
+            </div>
+            {% if f.notiz %}
+            <div style="font-size:.8rem;color:var(--text-muted);margin-top:.25rem;font-style:italic">{{ f.notiz }}</div>
+            {% endif %}
+        </div>
+        <div style="display:flex;gap:.4rem;flex-shrink:0">
+            <form method="post" action="{{ request.app.state.ingress_entry }}/fristen/{{ f.id }}/erledigt" style="margin:0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-ghost btn-sm" title="{% if f.ist_erledigt %}Als offen markieren{% else %}Als erledigt markieren{% endif %}">
+                    {% if f.ist_erledigt %}↩️{% else %}✅{% endif %}
+                </button>
+            </form>
+            <a href="{{ request.app.state.ingress_entry }}/fristen/{{ f.id }}/bearbeiten"
+               class="btn btn-ghost btn-sm">✏️</a>
+            <form method="post" action="{{ request.app.state.ingress_entry }}/fristen/{{ f.id }}/loeschen"
+                  onsubmit="return confirm('Frist löschen?')" style="margin:0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--error)">🗑️</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="form-card" style="text-align:center;padding:2.5rem 1rem">
+    <div style="font-size:2rem;margin-bottom:.75rem">📅</div>
+    <div style="font-weight:600;margin-bottom:.4rem">Noch keine Fristen</div>
+    <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+        Lege Fristen für Termine, Dokumente oder Anträge an — z.B. MD-Termin, Schwerbehindertenausweis, Widerspruchsfrist
+    </div>
+    <a href="{{ request.app.state.ingress_entry }}/fristen/neu" class="btn btn-primary">+ Frist hinzufügen</a>
+</div>
+{% endif %}
+{% endblock %}
