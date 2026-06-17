@@ -561,68 +561,68 @@ small.text-muted { font-size: .78rem; }
         <ul class="nav-links">
 
             {# ── Übersicht + Einträge ── #}
-            <li><a href="{{ request.app.state.ingress_entry }}/" {% if request.url.path == '/' %}class="active"{% endif %}>🏠 Übersicht</a></li>
-            <li><a href="{{ request.app.state.ingress_entry }}/eintraege/" {% if request.url.path.find('/eintraege') != -1 %}class="active"{% endif %}>Pflegeeinsätze</a></li>
-            <li><a href="{{ request.app.state.ingress_entry }}/budget/planung/" {% if request.url.path.find('/budget/planung') != -1 %}class="active"{% endif %}>Budget</a></li>
+            <li><a href="{{ request.app.state.ingress_entry }}/" {% if request.url.path == '/' %}class="active"{% endif %}>🏠 {{ _('nav.uebersicht') }}</a></li>
+            <li><a href="{{ request.app.state.ingress_entry }}/eintraege/" {% if request.url.path.find('/eintraege') != -1 %}class="active"{% endif %}>{{ _('nav.eintraege') }}</a></li>
+            <li><a href="{{ request.app.state.ingress_entry }}/budget/planung/" {% if request.url.path.find('/budget/planung') != -1 %}class="active"{% endif %}>{{ _('nav.budget_kurz') }}</a></li>
 
             {# ── Pflege ── #}
             <li class="nav-gruppe">
-                <span class="nav-gruppe-label">📋 Pflege</span>
+                <span class="nav-gruppe-label">📋 {{ _('nav.gruppe_pflege') }}</span>
                 <ul class="nav-dropdown">
-                    <li><a href="{{ request.app.state.ingress_entry }}/pflegegrad/" {% if request.url.path.find('/pflegegrad') != -1 and 'verlauf' not in request.url.path %}class="active"{% endif %}>Pflegegradrechner</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" {% if request.url.path.find('/pflegeberatung') != -1 %}class="active"{% endif %}>Pflegeberatung</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/entlastung/" {% if request.url.path.find('/entlastung') != -1 %}class="active"{% endif %}>Entlastungsbetrag</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/leistungsfinder/" {% if request.url.path.find('/leistungsfinder') != -1 %}class="active"{% endif %}>Leistungsfinder</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/antraege/" {% if request.url.path.find('/antraege') != -1 %}class="active"{% endif %}>Anträge & Dokumente</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/pflegegrad/" {% if request.url.path.find('/pflegegrad') != -1 and 'verlauf' not in request.url.path %}class="active"{% endif %}>{{ _('nav.pflegegradrechner') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/pflegeberatung/" {% if request.url.path.find('/pflegeberatung') != -1 %}class="active"{% endif %}>{{ _('nav.pflegeberatung') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/entlastung/" {% if request.url.path.find('/entlastung') != -1 %}class="active"{% endif %}>{{ _('nav.entlastungsbetrag') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/leistungsfinder/" {% if request.url.path.find('/leistungsfinder') != -1 %}class="active"{% endif %}>{{ _('nav.leistungsfinder') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/antraege/" {% if request.url.path.find('/antraege') != -1 %}class="active"{% endif %}>{{ _('nav.antraege') }}</a></li>
                 </ul>
             </li>
 
             {# ── Personen ── #}
             <li class="nav-gruppe">
-                <span class="nav-gruppe-label">👤 Personen</span>
+                <span class="nav-gruppe-label">👤 {{ _('nav.gruppe_personen') }}</span>
                 <ul class="nav-dropdown">
-                    <li><a href="{{ request.app.state.ingress_entry }}/versicherte/" {% if request.url.path.find('/versicherte') != -1 %}class="active"{% endif %}>Versicherte</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/kontakte/" {% if request.url.path.find('/kontakte') != -1 %}class="active"{% endif %}>Kontakte</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/dokumente/" {% if request.url.path.find('/dokumente') != -1 %}class="active"{% endif %}>Dokumente</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/" {% if request.url.path.find('/tagebuch') != -1 and 'chronik' not in request.url.path %}class="active"{% endif %}>Pflegetagebuch</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/chronik" {% if 'chronik' in request.url.path %}class="active"{% endif %}>Chronik</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/versicherte/" {% if request.url.path.find('/versicherte') != -1 %}class="active"{% endif %}>{{ _('nav.versicherte') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/kontakte/" {% if request.url.path.find('/kontakte') != -1 %}class="active"{% endif %}>{{ _('nav.kontakte') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/dokumente/" {% if request.url.path.find('/dokumente') != -1 %}class="active"{% endif %}>{{ _('nav.dokumente') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/" {% if request.url.path.find('/tagebuch') != -1 and 'chronik' not in request.url.path %}class="active"{% endif %}>{{ _('nav.tagebuch') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/tagebuch/chronik" {% if 'chronik' in request.url.path %}class="active"{% endif %}>{{ _('nav.chronik') }}</a></li>
                 </ul>
             </li>
 
             {# ── Organisation ── #}
             <li class="nav-gruppe">
-                <span class="nav-gruppe-label">📅 Organisation</span>
+                <span class="nav-gruppe-label">📅 {{ _('nav.gruppe_organisation') }}</span>
                 <ul class="nav-dropdown">
-                    <li><a href="{{ request.app.state.ingress_entry }}/aufgaben/" {% if request.url.path.find('/aufgaben') != -1 %}class="active"{% endif %}>Aufgaben</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/fristen/" {% if request.url.path.find('/fristen') != -1 %}class="active"{% endif %}>Fristen & Termine</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/erinnerungen/" {% if request.url.path.find('/erinnerungen') != -1 %}class="active"{% endif %}>Erinnerungen</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/zeitachse/" {% if request.url.path.find('/zeitachse') != -1 %}class="active"{% endif %}>Zeitachse</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/aufgaben/" {% if request.url.path.find('/aufgaben') != -1 %}class="active"{% endif %}>{{ _('nav.aufgaben') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/fristen/" {% if request.url.path.find('/fristen') != -1 %}class="active"{% endif %}>{{ _('nav.fristen') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/erinnerungen/" {% if request.url.path.find('/erinnerungen') != -1 %}class="active"{% endif %}>{{ _('nav.erinnerungen') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/zeitachse/" {% if request.url.path.find('/zeitachse') != -1 %}class="active"{% endif %}>{{ _('nav.zeitachse') }}</a></li>
                 </ul>
             </li>
 
             {# ── Auswertungen ── #}
             <li class="nav-gruppe">
-                <span class="nav-gruppe-label">📊 Auswertungen</span>
+                <span class="nav-gruppe-label">📊 {{ _('nav.gruppe_auswertungen') }}</span>
                 <ul class="nav-dropdown">
-                    <li><a href="{{ request.app.state.ingress_entry }}/gutachten/" {% if request.url.path.find('/gutachten') != -1 %}class="active"{% endif %}>Gutachten-Analyse</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/gutachten/" {% if request.url.path.find('/gutachten') != -1 %}class="active"{% endif %}>{{ _('nav.gutachten') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/pflegegrad/verlauf" {% if 'pflegegrad/verlauf' in request.url.path %}class="active"{% endif %}>Pflegegrad-Verlauf</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/statistiken/" {% if request.url.path.find('/statistiken') != -1 %}class="active"{% endif %}>Statistiken</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/statistiken/" {% if request.url.path.find('/statistiken') != -1 %}class="active"{% endif %}>{{ _('nav.statistiken') }}</a></li>
                 </ul>
             </li>
 
             {# ── Verwaltung ── #}
             <li class="nav-gruppe">
-                <span class="nav-gruppe-label">⚙️ {{ current_user.username if current_user else 'Verwaltung' }}</span>
+                <span class="nav-gruppe-label">⚙️ {{ current_user.username if current_user else _('nav.gruppe_verwaltung') }}</span>
                 <ul class="nav-dropdown">
-                    <li><a href="{{ request.app.state.ingress_entry }}/einstellungen/" {% if request.url.path.find('/einstellungen') != -1 %}class="active"{% endif %}>Einstellungen</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/export/" {% if request.url.path.find('/export') != -1 %}class="active"{% endif %}>Export</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/import/" {% if request.url.path.find('/import') != -1 %}class="active"{% endif %}>Import</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/datenpflege/" {% if request.url.path.find('/datenpflege') != -1 %}class="active"{% endif %}>Datenpflege</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/einstellungen/" {% if request.url.path.find('/einstellungen') != -1 %}class="active"{% endif %}>{{ _('nav.einstellungen') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/export/" {% if request.url.path.find('/export') != -1 %}class="active"{% endif %}>{{ _('nav.export') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/import/" {% if request.url.path.find('/import') != -1 %}class="active"{% endif %}>{{ _('nav.import') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/datenpflege/" {% if request.url.path.find('/datenpflege') != -1 %}class="active"{% endif %}>{{ _('nav.datenpflege') }}</a></li>
                     {% if is_admin %}
                     <li class="nav-dropdown-sep"></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/backup/" {% if request.url.path.find('/backup') != -1 %}class="active"{% endif %}>Backup</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/admin/">System</a></li>
-                    <li><a href="{{ request.app.state.ingress_entry }}/admin/users">Benutzer</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/backup/" {% if request.url.path.find('/backup') != -1 %}class="active"{% endif %}>{{ _('nav.backup') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/admin/">{{ _('nav.system') }}</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/admin/users">{{ _('nav.benutzer') }}</a></li>
                     {% endif %}
                     <li class="nav-dropdown-sep"></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/logout" class="nav-logout">🚪 Abmelden</a></li>

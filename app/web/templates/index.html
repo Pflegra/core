@@ -14,7 +14,7 @@
 <div style="margin-bottom:1rem;padding:.6rem 1rem;border-radius:10px;
             background:#fff7ed;border:1px solid #fed7aa;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
     <span style="font-size:1rem">⚠️</span>
-    <span style="font-size:.88rem;font-weight:600;color:#c2410c">{{ dringende|length }} dringende Aufgabe{% if dringende|length != 1 %}n{% endif %}:</span>
+    <span style="font-size:.88rem;font-weight:600;color:#c2410c">{{ dringende|length }} {{ _('dashboard.dringende_aufgaben') }}:</span>
     {% for a in dringende %}
     <a href="{{ request.app.state.ingress_entry }}{{ a.link }}" style="font-size:.82rem;color:#c2410c;text-decoration:underline">
         {{ a.titel }}{% if a.person %} ({{ a.person }}){% endif %} · {{ a.faellig_str }}
@@ -25,9 +25,9 @@
 <div style="margin-bottom:.75rem;padding:.4rem .9rem;border-radius:8px;
             background:#fef9c3;border:1px solid #fde68a;font-size:.82rem;color:#854d0e;
             display:flex;align-items:center;gap:.5rem">
-    📅 <strong>{{ offene_aufgaben|length }} offene Aufgabe{% if offene_aufgaben|length != 1 %}n{% endif %}</strong>
-    · nächste: {{ offene_aufgaben[0].titel }} am {{ offene_aufgaben[0].faellig_str }}
-    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" style="margin-left:auto;color:#854d0e;text-decoration:underline">Alle →</a>
+    📅 <strong>{{ offene_aufgaben|length }} {{ _('dashboard.offene_aufgaben') }}</strong>
+    · {{ _('dashboard.naechste') }}: {{ offene_aufgaben[0].titel }} {{ _('dashboard.am') }} {{ offene_aufgaben[0].faellig_str }}
+    <a href="{{ request.app.state.ingress_entry }}/aufgaben/" style="margin-left:auto;color:#854d0e;text-decoration:underline">{{ _('dashboard.alle') }} →</a>
 </div>
 {% endif %}
 
@@ -66,7 +66,7 @@
                     <a href="{{ request.app.state.ingress_entry }}/aufgaben/?person={{ k.name | urlencode }}"
                        style="padding:.1rem .45rem;border-radius:99px;font-size:.7rem;font-weight:600;text-decoration:none;
                                  background:#fef3c7;color:#b45309">
-                        {{ p_aufgaben|length }} Aufgabe{% if p_aufgaben|length != 1 %}n{% endif %}
+                        {{ p_aufgaben|length }} {{ _('dashboard.aufgaben_badge') }}
                     </a>
                     {% endif %}
                 </div>
@@ -81,8 +81,8 @@
                 <span>📅 {{ k.vers.geburtsdatum }}</span>
                 {% endif %}
                 {% if p_beratung %}
-                <span>🤝 Beratung {{ p_beratung.datum[8:10] }}.{{ p_beratung.datum[5:7] }}.{{ p_beratung.datum[0:4] }}
-                  <span style="color:{{ '#16a34a' if p_beratung.status == 'ok' else '#d97706' }}">· nächste {{ p_beratung.naechster_termin_str }}</span>
+                <span>🤝 {{ _('dashboard.beratung') }} {{ p_beratung.datum[8:10] }}.{{ p_beratung.datum[5:7] }}.{{ p_beratung.datum[0:4] }}
+                  <span style="color:{{ '#16a34a' if p_beratung.status == 'ok' else '#d97706' }}">· {{ _('dashboard.naechste') }} {{ p_beratung.naechster_termin_str }}</span>
                 </span>
                 {% endif %}
             </div>
@@ -130,13 +130,13 @@
             <a href="{{ request.app.state.ingress_entry }}/antraege/?person={{ k.name | urlencode }}"
                class="btn btn-ghost btn-sm">📝 {{ _('dashboard.antrag_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/dokumente/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📁 Dokumente</a>
+               class="btn btn-ghost btn-sm">📁 {{ _('dashboard.dokumente_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/fristen/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📅 Fristen</a>
+               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.fristen_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/kontakte/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📞 Kontakte</a>
+               class="btn btn-ghost btn-sm">📞 {{ _('dashboard.kontakte_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/zeitachse/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📅 Zeitachse</a>
+               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.zeitachse_link') }}</a>
         </div>
 
         {# ── Nächste Aufgabe für diese Person ── #}
@@ -148,10 +148,10 @@
                   text-decoration:none;color:inherit;
                   border-left:3px solid {% if a.ampel == 'rot' %}#dc2626{% elif a.ampel == 'orange' %}#ea580c{% elif a.ampel == 'gelb' %}#d97706{% else %}#16a34a{% endif %};
                   background:{% if a.ampel == 'rot' %}#fff5f5{% elif a.ampel == 'orange' %}#fff8f0{% elif a.ampel == 'gelb' %}#fffbeb{% else %}#f0fdf4{% endif %}">
-            <span style="font-weight:600">{{ a.ampel_emoji }} Nächste Aufgabe:</span>
+            <span style="font-weight:600">{{ a.ampel_emoji }} {{ _('dashboard.naechste_aufgabe') }}:</span>
             {{ a.titel }} · <span style="color:var(--text-muted)">{{ a.faellig_str }}</span>
             {% if person_aufgaben|length > 1 %}
-            <span style="color:var(--text-muted)"> · +{{ person_aufgaben|length - 1 }} weitere</span>
+            <span style="color:var(--text-muted)"> · +{{ person_aufgaben|length - 1 }} {{ _('dashboard.weitere') }}</span>
             {% endif %}
         </a>
         {% endif %}
@@ -167,7 +167,7 @@
 {% else %}
 <div class="form-card" style="text-align:center; padding:2.5rem">
     <div style="font-size:3rem; margin-bottom:1rem">👤</div>
-    <h2>Noch keine Personen angelegt</h2>
+    <h2>{{ _('dashboard.keine_personen') }}</h2>
     <p class="text-muted" style="margin-bottom:1.5rem">{{ _("dashboard.keine_personen_hinweis") }}</p>
     <a href="{{ request.app.state.ingress_entry }}/versicherte/neu" class="btn btn-primary">{{ _('versicherte.hinzufuegen') }}</a>
 </div>
@@ -273,7 +273,7 @@
 {# ── Letzte Aktivitäten ── #}
 <div style="margin-top:1rem">
   <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">
-    🕐 Letzte Aktivitäten
+    🕐 {{ _('dashboard.letzte_aktivitaeten') }}
   </div>
   <div style="display:flex;flex-direction:column;gap:.35rem">
 
@@ -285,7 +285,7 @@
       <span style="font-size:.85rem">📋</span>
       <div style="flex:1;min-width:0">
         <span style="font-size:.85rem;font-weight:500">
-          {% if g.pflegegrad %}Pflegegrad {{ g.pflegegrad }} erkannt{% else %}Gutachten analysiert{% endif %}
+          {% if g.pflegegrad %}{{ _('dashboard.pflegegrad_erkannt', pg=g.pflegegrad) }}{% else %}{{ _('dashboard.gutachten_analysiert') }}{% endif %}
         </span>
         {% if g.person %}<span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ g.person }}</span>{% endif %}
       </div>
@@ -300,13 +300,13 @@
               text-decoration:none;color:var(--text)">
       <span style="font-size:.85rem">🤝</span>
       <div style="flex:1;min-width:0">
-        <span style="font-size:.85rem;font-weight:500">Pflegeberatung durchgeführt</span>
+        <span style="font-size:.85rem;font-weight:500">{{ _('dashboard.pflegeberatung_durchgefuehrt') }}</span>
         <span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ b.person }}</span>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:.72rem;color:var(--text-muted)">{{ b.datum[8:10] }}.{{ b.datum[5:7] }}.{{ b.datum[0:4] }}</div>
         <div style="font-size:.7rem;color:{{ '#dc2626' if b.status == 'überfällig' else ('#d97706' if b.status == 'bald' else '#16a34a') }}">
-          Nächste: {{ b.naechster_termin_str }}
+          {{ _('dashboard.naechste') }}: {{ b.naechster_termin_str }}
         </div>
       </div>
     </a>
@@ -319,7 +319,7 @@
               text-decoration:none;color:var(--text)">
       <span style="font-size:.85rem">📄</span>
       <div style="flex:1;min-width:0;overflow:hidden">
-        <span style="font-size:.85rem;font-weight:500">Dokument hochgeladen</span>
+        <span style="font-size:.85rem;font-weight:500">{{ _('dashboard.dokument_hochgeladen') }}</span>
         <span style="font-size:.75rem;color:var(--text-muted);margin-left:.3rem">· {{ d.titel }}{% if d.person %} · {{ d.person }}{% endif %}</span>
       </div>
       <span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0">{{ d.datum_de or d.created_at[:10] }}</span>

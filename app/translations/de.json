@@ -1,6 +1,6 @@
 {
   "nav": {
-    "eintraege": "Einträge",
+    "eintraege": "Pflegeeinsätze",
     "budgetplanung": "Budgetplanung",
     "antraege": "Anträge & Dokumente",
     "entlastungsbetrag": "Entlastungsbetrag",
@@ -19,7 +19,23 @@
     "budget": "Budgetplanung",
     "tagebuch": "Pflegetagebuch",
     "statistiken": "Statistiken",
-    "widerspruch": "Widerspruchshilfe"
+    "widerspruch": "Widerspruchshilfe",
+    "uebersicht": "Übersicht",
+    "budget_kurz": "Budget",
+    "gruppe_pflege": "Pflege",
+    "gruppe_personen": "Personen",
+    "gruppe_organisation": "Organisation",
+    "gruppe_auswertungen": "Auswertungen",
+    "gruppe_verwaltung": "Verwaltung",
+    "pflegeberatung": "Pflegeberatung",
+    "kontakte": "Kontakte",
+    "dokumente": "Dokumente",
+    "chronik": "Chronik",
+    "aufgaben": "Aufgaben",
+    "fristen": "Fristen & Termine",
+    "erinnerungen": "Erinnerungen",
+    "zeitachse": "Zeitachse",
+    "gutachten": "Gutachten-Analyse"
   },
   "common": {
     "speichern": "Speichern",
@@ -82,7 +98,26 @@
     "weiter_titel": "Nächste Schritte",
     "gesamtpunkte": "Gesamtpunkte",
     "zuletzt_berechnet": "Zuletzt berechnet",
-    "neu_berechnen": "Neu berechnen"
+    "neu_berechnen": "Neu berechnen",
+    "dringende_aufgaben": "dringende Aufgabe(n)",
+    "offene_aufgaben": "offene Aufgabe(n)",
+    "naechste": "nächste",
+    "am": "am",
+    "alle": "Alle",
+    "aufgaben_badge": "Aufgabe(n)",
+    "beratung": "Beratung",
+    "naechste_aufgabe": "Nächste Aufgabe",
+    "weitere": "weitere",
+    "keine_personen": "Noch keine Personen angelegt",
+    "letzte_aktivitaeten": "Letzte Aktivitäten",
+    "pflegegrad_erkannt": "Pflegegrad {pg} erkannt",
+    "gutachten_analysiert": "Gutachten analysiert",
+    "pflegeberatung_durchgefuehrt": "Pflegeberatung durchgeführt",
+    "dokument_hochgeladen": "Dokument hochgeladen",
+    "dokumente_link": "Dokumente",
+    "fristen_link": "Fristen",
+    "kontakte_link": "Kontakte",
+    "zeitachse_link": "Zeitachse"
   },
   "eintraege": {
     "titel": "Pflege-Einträge",
@@ -641,7 +676,14 @@
     "tags_placeholder": "z.B. Arzttermin, Sturz, Medikament geändert",
     "tags_hinweis": "Kommagetrennt — hilft beim späteren Suchen und Sortieren",
     "eintrag_erstellen": "Eintrag erstellen",
-    "loeschen_bestaetigen": "Eintrag wirklich löschen?"
+    "loeschen_bestaetigen": "Eintrag wirklich löschen?",
+    "chronik_titel": "Chronik",
+    "listenansicht": "Listenansicht",
+    "chronik_placeholder": "Was ist heute passiert? Einfach tippen und Enter drücken …",
+    "chronik_hinweis": "Strg+Enter zum Speichern",
+    "detaillierten_eintrag": "Detaillierten Eintrag anlegen",
+    "chronik_leer": "Noch keine Einträge",
+    "chronik_leer_hinweis": "Schreib einfach los — was ist heute passiert?"
   },
   "statistiken": {
     "titel": "Statistiken & Auswertungen",
@@ -694,5 +736,79 @@
     "check_3": "Brief unterschrieben",
     "check_4": "Per Einschreiben mit Rückschein versenden",
     "check_5": "Kopie des Briefes und Einschreiben-Beleg aufbewahren"
+  },
+  "aufgaben": {
+    "titel": "Offene Aufgaben",
+    "leer": "Keine offenen Aufgaben — alles erledigt! 🎉",
+    "faellig_am": "fällig am",
+    "ampel": {
+      "rot": "überfällig",
+      "orange": "1–7 Tage",
+      "gelb": "8–30 Tage",
+      "gruen": "über 30 Tage"
+    }
+  },
+  "fristen": {
+    "titel": "Fristen & Termine",
+    "neu": "Frist hinzufügen",
+    "hinzufuegen": "Frist hinzufügen",
+    "bearbeiten": "Frist bearbeiten",
+    "leer": "Noch keine Fristen",
+    "leer_hinweis": "Lege Fristen für Termine, Dokumente oder Anträge an — z.B. MD-Termin, Schwerbehindertenausweis, Widerspruchsfrist",
+    "nur_offene": "Nur offene anzeigen",
+    "auch_erledigte": "Auch erledigte anzeigen",
+    "als_erledigt": "Als erledigt markieren",
+    "als_offen": "Als offen markieren",
+    "loeschen_bestaetigen": "Frist löschen?",
+    "tage_ueberfaellig": "Tage überfällig",
+    "heute": "heute",
+    "morgen": "morgen",
+    "in_tagen": "in {n} Tagen",
+    "kategorien": {
+      "termin": "📅 Termin",
+      "dokument": "📄 Dokument / Ausweis",
+      "antrag": "📋 Antrag / Frist",
+      "arzt": "🩺 Arzt / Therapie",
+      "behoerde": "🏛️ Behörde / Amt",
+      "sonstiges": "📌 Sonstiges"
+    },
+    "felder": {
+      "titel": "Titel",
+      "titel_placeholder": "z.B. MD-Begutachtung, Schwerbehindertenausweis verlängern …",
+      "kategorie": "Kategorie",
+      "notiz": "Notiz",
+      "notiz_placeholder": "Weitere Hinweise …"
+    }
+  },
+  "kontakte": {
+    "titel": "Kontakte",
+    "neu": "Kontakt hinzufügen",
+    "hinzufuegen": "Kontakt hinzufügen",
+    "bearbeiten": "Kontakt bearbeiten",
+    "leer": "Noch keine Kontakte",
+    "leer_hinweis": "Speichere wichtige Ansprechpartner wie Hausarzt, Pflegekasse oder Pflegedienst",
+    "loeschen_bestaetigen": "Kontakt löschen?",
+    "typen": {
+      "hausarzt": "🩺 Hausarzt",
+      "pflegekasse": "🏥 Pflegekasse",
+      "pflegedienst": "🤝 Pflegedienst",
+      "beratungsstelle": "💬 Beratungsstelle",
+      "sonstiges": "📋 Sonstiger Kontakt"
+    },
+    "felder": {
+      "typ": "Kontakttyp",
+      "name": "Name",
+      "name_placeholder": "z.B. Dr. Müller, AOK Bayern …",
+      "ansprechpartner": "Ansprechpartner",
+      "ansprechpartner_placeholder": "z.B. Frau Schmidt",
+      "telefon": "Telefon",
+      "email": "E-Mail",
+      "adresse": "Adresse",
+      "adresse_placeholder": "Musterstraße 1, 12345 Musterstadt",
+      "kundennummer": "Kundennummer / Versichertennummer",
+      "kundennummer_placeholder": "z.B. A123456789",
+      "notiz": "Notiz",
+      "notiz_placeholder": "Weitere Hinweise …"
+    }
   }
 }

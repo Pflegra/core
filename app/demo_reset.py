@@ -127,21 +127,20 @@ def demo_reset(db) -> None:
         with db._schema.connect() as conn:
             conn.execute("DELETE FROM pflegetagebuch WHERE owner_id=?", (uid,))
             heute = date.today()
+            def d(tage): return (heute - timedelta(days=tage)).isoformat()
             demo_eintraege = [
-                (uid, DEMO_PERSON, heute.isoformat(), "09:00", "allgemein",
-                 "Guter Morgen", "Max hat heute gut geschlafen und war beim Frühstück guter Stimmung.", 4, ""),
-                (uid, DEMO_PERSON, (heute.replace(day=heute.day-1) if heute.day > 1 else heute).isoformat(),
-                 "14:30", "koerperpflege",
-                 "Körperpflege", "Vollbad durchgeführt. Max hat gut mitgemacht, nur beim Anziehen etwas Unterstützung benötigt.", 3, "körperpflege,bad"),
-                (uid, DEMO_PERSON, (heute.replace(day=heute.day-2) if heute.day > 2 else heute).isoformat(),
-                 "11:00", "arzt",
-                 "Hausarzt Termin", "Kontrolltermin beim Hausarzt. Blutdruck 135/85, Medikation bleibt unverändert.", 3, "arzt,blutdruck"),
-                (uid, DEMO_PERSON, (heute.replace(day=heute.day-3) if heute.day > 3 else heute).isoformat(),
-                 "16:00", "stimmung",
-                 "Unruhige Phase", "Max war am Nachmittag unruhig und hat mehrfach nach seiner Frau gefragt. Beruhigung durch Musik geholfen.", 2, "unruhe,demenz"),
-                (uid, DEMO_PERSON, (heute.replace(day=heute.day-4) if heute.day > 4 else heute).isoformat(),
-                 "12:00", "ernaehrung",
-                 "Mittagessen", "Guter Appetit heute. Suppe und Hauptgericht vollständig gegessen. Trinkmenge ca. 1,5 Liter.", 4, "essen,trinken"),
+                (uid, DEMO_PERSON, d(0),  "09:00", "allgemein",    "Guter Morgen",         "Max hat heute gut geschlafen und war beim Frühstück guter Stimmung.", 4, ""),
+                (uid, DEMO_PERSON, d(1),  "14:30", "koerperpflege","Körperpflege",          "Vollbad durchgeführt. Max hat gut mitgemacht, nur beim Anziehen etwas Unterstützung benötigt.", 3, "körperpflege,bad"),
+                (uid, DEMO_PERSON, d(2),  "11:00", "arzt",         "Hausarzt Termin",       "Kontrolltermin beim Hausarzt. Blutdruck 135/85, Medikation bleibt unverändert.", 3, "arzt,blutdruck"),
+                (uid, DEMO_PERSON, d(3),  "16:00", "stimmung",     "Unruhige Phase",        "Max war am Nachmittag unruhig und hat mehrfach nach seiner Frau gefragt. Beruhigung durch Musik geholfen.", 2, "unruhe,demenz"),
+                (uid, DEMO_PERSON, d(4),  "12:00", "ernaehrung",   "Mittagessen",           "Guter Appetit heute. Suppe und Hauptgericht vollständig gegessen. Trinkmenge ca. 1,5 Liter.", 4, "essen,trinken"),
+                (uid, DEMO_PERSON, d(5),  "10:00", "medikamente",  "Medikamente angepasst", "Nach Rücksprache mit Dr. Müller: Blutdruckmittel auf 5mg reduziert. Nächste Kontrolle in 3 Wochen.", 3, "medikamente,arzt"),
+                (uid, DEMO_PERSON, d(6),  "15:00", "soziales",     "Besuch der Tochter",    "Lisa war zu Besuch. Max hat sich sehr gefreut, war den ganzen Nachmittag aufgeweckt und gesprächig.", 5, "besuch,familie"),
+                (uid, DEMO_PERSON, d(8),  "08:30", "allgemein",    "Schlechte Nacht",       "Max hat schlecht geschlafen, war mehrfach wach. Tagsüber müde aber ruhig.", 2, "schlaf"),
+                (uid, DEMO_PERSON, d(10), "13:00", "arzt",         "MD-Termin vorbereiten", "Unterlagen für den MD-Termin zusammengestellt: Pflegetagebuch, Medikamentenliste, Arztberichte.", 3, "md,vorbereitung"),
+                (uid, DEMO_PERSON, d(12), "17:00", "koerperpflege","Rasur und Körperpflege","Rasur durchgeführt, Haut gepflegt. Max war entspannt und hat den Prozess gut toleriert.", 4, "körperpflege"),
+                (uid, DEMO_PERSON, d(14), "11:30", "ernaehrung",   "Appetitlosigkeit",      "Max hat heute kaum gegessen. Nur etwas Suppe und Joghurt. Auf ausreichend Trinken geachtet.", 2, "essen,appetit"),
+                (uid, DEMO_PERSON, d(16), "09:00", "allgemein",    "Spaziergang im Park",   "Kurzer Spaziergang im Stadtpark. Max war gut zu Fuß, ca. 20 Minuten. Wetter war schön.", 5, "bewegung,spaziergang"),
             ]
             for e in demo_eintraege:
                 conn.execute("""
@@ -201,6 +200,62 @@ def demo_reset(db) -> None:
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, demo_docs)
             log.info("Demo-Dokumente angelegt (%d)", len(demo_docs))
+
+        # Muster-Kontakte
+        with db._schema.connect() as conn:
+            conn.execute("DELETE FROM kontakte WHERE owner_id=?", (uid,))
+            heute = date.today()
+            demo_kontakte = [
+                (uid, DEMO_PERSON, "hausarzt", "Dr. med. Thomas Müller",
+                 "Sprechstundenhilfe Petra", "0234 / 56789-0", "praxis@dr-mueller-muster.de",
+                 "Musterstraße 12, 12345 Musterhausen", "", "Hausarzt seit 2018"),
+                (uid, DEMO_PERSON, "pflegekasse", "AOK Musterland",
+                 "Frau Schmidt", "0800 / 1234567", "info@aok-musterland.de",
+                 "Musterplatz 1, 12345 Musterhausen", "M123456789", "Kundenservice Mo–Fr 8–18 Uhr"),
+                (uid, DEMO_PERSON, "pflegedienst", "Pflegedienst Sonnenschein",
+                 "Frau Weber", "0234 / 98765-0", "info@pflegedienst-sonnenschein.de",
+                 "Gartenweg 3, 12345 Musterhausen", "", "Einsätze Di und Fr 17–19 Uhr"),
+                (uid, DEMO_PERSON, "beratungsstelle", "Pflegestützpunkt Musterhausen",
+                 "Herr Klein", "0234 / 11223-0", "beratung@pflegestuetzpunkt-muster.de",
+                 "Rathausplatz 5, 12345 Musterhausen", "", "Beratung nach § 37.3 SGB XI"),
+                (uid, DEMO_PERSON, "sonstiges", "Apotheke Am Markt",
+                 "", "0234 / 44556-0", "",
+                 "Marktstraße 1, 12345 Musterhausen", "", "Medikamente und Pflegehilfsmittel"),
+            ]
+            conn.executemany("""
+                INSERT INTO kontakte
+                    (owner_id, person, typ, name, ansprechpartner, telefon, email, adresse, kundennummer, notiz)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, demo_kontakte)
+            log.info("Demo-Kontakte angelegt (%d)", len(demo_kontakte))
+
+        # Muster-Fristen
+        with db._schema.connect() as conn:
+            conn.execute("DELETE FROM eigene_fristen WHERE owner_id=?", (uid,))
+            heute = date.today()
+            demo_fristen = [
+                (uid, DEMO_PERSON, "Schwerbehindertenausweis verlängern",
+                 (heute + timedelta(days=9)).isoformat(),
+                 "behoerde", "Ausweis läuft Ende Juni ab — Verlängerung beim Versorgungsamt beantragen", 0),
+                (uid, DEMO_PERSON, "Entlastungsbetrag-Übertrag prüfen",
+                 (heute + timedelta(days=13)).isoformat(),
+                 "antrag", "Übertrag des Vorjahresguthabens läuft am 30.06. ab", 0),
+                (uid, DEMO_PERSON, "Pflegeberatung § 37.3",
+                 (heute + timedelta(days=62)).isoformat(),
+                 "termin", "Halbjährliche Pflegeberatung fällig — Pflegedienst Sonnenschein kontaktieren", 0),
+                (uid, DEMO_PERSON, "Hausarzt Kontrolltermin",
+                 (heute + timedelta(days=21)).isoformat(),
+                 "arzt", "Blutdruckkontrolle und Medikamenten-Check bei Dr. Müller", 0),
+                (uid, DEMO_PERSON, "Vollmacht aktualisieren",
+                 (heute + timedelta(days=45)).isoformat(),
+                 "dokument", "Vorsorgevollmacht wurde 2019 ausgestellt — Überprüfung empfohlen", 0),
+            ]
+            conn.executemany("""
+                INSERT INTO eigene_fristen
+                    (owner_id, person, titel, datum, kategorie, notiz, erledigt)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, demo_fristen)
+            log.info("Demo-Fristen angelegt (%d)", len(demo_fristen))
 
     except Exception as exc:
         log.error("Demo-Reset Fehler: %s", exc, exc_info=True)

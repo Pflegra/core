@@ -70,7 +70,9 @@ async def aufgaben_uebersicht(request: Request):
 
     # Aufgaben berechnen
     from services.aufgaben_service import berechne_aufgaben
-    aufgaben = berechne_aufgaben(fristen, alle_beratungen)
+    from web.routers.fristen import _lade_fristen as _lade_eigene_fristen
+    eigene_fristen = _lade_eigene_fristen(request, owner_id, nur_offen=True)
+    aufgaben = berechne_aufgaben(fristen, alle_beratungen, eigene_fristen)
 
     return TEMPLATES.TemplateResponse(request, "aufgaben/index.html", {
         **base_ctx(request),

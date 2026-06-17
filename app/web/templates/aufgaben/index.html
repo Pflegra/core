@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Offene Aufgaben – Pflegra{% endblock %}
+{% block title %}{{ _('aufgaben.titel') }} – Pflegra{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>📋 Offene Aufgaben</h1>
+    <h1>📋 {{ _('aufgaben.titel') }}</h1>
 </div>
 
 {% if aufgaben %}
@@ -24,7 +24,7 @@
                 {% if a.person %}<span style="font-weight:400;color:var(--text-muted);margin-left:.4rem">· {{ a.person }}</span>{% endif %}
             </div>
             <div style="font-size:.8rem;color:var(--text-muted);margin-top:.1rem">
-                {{ a.tage_text }} · fällig am {{ a.faellig_str }}
+                {{ a.tage_text }} · {{ _('aufgaben.faellig_am') }} {{ a.faellig_str }}
             </div>
             {% if a.hinweis %}
             <div style="font-size:.78rem;color:var(--text-muted);margin-top:.2rem">{{ a.hinweis }}</div>
@@ -38,16 +38,13 @@
 </div>
 
 <div style="margin-top:1.5rem;font-size:.8rem;color:var(--text-muted);text-align:center">
-    🔴 überfällig · 🟠 1–7 Tage · 🟡 8–30 Tage · 🟢 über 30 Tage
+    🔴 {{ _('aufgaben.ampel.rot') }} · 🟠 {{ _('aufgaben.ampel.orange') }} · 🟡 {{ _('aufgaben.ampel.gelb') }} · 🟢 {{ _('aufgaben.ampel.gruen') }}
 </div>
 
 {% else %}
 <div class="form-card" style="text-align:center;padding:2.5rem 1rem">
     <div style="font-size:2rem;margin-bottom:.75rem">✅</div>
-    <div style="font-weight:600;margin-bottom:.4rem">Keine offenen Aufgaben</div>
-    <div style="font-size:.85rem;color:var(--text-muted)">
-        Aktuell sind keine Fristen oder Aufgaben fällig.
-    </div>
+    <div style="font-weight:600;margin-bottom:.4rem">{{ _('aufgaben.leer') }}</div>
 </div>
 {% endif %}
 {% endblock %}

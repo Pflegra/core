@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Chronik – Pflegra{% endblock %}
+{% block title %}{{ _('tagebuch.chronik_titel') }} – Pflegra{% endblock %}
 
 {% block content %}
 <div class="page-header" style="margin-bottom:.75rem">
-    <h1>📖 Chronik</h1>
-    <a href="{{ request.app.state.ingress_entry }}/tagebuch/" class="btn btn-ghost btn-sm">📋 Listenansicht</a>
+    <h1>📖 {{ _('tagebuch.chronik_titel') }}</h1>
+    <a href="{{ request.app.state.ingress_entry }}/tagebuch/" class="btn btn-ghost btn-sm">📋 {{ _('tagebuch.listenansicht') }}</a>
 </div>
 
 {# ── Person-Filter ── #}
@@ -12,7 +12,7 @@
 <form method="get" style="margin-bottom:1.25rem">
     <select name="person" onchange="this.form.submit()"
             style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
-        <option value="">Alle Personen</option>
+        <option value="">{{ _('common.alle_personen') }}</option>
         {% for p in personen %}
         <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
         {% endfor %}
@@ -30,7 +30,7 @@
         <div style="margin-bottom:.5rem">
             <select name="person" required
                     style="width:100%;padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
-                <option value="">Person wählen …</option>
+                <option value="">{{ _('common.bitte_waehlen') }}</option>
                 {% for p in personen %}
                 <option value="{{ p }}">{{ p }}</option>
                 {% endfor %}
@@ -39,7 +39,7 @@
         {% endif %}
         <div style="display:flex;gap:.5rem">
             <textarea name="inhalt" id="schnell-input" required
-                      placeholder="Was ist heute passiert? Einfach tippen und Enter drücken …"
+                      placeholder="{{ _('tagebuch.chronik_placeholder') }}"
                       style="flex:1;padding:.6rem .8rem;border:1px solid var(--border);border-radius:var(--radius-sm);
                              background:var(--input-bg);font-size:.9rem;resize:none;min-height:44px;max-height:120px;
                              font-family:inherit;line-height:1.5"
@@ -49,7 +49,7 @@
             </button>
         </div>
         <div style="font-size:.75rem;color:var(--text-muted);margin-top:.35rem">
-            Strg+Enter zum Speichern · <a href="{{ request.app.state.ingress_entry }}/tagebuch/neu{% if filter_person %}?person={{ filter_person }}{% endif %}" style="color:var(--text-muted)">Detaillierten Eintrag anlegen →</a>
+            {{ _('tagebuch.chronik_hinweis') }} · <a href="{{ request.app.state.ingress_entry }}/tagebuch/neu{% if filter_person %}?person={{ filter_person }}{% endif %}" style="color:var(--text-muted)">{{ _('tagebuch.detaillierten_eintrag') }} →</a>
         </div>
     </form>
 </div>
@@ -73,14 +73,12 @@
 
     {# Eintrag #}
     <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.5rem 0">
-        {# Avatar #}
         <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);
                     display:flex;align-items:center;justify-content:center;
                     font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:.1rem">
             {{ e.person[0] if e.person else '?' }}
         </div>
 
-        {# Bubble #}
         <div style="flex:1;background:var(--panel);border:1px solid var(--border);
                     border-radius:0 12px 12px 12px;padding:.65rem .9rem;max-width:680px">
 
@@ -104,7 +102,7 @@
                     <a href="{{ request.app.state.ingress_entry }}/tagebuch/{{ e.id }}/bearbeiten"
                        style="font-size:.72rem;color:var(--text-muted);text-decoration:none">✏️</a>
                     <form method="post" action="{{ request.app.state.ingress_entry }}/tagebuch/{{ e.id }}/loeschen"
-                          onsubmit="return confirm('Eintrag löschen?')" style="margin:0;display:inline">
+                          onsubmit="return confirm('{{ _('tagebuch.loeschen_bestaetigen') }}')" style="margin:0;display:inline">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <button type="submit" style="background:none;border:none;cursor:pointer;font-size:.72rem;padding:0;color:var(--text-muted)">🗑️</button>
                     </form>
@@ -133,20 +131,18 @@
 {% else %}
 <div style="text-align:center;padding:3rem 1rem;color:var(--text-muted)">
     <div style="font-size:2.5rem;margin-bottom:.75rem">📖</div>
-    <div style="font-weight:600;margin-bottom:.4rem;color:var(--text)">Noch keine Einträge</div>
-    <div style="font-size:.85rem">Schreib einfach los — was ist heute passiert?</div>
+    <div style="font-weight:600;margin-bottom:.4rem;color:var(--text)">{{ _('tagebuch.chronik_leer') }}</div>
+    <div style="font-size:.85rem">{{ _('tagebuch.chronik_leer_hinweis') }}</div>
 </div>
 {% endif %}
 
 <script>
-// Auto-resize Textarea
 const ta = document.getElementById('schnell-input');
 if (ta) {
     ta.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
-    // Strg+Enter zum Absenden
     ta.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && e.ctrlKey) {
             document.getElementById('schnell-form').submit();

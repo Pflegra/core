@@ -1,6 +1,6 @@
 {
   "nav": {
-    "eintraege": "Entries",
+    "eintraege": "Care Sessions",
     "budgetplanung": "Budget Planning",
     "antraege": "Applications & Documents",
     "entlastungsbetrag": "Relief Amount",
@@ -16,10 +16,26 @@
     "pflegegradrechner": "Care Level Calculator",
     "pflegegrad_verlauf": "History",
     "leistungsfinder": "Benefit Finder",
-    "budget": "Budgetplanung",
+    "budget": "Budget Planning",
     "tagebuch": "Care Diary",
     "statistiken": "Statistics",
-    "widerspruch": "Appeal Help"
+    "widerspruch": "Appeal Help",
+    "uebersicht": "Overview",
+    "budget_kurz": "Budget",
+    "gruppe_pflege": "Care",
+    "gruppe_personen": "Persons",
+    "gruppe_organisation": "Organisation",
+    "gruppe_auswertungen": "Analysis",
+    "gruppe_verwaltung": "Settings",
+    "pflegeberatung": "Care Counselling",
+    "kontakte": "Contacts",
+    "dokumente": "Documents",
+    "chronik": "Chronicle",
+    "aufgaben": "Tasks",
+    "fristen": "Deadlines",
+    "erinnerungen": "Reminders",
+    "zeitachse": "Timeline",
+    "gutachten": "Assessment Analysis"
   },
   "common": {
     "speichern": "Save",
@@ -84,7 +100,26 @@
     "weiter_titel": "Next steps",
     "gesamtpunkte": "Total points",
     "zuletzt_berechnet": "Last calculated",
-    "neu_berechnen": "Recalculate"
+    "neu_berechnen": "Recalculate",
+    "dringende_aufgaben": "urgent task(s)",
+    "offene_aufgaben": "open task(s)",
+    "naechste": "next",
+    "am": "on",
+    "alle": "All",
+    "aufgaben_badge": "task(s)",
+    "beratung": "Counselling",
+    "naechste_aufgabe": "Next Task",
+    "weitere": "more",
+    "keine_personen": "No persons added yet",
+    "letzte_aktivitaeten": "Recent Activity",
+    "pflegegrad_erkannt": "Care level {pg} identified",
+    "gutachten_analysiert": "Assessment analysed",
+    "pflegeberatung_durchgefuehrt": "Care counselling completed",
+    "dokument_hochgeladen": "Document uploaded",
+    "dokumente_link": "Documents",
+    "fristen_link": "Deadlines",
+    "kontakte_link": "Contacts",
+    "zeitachse_link": "Timeline"
   },
   "eintraege": {
     "titel": "Care Entries",
@@ -643,7 +678,14 @@
     "tags_placeholder": "e.g. doctor visit, fall, medication changed",
     "tags_hinweis": "Comma-separated — helps with searching and sorting later",
     "eintrag_erstellen": "Create entry",
-    "loeschen_bestaetigen": "Really delete this entry?"
+    "loeschen_bestaetigen": "Really delete this entry?",
+    "chronik_titel": "Chronicle",
+    "listenansicht": "List view",
+    "chronik_placeholder": "What happened today? Just type and press Enter …",
+    "chronik_hinweis": "Ctrl+Enter to save",
+    "detaillierten_eintrag": "Create detailed entry",
+    "chronik_leer": "No entries yet",
+    "chronik_leer_hinweis": "Just start writing — what happened today?"
   },
   "statistiken": {
     "titel": "Statistics & Analysis",
@@ -696,5 +738,103 @@
     "check_3": "Sign the letter",
     "check_4": "Send by registered mail with return receipt",
     "check_5": "Keep a copy of the letter and registered mail receipt"
+  },
+  "kontakte": {
+    "titel": "Contacts",
+    "neu": "Add Contact",
+    "hinzufuegen": "Add Contact",
+    "bearbeiten": "Edit Contact",
+    "leer": "No contacts yet",
+    "leer_hinweis": "Save important contacts such as GP, care insurance or care service",
+    "loeschen_bestaetigen": "Delete contact?",
+    "typen": {
+      "hausarzt": "🩺 General Practitioner",
+      "pflegekasse": "🏥 Care Insurance",
+      "pflegedienst": "🤝 Care Service",
+      "beratungsstelle": "💬 Advisory Centre",
+      "sonstiges": "📋 Other Contact"
+    },
+    "felder": {
+      "typ": "Contact Type",
+      "name": "Name",
+      "name_placeholder": "e.g. Dr. Smith, AOK Bavaria …",
+      "ansprechpartner": "Contact Person",
+      "ansprechpartner_placeholder": "e.g. Ms Schmidt",
+      "telefon": "Phone",
+      "email": "E-Mail",
+      "adresse": "Address",
+      "adresse_placeholder": "123 Example Street, 12345 Anytown",
+      "kundennummer": "Customer / Insurance Number",
+      "kundennummer_placeholder": "e.g. A123456789",
+      "notiz": "Note",
+      "notiz_placeholder": "Further notes …"
+    }
+  },
+  "fristen": {
+    "titel": "Deadlines & Appointments",
+    "neu": "Add Deadline",
+    "hinzufuegen": "Add Deadline",
+    "bearbeiten": "Edit Deadline",
+    "leer": "No deadlines yet",
+    "leer_hinweis": "Add deadlines for appointments, documents or applications — e.g. MD assessment, disabled person's pass, appeal deadline",
+    "nur_offene": "Show open only",
+    "auch_erledigte": "Show completed too",
+    "als_erledigt": "Mark as done",
+    "als_offen": "Mark as open",
+    "loeschen_bestaetigen": "Delete deadline?",
+    "tage_ueberfaellig": "days overdue",
+    "heute": "today",
+    "morgen": "tomorrow",
+    "in_tagen": "in {n} days",
+    "kategorien": {
+      "termin": "📅 Appointment",
+      "dokument": "📄 Document / ID",
+      "antrag": "📋 Application / Deadline",
+      "arzt": "🩺 Doctor / Therapy",
+      "behoerde": "🏛️ Authority / Office",
+      "sonstiges": "📌 Other"
+    },
+    "felder": {
+      "titel": "Title",
+      "titel_placeholder": "e.g. MD assessment, renew disabled person's pass …",
+      "kategorie": "Category",
+      "notiz": "Note",
+      "notiz_placeholder": "Further notes …"
+    }
+  },
+  "aufgaben": {
+    "titel": "Open Tasks",
+    "leer": "No open tasks — all done! 🎉",
+    "faellig_am": "due on",
+    "ampel": {
+      "rot": "overdue",
+      "orange": "1–7 days",
+      "gelb": "8–30 days",
+      "gruen": "over 30 days"
+    }
+  },
+  "zeitachse": {
+    "titel": "Timeline",
+    "filter_person": "All persons",
+    "filter_jahr": "All years",
+    "leer": "No events found for the selected filter."
+  },
+  "erinnerungen": {
+    "titel": "Reminders",
+    "email": "E-Mail Notifications",
+    "push": "Browser Push Notifications",
+    "verlauf": "Reminder History",
+    "vorlaufzeiten": "Lead Times",
+    "pflegeberatung_tage": "Care Counselling (days)",
+    "entlastung_tage": "Relief Amount (days)",
+    "fristen_tage": "General Deadlines (days)",
+    "versandzeit": "Send Time (hour)",
+    "smtp": "E-Mail (SMTP)",
+    "push_vapid": "Browser Push (Web Push / VAPID)",
+    "speichern": "Save Settings",
+    "test_mail": "Send Test E-Mail",
+    "push_aktivieren": "Activate Push Notifications",
+    "kein_smtp": "No e-mail address stored.",
+    "push_nicht_aktiv": "Push not yet activated by administrator."
   }
 }
