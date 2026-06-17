@@ -35,10 +35,17 @@ Pflegra bündelt diese Aufgaben lokal auf dem eigenen Gerät. Ohne Cloud-Zwang, 
 - **Leistungsfinder:** strukturierte Leistungsübersicht nach Pflegegrad, Versorgungsform und Leistungsart
 - **Pflegegradverlauf:** Begutachtungsergebnisse speichern und als Trenddiagramm verfolgen
 - **Entlastungsbetrag:** monatliches Budget, Vorjahresguthaben, Übertragsfrist 30. Juni (§ 45b SGB XI)
+- **Gutachten-Analyse:** MD-Gutachten als PDF hochladen und automatisch auswerten — Pflegegrad, Punkte, alle 6 Module, Diagnosen
+- **Pflegeberatung § 37.3 SGB XI:** Beratungstermine dokumentieren, Nachweise hochladen, Halbjahres-Fristen überwachen
+- **Dokumentenarchiv:** Gutachten, Bescheide, Arztberichte und Nachweise pro versicherter Person archivieren
+- **Aufgaben & Zeitachse:** offene Aufgaben mit Ampelfarben, chronologische Ereignisübersicht pro Person
+- **Fristen & Termine:** eigene Fristen anlegen (MD-Termin, Schwerbehindertenausweis, Vollmacht u.v.m.) mit Ampelfarben im Dashboard
+- **Erinnerungen:** Fristen und Pflegeberatungen per E-Mail oder Browser-Push-Benachrichtigung
+- **Kontaktverwaltung:** Hausarzt, Pflegekasse, Pflegedienst und Beratungsstellen pro versicherter Person speichern
+- **Pflegetagebuch & Chronik:** tägliche Beobachtungen strukturiert erfassen, Chat-ähnliche Chronik-Ansicht mit Schnelleingabe
 - **Ausfüllhilfe:** kassenunabhängiges Datenblatt zum Ausfüllen der Formulare der eigenen Pflegekasse
 - **PDF-Exporte:** Pflegenachweise, Budgetberichte, Antragsschreiben, Pflegegrad-Berichte
 - **Ersatzpflegekräfte:** Stammkräfte in den Versichertendaten hinterlegen, bei Einträgen auswählen
-- **Pflegetagebuch:** tägliche Beobachtungen strukturiert erfassen, 9 Kategorien, Stimmungsverlauf
 - **Automatische Backups:** täglich, konfigurierbare Aufbewahrung, mit Wiederherstellung
 - **Mehrbenutzer:** vollständige Datentrennung pro Nutzer, Rollen Admin/User, Benutzerverwaltung
 - **Benutzervertretung und Audit-Log:** Admin kann temporär als Nutzer agieren, alle Aktionen werden protokolliert
