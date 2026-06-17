@@ -422,7 +422,7 @@
       <span style="color:#3ABFAB;font-weight:700">✓</span> Verhinderungspflege &amp; Entlastungsbetrag verwalten
     </div>
     <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
-      <span style="color:#3ABFAB;font-weight:700">✓</span> Gutachten-Analyse — MD/MDK-PDF automatisch auswerten
+      <span style="color:#3ABFAB;font-weight:700">✓</span> Gutachten-Analyse — MD-Gutachten (Medizinischer Dienst) automatisch auswerten
     </div>
     <div style="display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#2d3748">
       <span style="color:#3ABFAB;font-weight:700">✓</span> Pflegeberatung § 37.3 SGB XI dokumentieren &amp; Fristen überwachen
@@ -486,21 +486,21 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
 
       <!-- Cloud -->
-      <div style="background:#fff;border:2px solid #3ABFAB;border-radius:12px;padding:2rem;position:relative">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#8a9ab0;color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .75rem;border-radius:20px;white-space:nowrap">In Planung</div>
-        <div style="font-size:2rem;margin-bottom:.75rem">☁️</div>
-        <div style="font-size:1.1rem;font-weight:700;color:#0D1B2A;margin-bottom:.25rem">Pflegra Cloud</div>
-        <div style="font-size:.8rem;color:#3ABFAB;font-weight:600;margin-bottom:1rem">Einfach registrieren und loslegen</div>
-        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#5a6a80;line-height:2">
+      <div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:2rem;position:relative">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#8a9ab0;color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .75rem;border-radius:20px;white-space:nowrap">🚧 In Vorbereitung</div>
+        <div style="font-size:2rem;margin-bottom:.75rem;opacity:.6">☁️</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#4a5568;margin-bottom:.25rem">Pflegra Cloud</div>
+        <div style="font-size:.8rem;color:#8a9ab0;font-weight:600;margin-bottom:1rem">Geplant für die Zukunft</div>
+        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#8a9ab0;line-height:2">
           <li>✓ Keine Installation nötig</li>
           <li>✓ Von überall erreichbar</li>
           <li>✓ Automatische Backups</li>
           <li>✓ Automatische Updates</li>
           <li>✓ Für alle — auch ohne Technik-Kenntnisse</li>
         </ul>
-        <a href="#cloud-waitlist" style="display:block;text-align:center;background:#3ABFAB;color:#fff;padding:.75rem 1rem;border-radius:8px;font-weight:600;font-size:.9rem;text-decoration:none;opacity:.75;cursor:default">
-          🔔 Benachrichtigen wenn verfügbar
-        </a>
+        <div style="text-align:center;font-size:.8rem;color:#8a9ab0;padding:.75rem 1rem;border-radius:8px;background:#f1f5f9">
+          Noch nicht verfügbar — wir arbeiten daran.
+        </div>
       </div>
 
       <!-- Community -->
@@ -559,7 +559,7 @@
       <div class="feature-card highlight">
         <div class="feature-icon">📋</div>
         <div class="feature-title">Gutachten-Analyse</div>
-        <div class="feature-desc">MD/MDK-Gutachten als PDF hochladen und automatisch auswerten. Pflegegrad, Punkte, alle 6 Module und Diagnosen werden erkannt.</div>
+        <div class="feature-desc">MD-Gutachten (Medizinischer Dienst) als PDF hochladen und automatisch auswerten. Pflegegrad, Punkte, alle 6 Module und Diagnosen werden erkannt.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🧮</div>
@@ -753,6 +753,29 @@ docker run -d -p 8000:8000 \
 </section>
 
 <!-- Footer -->
+<!-- Wer steckt hinter Pflegra -->
+<section style="background:#f8fafc;padding:3rem 2rem;border-top:1px solid #e2e8f0">
+  <div style="max-width:680px;margin:0 auto;text-align:center">
+    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.75rem">Wer steckt hinter Pflegra?</div>
+    <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3ABFAB,#0D1B2A);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem">👨‍👩‍👧‍👦</div>
+    <p style="font-size:1rem;font-weight:600;color:#0D1B2A;margin-bottom:.5rem">Stefan Neu</p>
+    <p style="font-size:.85rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">
+      Pflegender Angehöriger und Open-Source-Entwickler aus Deutschland.<br>
+      Pflegra entstand nicht in einem Büro — sondern am Küchentisch, zwischen Arztbriefen und Pflegekassen-Schreiben.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="https://github.com/sMaa-Ger" target="_blank"
+         style="font-size:.82rem;color:#5a6a80;text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border:1px solid #e2e8f0;border-radius:20px;background:#fff">
+        GitHub
+      </a>
+      <a href="https://github.com/Pflegra/core" target="_blank"
+         style="font-size:.82rem;color:#5a6a80;text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border:1px solid #e2e8f0;border-radius:20px;background:#fff">
+        Pflegra Repository
+      </a>
+    </div>
+  </div>
+</section>
+
 <footer>
   <a class="footer-logo" href="/">Pflegra<span>.</span>app</a>
   <div style="margin-bottom:.75rem">
@@ -764,7 +787,7 @@ docker run -d -p 8000:8000 \
   </div>
   <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt · <a href="https://github.com/Pflegra/core/releases" target="_blank" style="color:rgba(255,255,255,.5)">v1.5.2</a></div>
   <div style="margin-top:.4rem;font-size:.75rem">
-    Pflegra dient der persönlichen Orientierung und ersetzt keine Beratung durch Pflegekassen oder den MDK.
+    Pflegra dient der persönlichen Orientierung und ersetzt keine Beratung durch Pflegekassen oder den Medizinischen Dienst.
   </div>
 </footer>
 
