@@ -3,232 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Über Pflegra – Warum Pflegra entstanden ist</title>
-  <meta name="description" content="Pflegra entstand aus dem eigenen Alltag einer Familie mit pflegebedürftigen Kindern. Die Geschichte hinter der Software.">
+  <title>Die Geschichte von Pflegra</title>
+  <meta name="description" content="Wie aus einer einfachen Tabelle für die Verhinderungspflege eine vollständige Pflegemanagement-Plattform wurde.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="icon" href="favicon.ico">
   <style>
-    :root {
-      --primary:   #1B4D7E;
-      --primary-l: #2C6FAC;
-      --accent:    #3ABFAB;
-      --bg:        #F4F7FB;
-      --text:      #1a2233;
-      --text-muted:#6b7a90;
-      --border:    #e2e8f0;
-      --card:      #ffffff;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-    }
-
-    /* ── Navigation ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .9rem 2rem;
-      background: rgba(244,247,250,.92);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-logo {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.4rem; color: var(--primary);
-      text-decoration: none;
-    }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
-    .nav-links a {
-      text-decoration: none; color: var(--text-muted);
-      font-size: .9rem; font-weight: 500;
-      transition: color .15s;
-    }
-    .nav-links a:hover { color: var(--primary); }
-    .nav-links a.active { color: var(--primary); font-weight: 600; }
-    .nav-cta {
-      background: var(--primary); color: #fff !important;
-      padding: .45rem 1.1rem; border-radius: 8px;
-      font-size: .85rem !important;
-    }
-    .nav-demo {
-      background: var(--accent); color: #fff !important;
-      padding: .45rem 1.1rem; border-radius: 8px;
-      font-size: .85rem !important;
-    }
-
-    /* ── Layout ── */
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 4rem 2rem 6rem;
-    }
-
-    /* ── Header ── */
-    .page-header {
-      margin-bottom: 3rem;
-    }
-    .page-header .label {
-      font-size: .8rem; font-weight: 600; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--accent);
-      margin-bottom: .75rem;
-    }
-    .page-header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.4rem; line-height: 1.2;
-      color: var(--primary);
-      margin-bottom: 1rem;
-    }
-    .page-header .lead {
-      font-size: 1.05rem; color: var(--text-muted);
-      max-width: 560px;
-    }
-
-    /* ── Artikel ── */
-    article p {
-      font-size: 1rem;
-      color: var(--text);
-      margin-bottom: 1.4rem;
-    }
-
-    article p.highlight {
-      font-size: 1.15rem;
-      font-style: italic;
-      color: var(--primary);
-      border-left: 3px solid var(--accent);
-      padding-left: 1.2rem;
-      margin: 2rem 0;
-    }
-
-    article p.abschluss {
-      font-size: 1rem;
-      color: var(--text-muted);
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ── CTA ── */
-    .cta-block {
-      margin-top: 3rem;
-      padding: 2rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: .75rem;
-    }
-    .cta-block p {
-      font-size: .95rem;
-      color: var(--text-muted);
-      margin: 0;
-    }
-    .cta-links {
-      display: flex; gap: .75rem; flex-wrap: wrap;
-    }
-    .btn-primary {
-      background: var(--primary); color: #fff;
-      padding: .6rem 1.25rem; border-radius: 8px;
-      text-decoration: none; font-size: .9rem; font-weight: 600;
-      transition: background .15s;
-    }
-    .btn-primary:hover { background: var(--primary-l); }
-    .btn-ghost {
-      background: transparent; color: var(--primary);
-      padding: .6rem 1.25rem; border-radius: 8px;
-      text-decoration: none; font-size: .9rem; font-weight: 600;
-      border: 1px solid var(--border);
-      transition: border-color .15s;
-    }
-    .btn-ghost:hover { border-color: var(--primary); }
-
-    /* ── Footer ── */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: .8rem;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border);
-    }
-    footer a { color: var(--text-muted); text-decoration: none; }
-    footer a:hover { color: var(--primary); }
-
-    @media (max-width: 600px) {
-      .nav-links { display: none; }
-      .container { padding: 2.5rem 1.25rem 4rem; }
-      .page-header h1 { font-size: 1.8rem; }
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --primary: #3ABFAB; --dark: #0D1B2A; --text: #2d3748; --muted: #8a9ab0; --border: #e2e8f0; --bg: #f8fafc; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--text); background: #fff; line-height: 1.7; }
+    nav { background: #fff; border-bottom: 1px solid var(--border); padding: .9rem 2rem; display: flex; align-items: center; gap: 1rem; }
+    nav a { color: var(--muted); text-decoration: none; font-size: .88rem; }
+    nav a:hover { color: var(--primary); }
+    .logo { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--dark); margin-right: auto; }
+    .hero { background: var(--dark); color: #fff; padding: 4rem 2rem; text-align: center; }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 1rem; }
+    .hero p { font-size: 1rem; color: rgba(255,255,255,.7); max-width: 560px; margin: 0 auto; }
+    .story { max-width: 720px; margin: 0 auto; padding: 3rem 2rem; }
+    .step { display: flex; gap: 2rem; margin-bottom: 3.5rem; align-items: flex-start; }
+    .step-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .25rem; }
+    .step-content h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--dark); margin-bottom: .5rem; }
+    .step-content p { font-size: .95rem; color: var(--text); line-height: 1.8; }
+    .step-tag { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: .3rem; }
+    .divider { width: 2px; background: var(--border); height: 2rem; margin: 0 0 3.5rem 23px; }
+    .quote { background: #f0fdfb; border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; font-size: .95rem; font-style: italic; color: var(--dark); }
+    .today { background: var(--dark); color: #fff; border-radius: 12px; padding: 2rem; margin-top: 1rem; }
+    .today h2 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; margin-bottom: .75rem; color: #fff; }
+    .today p { color: rgba(255,255,255,.8); font-size: .95rem; line-height: 1.8; }
+    .team { text-align: center; padding: 3rem 2rem; background: var(--bg); border-top: 1px solid var(--border); }
+    .team img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem; display: block; }
+    .team h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--dark); margin-bottom: .5rem; }
+    .team p { font-size: .9rem; color: var(--muted); max-width: 480px; margin: 0 auto 1.5rem; line-height: 1.7; }
+    .opensource { max-width: 720px; margin: 0 auto; padding: 2.5rem 2rem; border-top: 1px solid var(--border); }
+    .opensource h2 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--dark); margin-bottom: .75rem; }
+    .opensource p { font-size: .9rem; color: var(--text); line-height: 1.8; margin-bottom: .75rem; }
+    .cta { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--border); }
+    .btn { display: inline-block; background: var(--primary); color: #fff; padding: .75rem 1.75rem; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: .95rem; margin: .4rem; }
+    .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text); }
+    footer { text-align: center; padding: 1.5rem; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); }
+    footer a { color: var(--muted); text-decoration: none; margin: 0 .5rem; }
+    @media (max-width: 600px) { .step { flex-direction: column; gap: 1rem; } .divider { display: none; } }
   </style>
 </head>
 <body>
 
 <nav>
-  <a class="nav-logo" href="/">Pflegra<span>.</span>app</a>
-  <div class="nav-links">
-    <a href="/">Startseite</a>
-    <a href="/#features">Funktionen</a>
-    <a href="/#installation">Installation</a>
-    <a href="datenschutz.html">Datenschutz</a>
-    <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
-    <a href="ueber.html" class="active">Über Pflegra</a>
-    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">🖥 Demo</a>
-    <a href="https://github.com/Pflegra/core/releases" target="_blank" class="nav-cta">⬇ Download</a>
-  </div>
+  <span class="logo">Pflegra</span>
+  <a href="index.html">Startseite</a>
+  <a href="index.html#installation">Download</a>
+  <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
 </nav>
 
-<div class="container">
+<div class="hero">
+  <h1>Die Geschichte von Pflegra</h1>
+  <p>Wie aus einer einfachen Tabelle für die Verhinderungspflege eine vollständige Pflegemanagement-Plattform wurde.</p>
+</div>
 
-  <div class="page-header">
-    <div class="label">Entstehungsgeschichte</div>
-    <h1>Warum Pflegra entstanden ist</h1>
-    <p class="lead">Eine Software, die aus dem eigenen Alltag entstand — nicht aus einem Büro.</p>
+<div class="story">
+
+  <div class="step">
+    <div class="step-icon">📄</div>
+    <div class="step-content">
+      <div class="step-tag">Der Anfang</div>
+      <h2>Eine Tabelle für die Verhinderungspflege</h2>
+      <p>Pflegra begann nicht als Softwareprojekt. Es begann am Küchentisch.</p>
+      <p style="margin-top:.75rem">Wie viele pflegende Angehörige standen auch wir vor derselben Herausforderung: Nachweise, Fristen, Bescheide und immer mehr Papierkram. Am Anfang gab es nur eine einfache Tabelle für die Verhinderungspflege. Sie half uns, Stunden zu dokumentieren und den Überblick über das verfügbare Budget zu behalten.</p>
+    </div>
   </div>
 
-  <article>
+  <div class="divider"></div>
 
-    <p>Wir sind eine Familie, in der Pflege, Inklusion und besondere Bedürfnisse seit vielen Jahren zum Alltag gehören.</p>
+  <div class="step">
+    <div class="step-icon">⚙️</div>
+    <div class="step-content">
+      <div class="step-tag">Schritt 2</div>
+      <h2>Makros, Berechnungen, Automatisierungen</h2>
+      <p>Mit der Zeit wurden daraus Berechnungen, Auswertungen und erste Makros. Aus einer Tabelle entstand ein Werkzeug, das automatisch Nachweise erstellen und PDF-Dokumente exportieren konnte.</p>
+      <div class="quote">Wir haben lange genau das Gleiche gemacht wie alle anderen: Ordner, Zettel, Tabellen. Irgendwann reichte das nicht mehr.</div>
+    </div>
+  </div>
 
-    <p>Unser Sohn Julian ist heute 16 Jahre alt. Die ersten Auffälligkeiten bemerkten wir bereits im Alter von etwa zwei Jahren. Mit drei Jahren erhielten wir schließlich die Diagnose frühkindlicher Autismus.</p>
+  <div class="divider"></div>
 
-    <p>Viele Jahre später wurde auch bei unserem Sohn Jamie eine Diagnose gestellt. Jamie ist heute 14 Jahre alt und erhielt 2022 die Diagnosen Asperger-Autismus und ADHS.</p>
+  <div class="step">
+    <div class="step-icon">📝</div>
+    <div class="step-content">
+      <div class="step-tag">Schritt 3</div>
+      <h2>PflegeNachweis entsteht</h2>
+      <p>Irgendwann war daraus PflegeNachweis geworden, eine umfangreiche LibreOffice-Anwendung mit Personenverwaltung, Statistiken, Auswertungen und Archivfunktionen. Ein richtiges Werkzeug für den Pflegealltag.</p>
+      <p style="margin-top:.75rem">Doch je größer das Projekt wurde, desto deutlicher wurde: Die Grenzen einer Tabellenkalkulation waren erreicht.</p>
+    </div>
+  </div>
 
-    <p>Mit den Jahren merkten wir, wie viel Zeit und Energie in Anträge, Gutachten, Therapien, Fristen und den täglichen Papierkram fließen.</p>
+  <div class="divider"></div>
 
-    <p>Wer selbst Angehörige pflegt, kennt die Herausforderung: Fristen müssen eingehalten, Nachweise gesammelt und Leistungen beantragt werden. Vieles landet in Ordnern, Tabellen oder handschriftlichen Notizen.</p>
+  <div class="step">
+    <div class="step-icon">🐍</div>
+    <div class="step-content">
+      <div class="step-tag">Schritt 4</div>
+      <h2>Die erste Python-Version</h2>
+      <p>Deshalb entstand die erste Python-Version. Aus Tabellen wurden Datenbanken. Aus Makros wurden Programme. Aus einem persönlichen Hilfsmittel wurde eine echte Anwendung.</p>
+      <p style="margin-top:.75rem">FastAPI, SQLite, Docker. Plötzlich war es möglich, Dinge zu bauen, die in einer Tabellenkalkulation undenkbar gewesen wären: Gutachtenanalyse, Erinnerungen, Mehrbenutzer, automatische Backups.</p>
+    </div>
+  </div>
 
-    <p class="highlight">Immer wieder stellten wir uns die gleiche Frage:<br>Warum gibt es keine einfache Software, die pflegende Angehörige bei genau diesen Aufgaben unterstützt?</p>
+  <div class="divider"></div>
 
-    <p>Da wir nichts gefunden haben, das unseren Anforderungen entsprach, begann ich schließlich selbst mit der Entwicklung.</p>
-
-    <p>So entstand Pflegra.</p>
-
-    <p>Pflegra wurde nicht von einem Unternehmen entwickelt. Es entstand aus unserem eigenen Alltag, aus vielen Jahren Erfahrung mit Pflege, Inklusion, Behörden, Gutachten und Anträgen.</p>
-
-    <p>Heute hilft Pflegra dabei, Pflegeleistungen zu verwalten, Budgets im Blick zu behalten, Pflegegrade einzuschätzen und Gutachten auszuwerten.</p>
-
-    <p class="abschluss">Wenn die Software anderen Familien etwas Zeit, Stress und Papierkram erspart, dann hat sie ihren Zweck erfüllt.</p>
-
-  </article>
-
-  <div class="cta-block">
-    <p>Pflegra ist kostenlos, selbst gehostet und Open Source.</p>
-    <div class="cta-links">
-      <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-primary">🖥 Demo ausprobieren</a>
-      <a href="/" class="btn-ghost">Zurück zur Startseite</a>
+  <div class="step">
+    <div class="step-icon">💚</div>
+    <div class="step-content">
+      <div class="step-tag">Heute</div>
+      <div class="today">
+        <h2>Pflegra</h2>
+        <p>Eine Plattform für pflegende Angehörige, die Dokumente, Fristen, Budgets, Pflegeberatungen, Gutachten und den gesamten Pflegealltag an einem Ort organisiert.</p>
+        <p style="margin-top:.75rem">Was als einfache Tabelle begann, begleitet heute Familien dabei, den Überblick zu behalten und sich auf das Wesentliche zu konzentrieren: die Menschen, die sie pflegen.</p>
+      </div>
     </div>
   </div>
 
 </div>
 
+<div class="team">
+  <img src="images/stefan-laura.png" alt="Stefan und Laura Neu">
+  <h2>Stefan &amp; Laura Neu</h2>
+  <p>Pflegende Angehörige und Entwickler aus Deutschland. Pflegra ist aus unserem eigenen Pflegealltag entstanden, nicht aus einem Büro.</p>
+</div>
+
+<div class="opensource">
+  <h2>Warum Open Source?</h2>
+  <p>Pflege ist ein Thema, das Millionen Familien betrifft. Wir glauben, dass gute Werkzeuge für pflegende Angehörige nicht hinter Bezahlschranken versteckt sein sollten.</p>
+  <p>Deshalb ist Pflegra als Community Edition dauerhaft kostenlos und Open Source unter der AGPLv3-Lizenz. Wer möchte, kann den Code einsehen, verändern und weitergeben.</p>
+  <p style="font-weight:600;color:var(--dark)">Die Pflege können wir nicht übernehmen. Den Papierkram vielleicht schon.</p>
+</div>
+
+<div class="cta">
+  <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--dark);margin-bottom:1rem">Selbst ausprobieren</h2>
+  <a href="https://pflegra.tail5e5060.ts.net" target="_blank" class="btn">Demo starten</a>
+  <a href="index.html" class="btn btn-ghost">Zurück zur Startseite</a>
+</div>
+
 <footer>
-  <a href="/">Startseite</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a> · © 2024–2026 Stefan Neu · Pflegra · AGPLv3
+  <a href="index.html">Startseite</a>
+  <a href="impressum.html">Impressum</a>
+  <a href="datenschutz.html">Datenschutz</a>
+  <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
+  &copy; 2024–2026 Stefan Neu · Pflegra · AGPLv3
 </footer>
 
 </body>
