@@ -555,62 +555,91 @@
     <div class="section-tag">Was ist drin</div>
     <h2 class="section-title">Alles für den Pflegealltag</h2>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:900px;margin:0 auto">
+
+  <!-- Hauptfunktionen: immer sichtbar -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
     <div class="feature-card highlight">
-      <div class="feature-icon">📋</div>
-      <div class="feature-title">Gutachten-Analyse</div>
-      <div class="feature-desc">MD-Gutachten als PDF hochladen und automatisch auswerten: Pflegegrad, Punkte, alle 6 Module, Diagnosen.</div>
+      <div class="feature-icon">📁</div>
+      <div class="feature-title">Dokumentenarchiv</div>
+      <div class="feature-desc">Gutachten, Bescheide, Arztberichte und Nachweise in 7 Kategorien archivieren, jederzeit abrufbar.</div>
     </div>
     <div class="feature-card highlight">
       <div class="feature-icon">📅</div>
       <div class="feature-title">Fristen &amp; Termine <span class="feature-new">Neu</span></div>
-      <div class="feature-desc">Eigene Fristen anlegen: MD-Termin, Schwerbehindertenausweis, Vollmacht und mehr. Mit Ampelfarben direkt im Dashboard.</div>
+      <div class="feature-desc">Eigene Fristen anlegen mit Ampelfarben direkt im Dashboard. Nichts mehr vergessen.</div>
     </div>
     <div class="feature-card highlight">
-      <div class="feature-icon">📁</div>
-      <div class="feature-title">Dokumentenarchiv</div>
-      <div class="feature-desc">Gutachten, Bescheide, Arztberichte und Nachweise in 7 Kategorien archivieren, mit Download.</div>
+      <div class="feature-icon">✅</div>
+      <div class="feature-title">Aufgaben &amp; Erinnerungen</div>
+      <div class="feature-desc">Offene Aufgaben mit Ampelfarben. Erinnerungen per E-Mail oder Push-Benachrichtigung.</div>
+    </div>
+    <div class="feature-card highlight">
+      <div class="feature-icon">📋</div>
+      <div class="feature-title">Gutachten-Analyse</div>
+      <div class="feature-desc">MD-Gutachten als PDF hochladen und automatisch auswerten: Pflegegrad, Punkte, alle 6 Module.</div>
+    </div>
+    <div class="feature-card highlight">
+      <div class="feature-icon">🧮</div>
+      <div class="feature-title">Pflegegradrechner</div>
+      <div class="feature-desc">NBA-Begutachtung nach § 15 SGB XI: alle 6 Module, 57 Kriterien mit Alltagserklärungen.</div>
+    </div>
+    <div class="feature-card highlight">
+      <div class="feature-icon">👨‍👩‍👧</div>
+      <div class="feature-title">Mehrere Versicherte</div>
+      <div class="feature-desc">Mehrere Angehörige in einem Account verwalten, jederzeit zwischen Personen wechselbar.</div>
+    </div>
+    <div class="feature-card highlight">
+      <div class="feature-icon">📞</div>
+      <div class="feature-title">Kontakte</div>
+      <div class="feature-desc">Hausarzt, Pflegekasse, Pflegedienst und Beratungsstelle pro Person, mit Direktanruf per Klick.</div>
+    </div>
+    <div class="feature-card highlight">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Budgetplanung</div>
+      <div class="feature-desc">VP und KZP Budget in Echtzeit. 56-Tage-Grenze, Jahresprognose, Entlastungsbetrag mit Übertragsfrist.</div>
     </div>
   </div>
 
+  <!-- Button -->
   <div style="text-align:center;margin-top:1.5rem">
     <button onclick="toggleFeatures(this)"
             style="background:none;border:1px solid #3ABFAB;color:#3ABFAB;padding:.5rem 1.5rem;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:600">
-      + Alle Funktionen anzeigen
+      + Weitere Funktionen anzeigen
     </button>
   </div>
 
+  <!-- Weitere Funktionen: zugeklappt -->
   <div id="features-more" style="display:none;margin-top:1.5rem">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:900px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
       <div class="feature-card">
         <div class="feature-icon">🤝</div>
         <div class="feature-title">Pflegeberatung § 37.3</div>
         <div class="feature-desc">Beratungstermine dokumentieren, Nachweise hochladen, Halbjahres-Fristen automatisch überwachen.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">✅</div>
-        <div class="feature-title">Aufgaben &amp; Erinnerungen</div>
-        <div class="feature-desc">Offene Aufgaben mit Ampelfarben. Erinnerungen per E-Mail oder Push-Benachrichtigung.</div>
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Zeitachse</div>
+        <div class="feature-desc">Chronologische Übersicht aller Ereignisse pro Person: Dokumente, Beratungen, Gutachten, Buchungen.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📞</div>
-        <div class="feature-title">Kontaktverwaltung</div>
-        <div class="feature-desc">Hausarzt, Pflegekasse, Pflegedienst und Beratungsstelle pro versicherter Person, mit Direktanruf per Klick.</div>
+        <div class="feature-icon">📓</div>
+        <div class="feature-title">Pflegetagebuch &amp; Chronik</div>
+        <div class="feature-desc">Tägliche Beobachtungen strukturiert festhalten, mit Chat-ähnlicher Schnelleingabe.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🧮</div>
-        <div class="feature-title">Pflegegradrechner</div>
-        <div class="feature-desc">NBA-Begutachtung nach § 15 SGB XI: alle 6 Module, 57 Kriterien mit Alltagserklärungen, PDF-Bericht.</div>
+        <div class="feature-icon">💶</div>
+        <div class="feature-title">Leistungsfinder</div>
+        <div class="feature-desc">Welche Leistungen stehen mir zu? Pflegegeld, Sachleistungen, VP und Entlastungsbetrag auf einen Blick.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Budgetverwaltung</div>
-        <div class="feature-desc">VP und KZP Budget in Echtzeit. 56-Tage-Grenze, Jahresprognose, Entlastungsbetrag mit Übertragsfrist.</div>
+        <div class="feature-icon">📄</div>
+        <div class="feature-title">PDF-Exporte</div>
+        <div class="feature-desc">Pflegenachweise, Budgetberichte und Antragsschreiben auf Knopfdruck erstellen.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">👥</div>
-        <div class="feature-title">Mehrere Versicherte</div>
-        <div class="feature-desc">Mehrere Angehörige in einem Account verwalten. Alle Daten getrennt, jederzeit zwischen Personen wechselbar.</div>
+        <div class="feature-icon">💾</div>
+        <div class="feature-title">Automatische Backups</div>
+        <div class="feature-desc">Tägliche Sicherung mit Wiederherstellung. Ihre Daten sind auch bei Serverproblemen sicher.</div>
       </div>
     </div>
   </div>
@@ -620,7 +649,7 @@
     const more = document.getElementById('features-more');
     const show = more.style.display === 'none';
     more.style.display = show ? 'block' : 'none';
-    btn.textContent = show ? '− Weniger anzeigen' : '+ Alle Funktionen anzeigen';
+    btn.textContent = show ? '− Weniger anzeigen' : '+ Weitere Funktionen anzeigen';
   }
   </script>
 </section>
