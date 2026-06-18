@@ -18,17 +18,26 @@
     .hero { background: var(--dark); color: #fff; padding: 4rem 2rem; text-align: center; }
     .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 1rem; }
     .hero p { font-size: 1rem; color: rgba(255,255,255,.7); max-width: 560px; margin: 0 auto; }
-    .story { max-width: 720px; margin: 0 auto; padding: 3rem 2rem; }
-    .step { display: flex; gap: 2rem; margin-bottom: 3.5rem; align-items: flex-start; }
-    .step-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .25rem; }
-    .step-content h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--dark); margin-bottom: .5rem; }
-    .step-content p { font-size: .95rem; color: var(--text); line-height: 1.8; }
-    .step-tag { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: .3rem; }
-    .divider { width: 2px; background: var(--border); height: 2rem; margin: 0 0 3.5rem 23px; }
-    .quote { background: #f0fdfb; border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; font-size: .95rem; font-style: italic; color: var(--dark); }
-    .today { background: var(--dark); color: #fff; border-radius: 12px; padding: 2rem; margin-top: 1rem; }
-    .today h2 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; margin-bottom: .75rem; color: #fff; }
-    .today p { color: rgba(255,255,255,.8); font-size: .95rem; line-height: 1.8; }
+    .story { max-width: 780px; margin: 0 auto; padding: 3rem 2rem; }
+    .step { margin-bottom: 4rem; }
+    .step-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .step-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-tag { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: .2rem; }
+    .step h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--dark); }
+    .step p { font-size: .95rem; color: var(--text); line-height: 1.8; margin-bottom: .75rem; }
+    .step-img { width: 100%; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,.08); margin: 1.25rem 0; cursor: pointer; transition: box-shadow .2s; }
+    .step-img:hover { box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+    .img-caption { font-size: .78rem; color: var(--muted); text-align: center; margin-top: -.5rem; margin-bottom: 1rem; }
+    .img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+    .img-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+    .img-item { text-align: center; }
+    .img-item img { width: 100%; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.07); cursor: pointer; }
+    .img-item p { font-size: .75rem; color: var(--muted); margin-top: .4rem; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 4rem; }
+    .quote { background: #f0fdfb; border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 1.25rem 1.5rem; margin: 1.25rem 0; font-size: .95rem; font-style: italic; color: var(--dark); }
+    .highlight-box { background: var(--dark); color: #fff; border-radius: 12px; padding: 2rem; margin: 1.5rem 0; }
+    .highlight-box h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: .5rem; }
+    .highlight-box p { color: rgba(255,255,255,.8); font-size: .9rem; line-height: 1.8; }
     .team { text-align: center; padding: 3rem 2rem; background: var(--bg); border-top: 1px solid var(--border); }
     .team img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem; display: block; }
     .team h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--dark); margin-bottom: .5rem; }
@@ -37,11 +46,17 @@
     .opensource h2 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--dark); margin-bottom: .75rem; }
     .opensource p { font-size: .9rem; color: var(--text); line-height: 1.8; margin-bottom: .75rem; }
     .cta { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--border); }
+    .cta h2 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--dark); margin-bottom: 1rem; }
     .btn { display: inline-block; background: var(--primary); color: #fff; padding: .75rem 1.75rem; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: .95rem; margin: .4rem; }
     .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text); }
     footer { text-align: center; padding: 1.5rem; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); }
     footer a { color: var(--muted); text-decoration: none; margin: 0 .5rem; }
-    @media (max-width: 600px) { .step { flex-direction: column; gap: 1rem; } .divider { display: none; } }
+    /* Lightbox */
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 9999; align-items: center; justify-content: center; padding: 2rem; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 85vh; border-radius: 8px; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; color: #fff; font-size: 2rem; cursor: pointer; line-height: 1; }
+    @media (max-width: 600px) { .img-grid, .img-grid-4 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -60,64 +75,114 @@
 
 <div class="story">
 
+  <!-- Schritt 1 -->
   <div class="step">
-    <div class="step-icon">📄</div>
-    <div class="step-content">
-      <div class="step-tag">Der Anfang</div>
-      <h2>Eine Tabelle für die Verhinderungspflege</h2>
-      <p>Pflegra begann nicht als Softwareprojekt. Es begann am Küchentisch.</p>
-      <p style="margin-top:.75rem">Wie viele pflegende Angehörige standen auch wir vor derselben Herausforderung: Nachweise, Fristen, Bescheide und immer mehr Papierkram. Am Anfang gab es nur eine einfache Tabelle für die Verhinderungspflege. Sie half uns, Stunden zu dokumentieren und den Überblick über das verfügbare Budget zu behalten.</p>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="step">
-    <div class="step-icon">⚙️</div>
-    <div class="step-content">
-      <div class="step-tag">Schritt 2</div>
-      <h2>Makros, Berechnungen, Automatisierungen</h2>
-      <p>Mit der Zeit wurden daraus Berechnungen, Auswertungen und erste Makros. Aus einer Tabelle entstand ein Werkzeug, das automatisch Nachweise erstellen und PDF-Dokumente exportieren konnte.</p>
-      <div class="quote">Wir haben lange genau das Gleiche gemacht wie alle anderen: Ordner, Zettel, Tabellen. Irgendwann reichte das nicht mehr.</div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="step">
-    <div class="step-icon">📝</div>
-    <div class="step-content">
-      <div class="step-tag">Schritt 3</div>
-      <h2>PflegeNachweis entsteht</h2>
-      <p>Irgendwann war daraus PflegeNachweis geworden, eine umfangreiche LibreOffice-Anwendung mit Personenverwaltung, Statistiken, Auswertungen und Archivfunktionen. Ein richtiges Werkzeug für den Pflegealltag.</p>
-      <p style="margin-top:.75rem">Doch je größer das Projekt wurde, desto deutlicher wurde: Die Grenzen einer Tabellenkalkulation waren erreicht.</p>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="step">
-    <div class="step-icon">🐍</div>
-    <div class="step-content">
-      <div class="step-tag">Schritt 4</div>
-      <h2>Die erste Python-Version</h2>
-      <p>Deshalb entstand die erste Python-Version. Aus Tabellen wurden Datenbanken. Aus Makros wurden Programme. Aus einem persönlichen Hilfsmittel wurde eine echte Anwendung.</p>
-      <p style="margin-top:.75rem">FastAPI, SQLite, Docker. Plötzlich war es möglich, Dinge zu bauen, die in einer Tabellenkalkulation undenkbar gewesen wären: Gutachtenanalyse, Erinnerungen, Mehrbenutzer, automatische Backups.</p>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="step">
-    <div class="step-icon">💚</div>
-    <div class="step-content">
-      <div class="step-tag">Heute</div>
-      <div class="today">
-        <h2>Pflegra</h2>
-        <p>Eine Plattform für pflegende Angehörige, die Dokumente, Fristen, Budgets, Pflegeberatungen, Gutachten und den gesamten Pflegealltag an einem Ort organisiert.</p>
-        <p style="margin-top:.75rem">Was als einfache Tabelle begann, begleitet heute Familien dabei, den Überblick zu behalten und sich auf das Wesentliche zu konzentrieren: die Menschen, die sie pflegen.</p>
+    <div class="step-header">
+      <div class="step-icon">📄</div>
+      <div>
+        <div class="step-tag">Der Anfang</div>
+        <h2>Eine Tabelle für die Verhinderungspflege</h2>
       </div>
     </div>
+    <p>Pflegra begann nicht als Softwareprojekt. Es begann am Küchentisch.</p>
+    <p>Wie viele pflegende Angehörige standen auch wir vor derselben Herausforderung: Nachweise, Fristen, Bescheide und immer mehr Papierkram. Am Anfang gab es nur eine einfache Tabelle für die Verhinderungspflege. Sie half uns, Stunden zu dokumentieren und den Überblick über das verfügbare Budget zu behalten.</p>
+    <img src="images/geschichte/2025_tabelle_plus_nachweis_makro.png" alt="Die erste LibreOffice-Tabelle" class="step-img" onclick="openLightbox(this.src)">
+    <p class="img-caption">Die erste Version: eine einfache LibreOffice-Tabelle mit Stundeneintragungen</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Schritt 2 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-icon">⚙️</div>
+      <div>
+        <div class="step-tag">Der erste Durchbruch</div>
+        <h2>Automatische Nachweise per Makro</h2>
+      </div>
+    </div>
+    <p>Schnell wurde klar, dass die eigentliche Arbeit nicht das Eintragen der Stunden war, sondern das Erstellen der Nachweise. Deshalb entstand das erste Makro, das automatisch unterschriftsfertige Nachweise als PDF erzeugte.</p>
+    <div class="quote">
+      Das ist der Moment, der alles verändert hat. Von "Ich trage Stunden ein" zu "Die Software erledigt die Bürokratie." Das ist eigentlich die Geburtsstunde von Pflegra.
+    </div>
+    <div class="img-grid">
+      <div class="img-item">
+        <img src="images/geschichte/2025_erstellter_nachweis_in_tabelle.png" alt="Nachweis in der Tabelle" onclick="openLightbox(this.src)">
+        <p>Nachweis in LibreOffice Calc</p>
+      </div>
+      <div class="img-item">
+        <img src="images/geschichte/2025_erstellter_nachweis.png" alt="Automatisch erstellter PDF-Nachweis" onclick="openLightbox(this.src)">
+        <p>Automatisch erstellter PDF-Nachweis</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Schritt 3 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-icon">📝</div>
+      <div>
+        <div class="step-tag">PflegeNachweis 2.0</div>
+        <h2>Mehr als nur eine Tabelle</h2>
+      </div>
+    </div>
+    <p>Aus der einfachen Tabelle wurde eine kleine Anwendung. Mehrere Personen konnten verwaltet, Zeiträume ausgewählt und Nachweise automatisch erstellt werden. Quartale, Halbjahre, das gesamte Jahr auf einen Blick.</p>
+    <img src="images/geschichte/2025_pflegenachweis2_0.png" alt="PflegeNachweis 2.0" class="step-img" onclick="openLightbox(this.src)">
+    <p class="img-caption">PflegeNachweis 2.0: Jahresübersicht mit automatischer Nachweis-Erstellung</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Schritt 4 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-icon">🗂️</div>
+      <div>
+        <div class="step-tag">PflegeNachweis 2.3</div>
+        <h2>Das erste richtige System</h2>
+      </div>
+    </div>
+    <p>Mit Version 2.3 war aus einem Hilfsmittel ein richtiges System geworden: ein Dashboard, Mehrpersonenverwaltung, Statistiken und eine automatische Archivierung aller erstellten Nachweise.</p>
+    <p>Doch je größer das Projekt wurde, desto deutlicher wurden die Grenzen einer Tabellenkalkulation.</p>
+    <div class="img-grid-4">
+      <div class="img-item">
+        <img src="images/geschichte/2026_dashboard_pflegenachweis2_3.png" alt="Dashboard PflegeNachweis 2.3" onclick="openLightbox(this.src)">
+        <p>Dashboard</p>
+      </div>
+      <div class="img-item">
+        <img src="images/geschichte/2026_user_pflegenachweis2_3.png" alt="Personenverwaltung" onclick="openLightbox(this.src)">
+        <p>Mehrere Versicherte</p>
+      </div>
+      <div class="img-item">
+        <img src="images/geschichte/2026_statistiken_pflegenachweis2_3.png" alt="Statistiken" onclick="openLightbox(this.src)">
+        <p>Statistiken & Budget</p>
+      </div>
+      <div class="img-item">
+        <img src="images/geschichte/2026_historie_pflegenachweis2_3.png" alt="Archiv" onclick="openLightbox(this.src)">
+        <p>Automatisches Archiv</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Schritt 5 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-icon">💚</div>
+      <div>
+        <div class="step-tag">Heute</div>
+        <h2>Aus PflegeNachweis wird Pflegra</h2>
+      </div>
+    </div>
+    <p>Mit jeder neuen Funktion wurde deutlicher, dass die Möglichkeiten einer Tabellenkalkulation irgendwann an Grenzen stoßen. Aus PflegeNachweis entstand deshalb Pflegra, eine moderne Webanwendung, die auf jedem Gerät genutzt werden kann.</p>
+    <div class="highlight-box">
+      <h3>Pflegra heute</h3>
+      <p>Dokumente, Fristen, Budgets, Pflegeberatungen, Gutachten und der gesamte Pflegealltag an einem Ort. Was als einfache Tabelle begann, begleitet heute Familien dabei, den Überblick zu behalten und sich auf das Wesentliche zu konzentrieren: die Menschen, die sie pflegen.</p>
+    </div>
+    <p style="margin-top:1rem">Und wir haben eines dabei nie vergessen: Pflegra wurde nicht für Investoren gebaut. Es wurde aus echter Pflegepraxis heraus entwickelt. Das war der Anfang und das bleibt der Kern.</p>
   </div>
 
 </div>
@@ -131,12 +196,12 @@
 <div class="opensource">
   <h2>Warum Open Source?</h2>
   <p>Pflege ist ein Thema, das Millionen Familien betrifft. Wir glauben, dass gute Werkzeuge für pflegende Angehörige nicht hinter Bezahlschranken versteckt sein sollten.</p>
-  <p>Deshalb ist Pflegra als Community Edition dauerhaft kostenlos und Open Source unter der AGPLv3-Lizenz. Wer möchte, kann den Code einsehen, verändern und weitergeben.</p>
+  <p>Deshalb ist Pflegra als Community Edition dauerhaft kostenlos und Open Source unter der AGPLv3-Lizenz.</p>
   <p style="font-weight:600;color:var(--dark)">Die Pflege können wir nicht übernehmen. Den Papierkram vielleicht schon.</p>
 </div>
 
 <div class="cta">
-  <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--dark);margin-bottom:1rem">Selbst ausprobieren</h2>
+  <h2>Selbst ausprobieren</h2>
   <a href="https://pflegra.tail5e5060.ts.net" target="_blank" class="btn">Demo starten</a>
   <a href="index.html" class="btn btn-ghost">Zurück zur Startseite</a>
 </div>
@@ -148,6 +213,23 @@
   <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
   &copy; 2024–2026 Stefan Neu · Pflegra · AGPLv3
 </footer>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
 
 </body>
 </html>
