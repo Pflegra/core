@@ -600,58 +600,10 @@
     </div>
   </div>
 
-  <!-- Button -->
-  <div style="text-align:center;margin-top:1.5rem">
-    <button onclick="toggleFeatures(this)"
-            style="background:none;border:1px solid #3ABFAB;color:#3ABFAB;padding:.5rem 1.5rem;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:600">
-      + Weitere Funktionen anzeigen
-    </button>
-  </div>
-
-  <!-- Weitere Funktionen: zugeklappt -->
-  <div id="features-more" style="display:none;margin-top:1.5rem">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
-      <div class="feature-card">
-        <div class="feature-icon">🤝</div>
-        <div class="feature-title">Pflegeberatung § 37.3</div>
-        <div class="feature-desc">Beratungstermine dokumentieren, Nachweise hochladen, Halbjahres-Fristen automatisch überwachen.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📅</div>
-        <div class="feature-title">Zeitachse</div>
-        <div class="feature-desc">Chronologische Übersicht aller Ereignisse pro Person: Dokumente, Beratungen, Gutachten, Buchungen.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📓</div>
-        <div class="feature-title">Pflegetagebuch &amp; Chronik</div>
-        <div class="feature-desc">Tägliche Beobachtungen strukturiert festhalten, mit Chat-ähnlicher Schnelleingabe.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">💶</div>
-        <div class="feature-title">Leistungsfinder</div>
-        <div class="feature-desc">Welche Leistungen stehen mir zu? Pflegegeld, Sachleistungen, VP und Entlastungsbetrag auf einen Blick.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📄</div>
-        <div class="feature-title">PDF-Exporte</div>
-        <div class="feature-desc">Pflegenachweise, Budgetberichte und Antragsschreiben auf Knopfdruck erstellen.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">💾</div>
-        <div class="feature-title">Automatische Backups</div>
-        <div class="feature-desc">Tägliche Sicherung mit Wiederherstellung. Ihre Daten sind auch bei Serverproblemen sicher.</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  function toggleFeatures(btn) {
-    const more = document.getElementById('features-more');
-    const show = more.style.display === 'none';
-    more.style.display = show ? 'block' : 'none';
-    btn.textContent = show ? '− Weniger anzeigen' : '+ Weitere Funktionen anzeigen';
-  }
-  </script>
+  <!-- Weitere Funktionen -->
+  <p style="text-align:center;font-size:.85rem;color:#8a9ab0;margin-top:1.5rem;max-width:600px;margin-left:auto;margin-right:auto">
+    Und vieles mehr: Pflegetagebuch, Zeitachse, Leistungsfinder, PDF-Export, Pflegeberatung § 37.3, automatische Backups und weitere Helfer für den Pflegealltag.
+  </p>
 </section>
 <!-- Demo Banner -->
 <section class="demo-banner">
