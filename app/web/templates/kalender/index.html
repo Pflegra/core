@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Pflege-Kalender – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📅 Pflege-Kalender</h1>
+</div>
+
+{# ── Navigation ── #}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
+    <div style="display:flex;align-items:center;gap:.75rem">
+        <a href="{{ request.app.state.ingress_entry }}/kalender/?monat={{ prev_monat }}&jahr={{ prev_jahr }}{% if filter_person %}&person={{ filter_person }}{% endif %}"
+           class="btn btn-ghost btn-sm">←</a>
+        <div style="font-size:1.2rem;font-weight:600;min-width:160px;text-align:center">{{ monatsname }} {{ jahr }}</div>
+        <a href="{{ request.app.state.ingress_entry }}/kalender/?monat={{ next_monat }}&jahr={{ next_jahr }}{% if filter_person %}&person={{ filter_person }}{% endif %}"
+           class="btn btn-ghost btn-sm">→</a>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+        {% if personen %}
+        <form method="get" style="margin:0">
+            <input type="hidden" name="monat" value="{{ monat }}">
+            <input type="hidden" name="jahr" value="{{ jahr }}">
+            <select name="person" onchange="this.form.submit()"
+                    style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+                <option value="">Alle Personen</option>
+                {% for p in personen %}
+                <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% endif %}
+        <a href="{{ request.app.state.ingress_entry }}/kalender/{% if filter_person %}?person={{ filter_person }}{% endif %}"
+           class="btn btn-ghost btn-sm">Heute</a>
+    </div>
+</div>
+
+{# ── Legende ── #}
+<div style="margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted)">
+    <span><span style="display:inline-block;width:10px;height:10px;background:#dbeafe;border-radius:2px;margin-right:.3rem"></span>Eigene Fristen</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#fef3c7;border-radius:2px;margin-right:.3rem"></span>Pflegeberatung</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#fee2e2;border-radius:2px;margin-right:.3rem"></span>Automatische Fristen</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#ede9fe;border-radius:2px;margin-right:.3rem"></span>Dokumente</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#dcfce7;border-radius:2px;margin-right:.3rem"></span>Tagebuch</span>
+</div>
+
+{# ── Kalendergrid ── #}
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;min-width:640px">
+    <thead>
+        <tr>
+            {% for wt in ['Mo','Di','Mi','Do','Fr','Sa','So'] %}
+            <th style="padding:.35rem;font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;border-bottom:2px solid var(--border)">{{ wt }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for woche in wochen %}
+        <tr>
+            {% for tag in woche %}
+            <td style="vertical-align:top;padding:.3rem;border:1px solid var(--border);height:68px;width:14.28%;
+                       {% if tag == 0 %}background:var(--bg-subtle, #f8f9fb)
+                       {% elif tag == heute.day and monat == heute.month and jahr == heute.year %}background:#eff8f7{% endif %}">
+                {% if tag != 0 %}
+                <div style="font-size:.75rem;font-weight:600;margin-bottom:.2rem;
+                            {% if tag == heute.day and monat == heute.month and jahr == heute.year %}
+                            color:#fff;background:var(--primary);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center
+                            {% else %}color:var(--text-muted){% endif %}">
+                    {{ tag }}
+                </div>
+                {% if tage.get(tag) %}
+                <div style="display:flex;flex-direction:column;gap:.15rem">
+                    {% for e in tage[tag][:2] %}
+                    <a href="{{ request.app.state.ingress_entry }}{{ e.link }}"
+                       style="font-size:.65rem;padding:.1rem .3rem;border-radius:3px;text-decoration:none;line-height:1.3;
+                              display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+                              {% if e.erledigt %}opacity:.5;text-decoration:line-through;background:var(--bg-subtle,#f1f1f1);color:var(--text-muted)
+                              {% elif e.quelle == 'pflegeberatung' %}background:#fef3c7;color:#92400e
+                              {% elif e.quelle == 'aufgabe' %}background:#fee2e2;color:#991b1b
+                              {% elif e.quelle == 'dokument' %}background:#ede9fe;color:#5b21b6
+                              {% elif e.quelle == 'tagebuch' %}background:#dcfce7;color:#166534
+                              {% else %}background:#dbeafe;color:#1e40af{% endif %}"
+                       title="{{ e.titel }} · {{ e.person }}">
+                        {{ e.quelle_icon }} {{ e.titel }}
+                    </a>
+                    {% endfor %}
+                    {% if tage[tag]|length > 2 %}
+                    <div style="font-size:.62rem;color:var(--text-muted)">+{{ tage[tag]|length - 2 }} weitere</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<div style="margin-top:.75rem">
+    <a href="{{ request.app.state.ingress_entry }}/fristen/neu" class="btn btn-primary btn-sm">+ Neue Frist</a>
+</div>
+{% endblock %}

@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.5.4 (18.06.2026)
+
+### Neu
+
+- Pflege-Kalender `/kalender/`
+  - Monatsansicht mit Navigation (vor/zurück, Heute)
+  - Aggregiert eigene Fristen, Pflegeberatung, automatische Fristen, Dokumente und Tagebucheinträge
+  - Personenfilter
+  - Klickbare Einträge führen direkt zum jeweiligen Modul
+  - Keine neue Datenbanktabelle, reine Aggregationsansicht über bestehende Daten
+
+### Sicherheit
+
+- Fix: `versicherte.person_name` war global `UNIQUE` statt `UNIQUE(person_name, owner_id)`. Dadurch konnten zwei Nutzer keine Person mit demselben Namen anlegen.
+- Fix: `versicherter_loeschen` filterte nicht nach `owner_id` (potenzielle Cross-Tenant-Lücke)
+- `SCHEMA_VERSION`-Konstante korrigiert (war 16, tatsächliche Migrationen reichten bis 21/22)
+
+### Technisch
+
+- DB Schema v22 (Migration der `versicherte`-Tabelle, kein Datenverlust)
+- Neuer Service `kalender_service.py`
+- Neuer Router `/kalender/`
+
+---
+
 ## v1.5.3 (17.06.2026)
 
 ### Neu
