@@ -114,7 +114,7 @@ async def versicherter_loeschen(request: Request, person_name: str):
     db = get_db(request)
     owner_id = get_owner_id(request)
     # Versicherter löschen → CASCADE löscht Einträge automatisch
-    db.versicherter_loeschen(person_name)
+    db.versicherter_loeschen(person_name, owner_id)
     # Person auch löschen
     db.person_loeschen_mit_eintraegen(person_name, owner_id)
     return redirect(request, "/versicherte/?ok=1", 303)

@@ -12,7 +12,7 @@ DB_PATH = Path("pflegra.db")
 class DbSchema:
     """Verbindungs- und Migrations-Logik. Wird von allen Repos genutzt."""
 
-    SCHEMA_VERSION = 16
+    SCHEMA_VERSION = 22
 
     def __init__(self, db_path) -> None:
         self.db_path = db_path
@@ -499,6 +499,40 @@ class DbSchema:
                 """)
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_eigene_fristen_owner ON eigene_fristen (owner_id, person, datum)")
                 conn.execute("UPDATE schema_version SET version = 21")
+
+            if v < 22:
+                # Fix: versicherte.person_name war global UNIQUE statt UNIQUE(person_name, owner_id)
+                # Das verhinderte, dass zwei Nutzer eine Person mit demselben Namen anlegen konnten.
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS versicherte_v22 (
+                        id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person_name          TEXT    NOT NULL,
+                        adresse              TEXT    NOT NULL DEFAULT '',
+                        versicherungsnr      TEXT    NOT NULL DEFAULT '',
+                        krankenkasse         TEXT    NOT NULL DEFAULT '',
+                        krankenkasse_adresse TEXT    NOT NULL DEFAULT '',
+                        pflegegrad           INTEGER NOT NULL DEFAULT 0,
+                        geburtsdatum         TEXT    NOT NULL DEFAULT '',
+                        mail                 TEXT    NOT NULL DEFAULT '',
+                        notiz                TEXT    NOT NULL DEFAULT '',
+                        owner_id             INTEGER NOT NULL DEFAULT 1,
+                        UNIQUE(person_name, owner_id)
+                    )
+                """)
+                conn.execute("""
+                    INSERT OR IGNORE INTO versicherte_v22
+                        (id, person_name, adresse, versicherungsnr, krankenkasse,
+                         krankenkasse_adresse, pflegegrad, geburtsdatum, mail, notiz, owner_id)
+                    SELECT id, person_name, adresse, versicherungsnr, krankenkasse,
+                           krankenkasse_adresse, pflegegrad, geburtsdatum, mail, notiz,
+                           COALESCE(owner_id, 1)
+                    FROM versicherte
+                """)
+                conn.execute("DROP TABLE versicherte")
+                conn.execute("ALTER TABLE versicherte_v22 RENAME TO versicherte")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_person ON versicherte (person_name)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_owner ON versicherte (owner_id)")
+                conn.execute("UPDATE schema_version SET version = 22")
 
     def schema_version(self) -> int:
         try:

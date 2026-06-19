@@ -62,18 +62,17 @@ class VersicherterRepo:
             conn.execute("""
                 INSERT INTO versicherte (person_name,adresse,versicherungsnr,krankenkasse,krankenkasse_adresse,pflegegrad,geburtsdatum,mail,notiz,owner_id)
                 VALUES (?,?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(person_name) DO UPDATE SET
+                ON CONFLICT(person_name, owner_id) DO UPDATE SET
                     adresse=excluded.adresse, versicherungsnr=excluded.versicherungsnr,
                     krankenkasse=excluded.krankenkasse, krankenkasse_adresse=excluded.krankenkasse_adresse,
                     pflegegrad=excluded.pflegegrad, geburtsdatum=excluded.geburtsdatum,
-                    mail=excluded.mail, notiz=excluded.notiz,
-                    owner_id=excluded.owner_id
+                    mail=excluded.mail, notiz=excluded.notiz
             """, (v.name, v.adresse, v.versicherungsnr, v.krankenkasse,
                   v.krankenkasse_adresse, v.pflegegrad, v.geburtsdatum, v.mail, v.notiz,
                   v.owner_id if v.owner_id else 1))
         return True
 
-    def loeschen(self, person_name: str) -> bool:
+    def loeschen(self, person_name: str, owner_id: int = 1) -> bool:
         with self._c() as conn:
-            c = conn.execute("DELETE FROM versicherte WHERE person_name=?", (person_name,))
+            c = conn.execute("DELETE FROM versicherte WHERE person_name=? AND owner_id=?", (person_name, owner_id))
         return c.rowcount > 0

@@ -108,7 +108,7 @@ class PflegraDB:
     # -- Versicherter ----------------------------------------------
     def versicherter_laden(self, person_name):               return self._vers.laden(person_name)
     def versicherter_speichern(self, v):                     return self._vers.speichern(v)
-    def versicherter_loeschen(self, person_name):            return self._vers.loeschen(person_name)
+    def versicherter_loeschen(self, person_name, owner_id=1):  return self._vers.loeschen(person_name, owner_id)
 
     # -- UserSettings ----------------------------------------------
     def user_settings_laden(self, user_id):                  return self._user_settings.laden(user_id)
