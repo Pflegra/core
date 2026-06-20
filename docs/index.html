@@ -98,6 +98,7 @@
     width: 52%; border-radius: 12px; overflow: hidden;
     box-shadow: 0 24px 60px rgba(0,0,0,.35);
     border: 1px solid rgba(255,255,255,.08);
+    cursor: zoom-in;
   }
   .hero-screen img { width: 100%; display: block; }
   .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
@@ -310,7 +311,7 @@
   .screen-card img { width: 100%; display: block; }
   .lightbox {
     display: none; position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,.92); align-items: center; justify-content: center;
+    background: rgba(0,0,0,.82); align-items: center; justify-content: center;
     cursor: zoom-out;
   }
   .lightbox.active { display: flex; }
@@ -398,7 +399,9 @@
       <div style="font-size:.75rem;color:var(--muted);margin-top:.25rem">Kein Account nötig · Beispieldaten · automatisch zurückgesetzt</div>
     </div>
 
-    <div class="hero-screen">
+    <div class="hero-screen" role="button" tabindex="0" aria-label="Dashboard-Screenshot vergrößern"
+         onclick="openLightbox(this.querySelector('img').src)"
+         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
       <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
     </div>
 
@@ -806,9 +809,10 @@ docker run -d -p 8000:8000 \
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot in voller Größe"
+     aria-hidden="true" onclick="if(event.target === this) closeLightbox()">
   <span class="lightbox-close" onclick="closeLightbox()">✕</span>
-  <img id="lightbox-img" src="" alt="">
+  <img id="lightbox-img" src="" alt="Screenshot in voller Größe" onclick="event.stopPropagation()">
 </div>
 
 <script>
@@ -821,13 +825,19 @@ function showTab(id, event) {
 function openLightbox(src) {
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox').classList.add('active');
+  document.getElementById('lightbox').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 }
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
+  document.getElementById('lightbox').setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('lightbox').classList.contains('active')) {
+    closeLightbox();
+  }
+});
 </script>
 
 </body>
