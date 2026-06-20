@@ -405,7 +405,7 @@ class TestDemoReset:
 class TestSchemaMigration:
 
     def test_schema_version(self, db):
-        assert db.schema_version() == 12
+        assert db.schema_version() == 23
 
     def test_owner_id_default(self, db, admin):
         """Neue Einträge bekommen owner_id gesetzt."""

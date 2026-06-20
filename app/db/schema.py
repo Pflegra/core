@@ -12,7 +12,7 @@ DB_PATH = Path("pflegra.db")
 class DbSchema:
     """Verbindungs- und Migrations-Logik. Wird von allen Repos genutzt."""
 
-    SCHEMA_VERSION = 22
+    SCHEMA_VERSION = 23
 
     def __init__(self, db_path) -> None:
         self.db_path = db_path
@@ -533,6 +533,33 @@ class DbSchema:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_person ON versicherte (person_name)")
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_versicherte_owner ON versicherte (owner_id)")
                 conn.execute("UPDATE schema_version SET version = 22")
+
+            if v < 23:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS eigene_termine (
+                        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id      INTEGER NOT NULL DEFAULT 1,
+                        person        TEXT    NOT NULL DEFAULT '',
+                        titel         TEXT    NOT NULL,
+                        datum         TEXT    NOT NULL,
+                        ganztag       INTEGER NOT NULL DEFAULT 1,
+                        uhrzeit_von   TEXT    NOT NULL DEFAULT '',
+                        uhrzeit_bis   TEXT    NOT NULL DEFAULT '',
+                        wiederholung  TEXT    NOT NULL DEFAULT 'einmalig'
+                            CHECK (wiederholung IN ('einmalig', 'taeglich', 'woechentlich', 'monatlich', 'jaehrlich')),
+                        notiz         TEXT    NOT NULL DEFAULT '',
+                        created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+                    )
+                """)
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_eigene_termine_owner_datum
+                    ON eigene_termine (owner_id, datum)
+                """)
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_eigene_termine_owner_person
+                    ON eigene_termine (owner_id, person)
+                """)
+                conn.execute("UPDATE schema_version SET version = 23")
 
     def schema_version(self) -> int:
         try:

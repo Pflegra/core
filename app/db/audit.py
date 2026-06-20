@@ -65,6 +65,11 @@ class AuditEvent:
     KONTAKT_BEARBEITET  = "kontakt_bearbeitet"
     KONTAKT_GELOESCHT   = "kontakt_geloescht"
 
+    # Eigene Termine
+    TERMIN_ERSTELLT     = "termin_erstellt"
+    TERMIN_BEARBEITET   = "termin_bearbeitet"
+    TERMIN_GELOESCHT    = "termin_geloescht"
+
 
 @dataclass
 class AuditEintrag:

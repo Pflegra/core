@@ -596,6 +596,7 @@ small.text-muted { font-size: .78rem; }
                     <li><a href="{{ request.app.state.ingress_entry }}/aufgaben/" {% if request.url.path.find('/aufgaben') != -1 %}class="active"{% endif %}>{{ _('nav.aufgaben') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/fristen/" {% if request.url.path.find('/fristen') != -1 %}class="active"{% endif %}>{{ _('nav.fristen') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/kalender/" {% if request.url.path.find('/kalender') != -1 %}class="active"{% endif %}>Kalender</a></li>
+                    <li><a href="{{ request.app.state.ingress_entry }}/termine/" {% if request.url.path.find('/termine') != -1 %}class="active"{% endif %}>Eigene Termine</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/erinnerungen/" {% if request.url.path.find('/erinnerungen') != -1 %}class="active"{% endif %}>{{ _('nav.erinnerungen') }}</a></li>
                     <li><a href="{{ request.app.state.ingress_entry }}/zeitachse/" {% if request.url.path.find('/zeitachse') != -1 %}class="active"{% endif %}>{{ _('nav.zeitachse') }}</a></li>
                 </ul>

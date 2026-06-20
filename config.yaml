@@ -1,6 +1,6 @@
 name: "Pflegra"
 description: "Pflege-Management-Plattform für pflegende Angehörige nach SGB XI"
-version: "1.0.5"
+version: "1.5.5"
 slug: "pflegra"
 init: false
 arch:

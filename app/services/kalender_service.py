@@ -24,6 +24,7 @@ class KalenderEreignis:
     kategorie:  str = ""
     link:       str = ""
     erledigt:   bool = False
+    zeit_text:  str = ""
 
     @property
     def datum_str(self) -> str:
@@ -37,6 +38,7 @@ class KalenderEreignis:
             "aufgabe": "🟡",
             "dokument": "📄",
             "tagebuch": "📝",
+            "termin": "📅",
         }.get(self.quelle, "📌")
 
 
@@ -48,6 +50,7 @@ def baue_kalender(
     jahr: int,
     dokumente: list = None,
     tagebuch_eintraege: list = None,
+    termin_vorkommen: list = None,
 ) -> dict[int, list[KalenderEreignis]]:
     """
     Baut eine Kalenderansicht für einen Monat.
@@ -58,6 +61,7 @@ def baue_kalender(
     fristen_aus_service: Liste von Frist-Objekten (aus services.fristen_service)
     dokumente: optional, Liste von Dokument-Objekten (für Anzeige "Dokument hochgeladen")
     tagebuch_eintraege: optional, Liste von Tagebucheintrag-Objekten
+    termin_vorkommen: optional, im Zielmonat expandierte eigene Termine
     """
     tage: dict[int, list[KalenderEreignis]] = {}
 
@@ -137,9 +141,23 @@ def baue_kalender(
                 link="/tagebuch/chronik",
             ))
 
+    # Eigene einmalige und wiederkehrende Termine
+    if termin_vorkommen:
+        for vorkommen in termin_vorkommen:
+            termin = vorkommen.termin
+            _add(KalenderEreignis(
+                datum=vorkommen.datum,
+                titel=termin.titel,
+                person=termin.person,
+                quelle="termin",
+                kategorie=termin.wiederholung_label,
+                link=f"/termine/{termin.id}/bearbeiten",
+                zeit_text=termin.zeit_text,
+            ))
+
     # Innerhalb jedes Tages nach Person sortieren
     for tag in tage:
-        tage[tag].sort(key=lambda e: (e.erledigt, e.person))
+        tage[tag].sort(key=lambda e: (e.erledigt, bool(e.zeit_text and e.zeit_text != "Ganztägig"), e.zeit_text, e.person))
 
     return tage
 

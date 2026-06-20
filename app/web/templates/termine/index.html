@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Eigene Termine – Pflegra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📅 Eigene Termine</h1>
+    <a href="{{ request.app.state.ingress_entry }}/termine/neu{% if filter_person %}?person={{ filter_person }}{% endif %}"
+       class="btn btn-primary">+ Neuer Termin</a>
+</div>
+
+{% if personen %}
+<div style="margin-bottom:1.25rem">
+    <form method="get">
+        <select name="person" onchange="this.form.submit()"
+                style="padding:.4rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);font-size:.85rem">
+            <option value="">Alle Personen</option>
+            {% for p in personen %}
+            <option value="{{ p }}" {% if filter_person == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+{% endif %}
+
+{% if termine %}
+<div style="display:flex;flex-direction:column;gap:.5rem">
+    {% for termin in termine %}
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.1rem;display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+        <div style="font-size:1.2rem;padding-top:.1rem">📅</div>
+        <div style="flex:1;min-width:190px">
+            <div style="font-weight:600">{{ termin.titel }}</div>
+            <div style="font-size:.75rem;color:var(--text-muted)">
+                {{ termin.person if termin.person else 'Allgemeiner Termin' }}
+            </div>
+            <div style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem">
+                {{ termin.datum_str }} · {{ termin.zeit_text }} · {{ termin.wiederholung_label }}
+            </div>
+            {% if termin.notiz %}
+            <div style="font-size:.8rem;color:var(--text-muted);margin-top:.25rem;font-style:italic">{{ termin.notiz }}</div>
+            {% endif %}
+        </div>
+        <div style="display:flex;gap:.4rem;flex-shrink:0">
+            <a href="{{ request.app.state.ingress_entry }}/termine/{{ termin.id }}/bearbeiten" class="btn btn-ghost btn-sm">✏️</a>
+            <form method="post" action="{{ request.app.state.ingress_entry }}/termine/{{ termin.id }}/loeschen"
+                  onsubmit="return confirm('{% if termin.wiederholung != 'einmalig' %}Die gesamte Terminserie löschen?{% else %}Termin löschen?{% endif %}')" style="margin:0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--error)">🗑️</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="form-card" style="text-align:center;padding:2.5rem 1rem">
+    <div style="font-size:2rem;margin-bottom:.75rem">📅</div>
+    <div style="font-weight:600;margin-bottom:.4rem">Noch keine eigenen Termine</div>
+    <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">Einmalige oder wiederkehrende Termine erscheinen im Pflege-Kalender.</div>
+    <a href="{{ request.app.state.ingress_entry }}/termine/neu" class="btn btn-primary">+ Neuer Termin</a>
+</div>
+{% endif %}
+{% endblock %}

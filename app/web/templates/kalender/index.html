@@ -37,6 +37,7 @@
 {# ── Legende ── #}
 <div style="margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted)">
     <span><span style="display:inline-block;width:10px;height:10px;background:#dbeafe;border-radius:2px;margin-right:.3rem"></span>Eigene Fristen</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#cffafe;border-radius:2px;margin-right:.3rem"></span>Eigene Termine</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#fef3c7;border-radius:2px;margin-right:.3rem"></span>Pflegeberatung</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#fee2e2;border-radius:2px;margin-right:.3rem"></span>Automatische Fristen</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#ede9fe;border-radius:2px;margin-right:.3rem"></span>Dokumente</span>
@@ -78,9 +79,10 @@
                               {% elif e.quelle == 'aufgabe' %}background:#fee2e2;color:#991b1b
                               {% elif e.quelle == 'dokument' %}background:#ede9fe;color:#5b21b6
                               {% elif e.quelle == 'tagebuch' %}background:#dcfce7;color:#166534
+                              {% elif e.quelle == 'termin' %}background:#cffafe;color:#155e75
                               {% else %}background:#dbeafe;color:#1e40af{% endif %}"
-                       title="{{ e.titel }} · {{ e.person }}">
-                        {{ e.quelle_icon }} {{ e.titel }}
+                       title="{{ e.titel }}{% if e.person %} · {{ e.person }}{% endif %}{% if e.zeit_text %} · {{ e.zeit_text }}{% endif %}">
+                        {{ e.quelle_icon }} {% if e.zeit_text and e.zeit_text != 'Ganztägig' %}{{ e.zeit_text.replace(' Uhr', '') }} {% endif %}{{ e.titel }}
                     </a>
                     {% endfor %}
                     {% if tage[tag]|length > 2 %}
@@ -98,6 +100,7 @@
 </div>
 
 <div style="margin-top:.75rem">
+    <a href="{{ request.app.state.ingress_entry }}/termine/neu{% if filter_person %}?person={{ filter_person }}{% endif %}" class="btn btn-primary btn-sm">+ Neuer Termin</a>
     <a href="{{ request.app.state.ingress_entry }}/fristen/neu" class="btn btn-primary btn-sm">+ Neue Frist</a>
 </div>
 {% endblock %}

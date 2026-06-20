@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.5.5 (20.06.2026)
+
+### Neu
+
+- Eigene Termine unter `/termine/`
+- Optionale Personenzuordnung und Notiz
+- Ganztägige Termine oder Zeitfenster mit `uhrzeit_von` und `uhrzeit_bis`
+- Einmalige, tägliche, wöchentliche, monatliche und jährliche Wiederholung
+- Integration in den bestehenden Pflege-Kalender
+
+### Technisch
+
+- DB Schema v23 mit neuer Tabelle `eigene_termine`
+- Terminserien werden nur für den sichtbaren Monat berechnet und nicht einzeln gespeichert
+- Alle Terminabfragen und Änderungen sind nach `owner_id` getrennt
+
+---
+
 ## v1.5.4 (18.06.2026)
 
 ### Neu

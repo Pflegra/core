@@ -114,8 +114,15 @@ async def kalender_uebersicht(request: Request, monat: int = 0, jahr: int = 0, p
     except Exception:
         tagebuch_liste = []
 
+    # Eigene Termine: Stammtermine laden und nur fuer den sichtbaren Monat expandieren
+    from web.routers.termine import _lade_termine
+    from services.termine_service import alle_vorkommen_im_monat
+    termine_liste = _lade_termine(request, owner_id, person)
+    termin_vorkommen = alle_vorkommen_im_monat(termine_liste, jahr, monat)
+
     tage = baue_kalender(eigene_fristen, beratungen, fristen_aus_service, monat, jahr,
-                          dokumente=dokumente_liste, tagebuch_eintraege=tagebuch_liste)
+                          dokumente=dokumente_liste, tagebuch_eintraege=tagebuch_liste,
+                          termin_vorkommen=termin_vorkommen)
 
     prev, nxt = monat_navigation(monat, jahr)
 
@@ -124,13 +131,7 @@ async def kalender_uebersicht(request: Request, monat: int = 0, jahr: int = 0, p
     cal = calendar.Calendar(firstweekday=0)
     wochen = cal.monthdayscalendar(jahr, monat)
 
-    personen_namen_alle = []
-    with db._schema.connect() as conn:
-        rows = conn.execute(
-            "SELECT DISTINCT person FROM pflege_eintraege WHERE owner_id=? ORDER BY person",
-            (owner_id,)
-        ).fetchall()
-    personen_namen_alle = [r["person"] for r in rows if r["person"]]
+    personen_namen_alle = db.personen(owner_id)
 
     return TEMPLATES.TemplateResponse(request, "kalender/index.html", {
         **base_ctx(request),

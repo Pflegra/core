@@ -226,4 +226,4 @@ class TestPflegraDB:
         assert s["jahre_anzahl"]     == 1
 
     def test_schema_version(self, tmp_db):
-        assert tmp_db.schema_version() == 5
+        assert tmp_db.schema_version() == 23

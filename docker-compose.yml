@@ -8,11 +8,11 @@
 
 services:
   pflegra:
-    image: pflegra:1.5.0
-    container_name: pflegra
+    image: pflegra_test:1.5.5
+    container_name: pflegra_test
     restart: unless-stopped
     ports:
-      - "${PORT:-8000}:8000"
+      - "${PORT:-8001}:8000"
     volumes:
       - ./data:/share/pflegra
     environment:

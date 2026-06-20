@@ -50,6 +50,7 @@ def demo_reset(db) -> None:
             conn.execute("DELETE FROM budget_planung WHERE owner_id=?",    (uid,))
             conn.execute("DELETE FROM entlastung_buchungen WHERE owner_id=?", (uid,))
             conn.execute("DELETE FROM pflegegrad_verlauf WHERE owner_id=?", (uid,))
+            conn.execute("DELETE FROM eigene_termine WHERE owner_id=?",     (uid,))
 
             # Musterperson anlegen
             conn.execute(
@@ -256,6 +257,23 @@ def demo_reset(db) -> None:
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, demo_fristen)
             log.info("Demo-Fristen angelegt (%d)", len(demo_fristen))
+
+        # Muster-Termine
+        with db._schema.connect() as conn:
+            heute = date.today()
+            naechster_montag = heute + timedelta(days=(7 - heute.weekday()) % 7 or 7)
+            demo_termine = [
+                (uid, DEMO_PERSON, "Autismus-Therapie", naechster_montag.isoformat(),
+                 0, "15:00", "16:00", "woechentlich", "Regelmäßiger Therapietermin"),
+                (uid, DEMO_PERSON, "Geburtstag", f"{heute.year}-{heute.month:02d}-28",
+                 1, "", "", "jaehrlich", "Ganztägiger Geburtstagstermin"),
+            ]
+            conn.executemany("""
+                INSERT INTO eigene_termine
+                    (owner_id, person, titel, datum, ganztag, uhrzeit_von, uhrzeit_bis, wiederholung, notiz)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, demo_termine)
+            log.info("Demo-Termine angelegt (%d)", len(demo_termine))
 
     except Exception as exc:
         log.error("Demo-Reset Fehler: %s", exc, exc_info=True)
