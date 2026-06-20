@@ -328,6 +328,7 @@
   .lightbox-close:hover { opacity: 1; }
   .hero-screen-hint { display: none; }
   .mobile-accordion-toggle { display: none; }
+  .mobile-accordion-close { display: none; }
   .mobile-accordion-content { display: block; }
 
   @media (max-width: 768px) {
@@ -393,6 +394,16 @@
     }
     .mobile-accordion-content { display: none; padding: .25rem 0 1.5rem; }
     .mobile-accordion-content.open { display: block; }
+    .mobile-accordion-close {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: .4rem; margin-top: 1rem; padding: .65rem .8rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); color: var(--primary);
+      font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer;
+    }
+    .mobile-accordion-close:focus-visible {
+      outline: 3px solid rgba(58,191,171,.4); outline-offset: 3px;
+    }
     .mobile-accordion-content .section-header { margin-bottom: 1rem; }
     .mobile-accordion-content .section-header h2,
     .mobile-accordion-content > h2 { font-size: 1.45rem !important; margin-bottom: .75rem !important; }
@@ -408,6 +419,8 @@
     .install-tabs { overflow-x: auto; margin-bottom: 1rem; }
     .install-tab { flex: 0 0 auto; padding: .45rem .75rem; font-size: .8rem; }
     .code-block { font-size: .7rem; padding: .8rem; }
+    .about-team img { width: 120px !important; height: 120px !important; margin-bottom: .6rem !important; }
+    .about-team p { line-height: 1.5 !important; }
   }
 </style>
 </head>
@@ -538,6 +551,7 @@
       </p>
       <a href="ueber.html" style="font-size:.85rem;color:#3ABFAB;font-weight:600;text-decoration:none">Die ganze Geschichte lesen →</a>
     </div>
+    <button class="mobile-accordion-close" type="button" onclick="closeMobileAccordion(this)">Schließen ↑</button>
   </div>
 </section>
 
@@ -624,6 +638,7 @@
     <p style="text-align:center;font-size:.8rem;color:#8a9ab0;margin-top:1.25rem">
       Die Community Edition bleibt dauerhaft kostenlos und Open Source, unabhängig von der Cloud-Version.
     </p>
+    <button class="mobile-accordion-close" type="button" onclick="closeMobileAccordion(this)">Schließen ↑</button>
   </div>
 </section>
 
@@ -720,6 +735,7 @@
   <p style="text-align:center;font-size:.85rem;color:#8a9ab0;margin-top:1.5rem;max-width:600px;margin-left:auto;margin-right:auto">
     Und vieles mehr: Pflegetagebuch, Zeitachse, Leistungsfinder, PDF-Export, Pflegeberatung § 37.3, automatische Backups und weitere Helfer für den Pflegealltag.
   </p>
+  <button class="mobile-accordion-close" type="button" onclick="closeMobileAccordion(this)">Schließen ↑</button>
   </div>
 </section>
 <!-- Demo Banner -->
@@ -780,6 +796,7 @@
         </div>
       </div>
     </div>
+    <button class="mobile-accordion-close" type="button" onclick="closeMobileAccordion(this)">Schließen ↑</button>
   </div>
 </section>
 
@@ -844,6 +861,7 @@ docker run -d -p 8000:8000 \
         Für Fernzugriff: <a href="https://tailscale.com" target="_blank">Tailscale</a> installieren und Funnel aktivieren.
       </p>
     </div>
+    <button class="mobile-accordion-close" type="button" onclick="closeMobileAccordion(this)">Schließen ↑</button>
   </div>
 </section>
 
@@ -873,7 +891,7 @@ docker run -d -p 8000:8000 \
 </section>
 
 <!-- Wer steckt hinter Pflegra -->
-<section class="mobile-hide" style="background:#f8fafc;padding:3rem 2rem;border-top:1px solid #e2e8f0">
+<section class="about-team" style="background:#f8fafc;padding:3rem 2rem;border-top:1px solid #e2e8f0">
   <div style="max-width:680px;margin:0 auto;text-align:center">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.75rem">Wer steckt hinter Pflegra?</div>
     <img src="images/stefan-laura.png" alt="Stefan und Laura Neu"
@@ -934,6 +952,15 @@ function toggleMobileAccordion(button) {
 
   button.setAttribute('aria-expanded', String(willOpen));
   content.classList.toggle('open', willOpen);
+}
+
+function closeMobileAccordion(button) {
+  const content = button.closest('.mobile-accordion-content');
+  const toggle = document.querySelector('[aria-controls="' + content.id + '"]');
+  content.classList.remove('open');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.focus({ preventScroll: true });
+  toggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function showTab(id, event) {
