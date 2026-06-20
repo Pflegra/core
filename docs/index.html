@@ -925,16 +925,6 @@ docker run -d -p 8000:8000 \
 function toggleMobileAccordion(button) {
   const content = document.getElementById(button.getAttribute('aria-controls'));
   const willOpen = button.getAttribute('aria-expanded') !== 'true';
-
-  if (willOpen && window.matchMedia('(max-width: 768px)').matches) {
-    document.querySelectorAll('.mobile-accordion-toggle[aria-expanded="true"]').forEach(other => {
-      if (other !== button) {
-        other.setAttribute('aria-expanded', 'false');
-        document.getElementById(other.getAttribute('aria-controls')).classList.remove('open');
-      }
-    });
-  }
-
   button.setAttribute('aria-expanded', String(willOpen));
   content.classList.toggle('open', willOpen);
 }
