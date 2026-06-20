@@ -103,7 +103,11 @@
   .hero-screen img { width: 100%; display: block; }
   .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
   @media (max-width: 900px) {
-    .hero-screen { display: none; }
+    .hero { min-height: auto; }
+    .hero-screen {
+      display: block; position: relative; right: auto; top: auto;
+      width: 100%; margin: 1rem 0 1.5rem;
+    }
     .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 100%; }
   }
   .hero-tag {
@@ -326,7 +330,40 @@
   @media (max-width: 768px) {
     .privacy-grid { grid-template-columns: 1fr; }
     .nav-links { display: none; }
-    .hero { padding-top: 6rem; }
+    .hero { padding: 5.25rem 1rem 2.5rem; }
+    .hero-tag { margin-bottom: .8rem; font-size: .68rem; }
+    h1 { font-size: clamp(2.25rem, 11vw, 3rem); margin-bottom: .8rem; }
+    .hero-sub { line-height: 1.5; margin-bottom: 1.25rem; }
+    .hero-screen {
+      width: 100vw; margin: .75rem calc(50% - 50vw) 1.25rem;
+      border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.22);
+    }
+    .hero-benefits {
+      display: grid !important; grid-template-columns: 1fr 1fr;
+      gap: .35rem .75rem !important; margin-bottom: 1rem !important;
+      font-size: .78rem !important;
+    }
+    .hero-version { margin-bottom: 1rem !important; }
+    .hero-ctas { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin-bottom: 1rem; }
+    .hero-ctas a { justify-content: center; padding: .65rem .75rem; font-size: .82rem; text-align: center; }
+    .hero-credentials { margin-bottom: 1.25rem !important; padding: .6rem .75rem !important; }
+    .hero-trust { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem 1rem; }
+    .section, .privacy-section, .install-section, .demo-banner { padding: 2.5rem 1rem; }
+    body > section[style] {
+      padding-top: 2.5rem !important; padding-bottom: 2.5rem !important;
+      padding-left: 1rem !important; padding-right: 1rem !important;
+    }
+    .section-sub { margin-bottom: 1.5rem; }
+    .features-main-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: .65rem !important;
+    }
+    .feature-card { padding: .8rem; border-radius: 10px; }
+    .feature-icon { font-size: 1.25rem; margin-bottom: .3rem; }
+    .feature-title { font-size: .82rem; line-height: 1.2; margin-bottom: .25rem; }
+    .feature-desc { font-size: .72rem; line-height: 1.35; }
+    .feature-new { font-size: .55rem; margin-left: .2rem; }
+    .screens-grid { gap: .75rem; margin-top: 1rem; }
   }
 </style>
 </head>
@@ -354,10 +391,15 @@
               border-left:3px solid var(--accent);padding-left:.75rem">
       Entwickelt von einem pflegenden Angehörigen, nicht von einer Firma.
     </p>
+    <div class="hero-screen" role="button" tabindex="0" aria-label="Dashboard-Screenshot vergrößern"
+         onclick="openLightbox(this.querySelector('img').src)"
+         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
+      <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
+    </div>
     <p class="hero-sub">
       Für Familien, die Pflege organisieren müssen und nicht ständig nach Dokumenten, Fristen oder Bescheiden suchen möchten, damit weniger Zeit für Organisation verloren geht und mehr Zeit bleibt für die Menschen, die sie brauchen.
     </p>
-    <div style="display:flex;flex-wrap:wrap;gap:.4rem .75rem;margin-bottom:1.5rem;font-size:.88rem;color:var(--text)">
+    <div class="hero-benefits" style="display:flex;flex-wrap:wrap;gap:.4rem .75rem;margin-bottom:1.5rem;font-size:.88rem;color:var(--text)">
       <span><strong style="color:#3ABFAB">✓</strong> Fristen nie wieder übersehen</span>
       <span><strong style="color:#3ABFAB">✓</strong> Dokumente sofort finden</span>
       <span><strong style="color:#3ABFAB">✓</strong> Gutachten automatisch auswerten</span>
@@ -367,7 +409,7 @@
       <span><strong style="color:#3ABFAB">✓</strong> Mehrere Angehörige an einem Ort</span>
       <span><strong style="color:#3ABFAB">✓</strong> Weniger Papierchaos</span>
     </div>
-    <div style="margin-bottom:1.5rem;font-size:.78rem;color:var(--muted)">
+    <div class="hero-version" style="margin-bottom:1.5rem;font-size:.78rem;color:var(--muted)">
       Aktuelle Version: <strong style="color:var(--primary)">v1.5.6</strong>
       <span style="margin:0 .5rem;opacity:.4">·</span>
       Veröffentlicht: <strong style="color:var(--text)">20.06.2026</strong>
@@ -386,7 +428,7 @@
         ★ GitHub
       </a>
     </div>
-    <div style="margin-bottom:2.5rem;padding:.75rem 1rem;background:rgba(58,191,171,.08);
+    <div class="hero-credentials" style="margin-bottom:2.5rem;padding:.75rem 1rem;background:rgba(58,191,171,.08);
                 border:1px solid rgba(58,191,171,.25);border-radius:8px;display:inline-block">
       <div style="font-size:.78rem;font-weight:600;color:#1a7066;text-transform:uppercase;
                   letter-spacing:.05em;margin-bottom:.35rem">Sofort ausprobieren</div>
@@ -397,12 +439,6 @@
                                           border-radius:4px;font-family:monospace">demo</code>
       </div>
       <div style="font-size:.75rem;color:var(--muted);margin-top:.25rem">Kein Account nötig · Beispieldaten · automatisch zurückgesetzt</div>
-    </div>
-
-    <div class="hero-screen" role="button" tabindex="0" aria-label="Dashboard-Screenshot vergrößern"
-         onclick="openLightbox(this.querySelector('img').src)"
-         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
-      <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
     </div>
 
     <div class="hero-trust">
@@ -569,7 +605,7 @@
   </div>
 
   <!-- Hauptfunktionen: immer sichtbar -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
+  <div class="features-main-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
     <div class="feature-card highlight">
       <div class="feature-icon">📁</div>
       <div class="feature-title">Dokumentenarchiv</div>
