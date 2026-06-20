@@ -326,6 +326,9 @@
     font-family: sans-serif; line-height: 1;
   }
   .lightbox-close:hover { opacity: 1; }
+  .hero-screen-hint { display: none; }
+  .mobile-accordion-toggle { display: none; }
+  .mobile-accordion-content { display: block; }
 
   @media (max-width: 768px) {
     .privacy-grid { grid-template-columns: 1fr; }
@@ -337,6 +340,10 @@
     .hero-screen {
       width: 100vw; margin: .75rem calc(50% - 50vw) 1.25rem;
       border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.22);
+    }
+    .hero-screen-hint {
+      display: block; padding: .45rem; background: #fff;
+      color: var(--muted); font-size: .72rem; text-align: center;
     }
     .hero-benefits {
       display: grid !important; grid-template-columns: 1fr 1fr;
@@ -364,6 +371,43 @@
     .feature-desc { font-size: .72rem; line-height: 1.35; }
     .feature-new { font-size: .55rem; margin-left: .2rem; }
     .screens-grid { gap: .75rem; margin-top: 1rem; }
+    .mobile-hide { display: none !important; }
+    section.mobile-accordion-section {
+      padding: 0 1rem !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .mobile-accordion-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; padding: 1rem 0; border: 0; background: transparent;
+      color: var(--dark); font: inherit; font-size: 1rem; font-weight: 700;
+      text-align: left; cursor: pointer;
+    }
+    .mobile-accordion-toggle:focus-visible {
+      outline: 3px solid rgba(58,191,171,.4); outline-offset: 3px; border-radius: 6px;
+    }
+    .mobile-accordion-chevron {
+      color: var(--primary); font-size: 1.2rem; transition: transform .2s ease;
+    }
+    .mobile-accordion-toggle[aria-expanded="true"] .mobile-accordion-chevron {
+      transform: rotate(180deg);
+    }
+    .mobile-accordion-content { display: none; padding: .25rem 0 1.5rem; }
+    .mobile-accordion-content.open { display: block; }
+    .mobile-accordion-content .section-header { margin-bottom: 1rem; }
+    .mobile-accordion-content .section-header h2,
+    .mobile-accordion-content > h2 { font-size: 1.45rem !important; margin-bottom: .75rem !important; }
+    .privacy-section .mobile-accordion-toggle { color: #fff; }
+    .privacy-section .mobile-accordion-chevron { color: var(--accent); }
+    .hosting-grid { grid-template-columns: 1fr !important; gap: .75rem !important; }
+    .hosting-card { padding: 1rem !important; }
+    .hosting-card:nth-child(2) { order: -1; }
+    .hosting-card > div:first-of-type { font-size: 1.35rem !important; margin-bottom: .35rem !important; }
+    .hosting-list { margin-bottom: .75rem !important; line-height: 1.6 !important; }
+    .hosting-list li:nth-child(n+5) { display: none; }
+    .hosting-status { padding: .55rem .75rem !important; }
+    .install-tabs { overflow-x: auto; margin-bottom: 1rem; }
+    .install-tab { flex: 0 0 auto; padding: .45rem .75rem; font-size: .8rem; }
+    .code-block { font-size: .7rem; padding: .8rem; }
   }
 </style>
 </head>
@@ -395,6 +439,7 @@
          onclick="openLightbox(this.querySelector('img').src)"
          onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
       <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
+      <span class="hero-screen-hint">Zum Vergrößern antippen</span>
     </div>
     <p class="hero-sub">
       Für Familien, die Pflege organisieren müssen und nicht ständig nach Dokumenten, Fristen oder Bescheiden suchen möchten, damit weniger Zeit für Organisation verloren geht und mehr Zeit bleibt für die Menschen, die sie brauchen.
@@ -451,8 +496,12 @@
 </section>
 
 <!-- Warum Pflegra -->
-<section style="background:#fff;padding:4rem 2rem;border-bottom:1px solid #e2e8f0">
-  <div style="max-width:780px;margin:0 auto">
+<section class="mobile-accordion-section" style="background:#fff;padding:4rem 2rem;border-bottom:1px solid #e2e8f0">
+  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-about"
+          onclick="toggleMobileAccordion(this)">
+    <span>Über Pflegra</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
+  </button>
+  <div id="mobile-about" class="mobile-accordion-content" style="max-width:780px;margin:0 auto">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:1rem">Warum Pflegra?</div>
     <p style="font-size:1.25rem;font-weight:600;color:#0D1B2A;line-height:1.6;margin-bottom:1.5rem">
       Wir sind keine Softwarefirma. Wir sind eine Familie, die selbst pflegt.
@@ -494,7 +543,7 @@
 
 
 <!-- Typische Probleme -->
-<section style="background:#f8fafc;padding:2.5rem 2rem;border-bottom:1px solid #e2e8f0">
+<section class="mobile-hide" style="background:#f8fafc;padding:2.5rem 2rem;border-bottom:1px solid #e2e8f0">
   <div style="max-width:860px;margin:0 auto">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Kommt Ihnen das bekannt vor?</div>
     <h2 style="text-align:center;font-size:1.3rem;color:#0D1B2A;margin-bottom:1.5rem">Pflegra hilft genau dort, wo es meistens fehlt</h2>
@@ -525,36 +574,40 @@
   </div>
 </section>
 <!-- Zwei Wege -->
-<section style="background:#f8fafc;padding:3.5rem 2rem;border-bottom:1px solid #e2e8f0">
-  <div style="max-width:860px;margin:0 auto">
+<section class="mobile-accordion-section" style="background:#f8fafc;padding:3.5rem 2rem;border-bottom:1px solid #e2e8f0">
+  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-hosting"
+          onclick="toggleMobileAccordion(this)">
+    <span>Self-Hosting / Cloud</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
+  </button>
+  <div id="mobile-hosting" class="mobile-accordion-content" style="max-width:860px;margin:0 auto">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Wie möchten Sie Pflegra nutzen?</div>
     <h2 style="text-align:center;font-size:1.5rem;color:#0D1B2A;margin-bottom:2rem">Wählen Sie Ihren Weg</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+    <div class="hosting-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
 
       <!-- Cloud -->
-      <div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:2rem;position:relative">
+      <div class="hosting-card" style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:2rem;position:relative">
         <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#8a9ab0;color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .75rem;border-radius:20px;white-space:nowrap">🚧 In Vorbereitung</div>
         <div style="font-size:2rem;margin-bottom:.75rem;opacity:.6">☁️</div>
         <div style="font-size:1.1rem;font-weight:700;color:#4a5568;margin-bottom:.25rem">Pflegra Cloud</div>
         <div style="font-size:.8rem;color:#8a9ab0;font-weight:600;margin-bottom:1rem">Für Menschen, die keine Installation möchten</div>
-        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#8a9ab0;line-height:2">
+        <ul class="hosting-list" style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#8a9ab0;line-height:2">
           <li>✓ Keine Installation nötig</li>
           <li>✓ Von überall erreichbar</li>
           <li>✓ Automatische Backups</li>
           <li>✓ Automatische Updates</li>
           <li>✓ Für alle, auch ohne Technik-Kenntnisse</li>
         </ul>
-        <div style="text-align:center;font-size:.8rem;color:#8a9ab0;padding:.75rem 1rem;border-radius:8px;background:#f1f5f9">
+        <div class="hosting-status" style="text-align:center;font-size:.8rem;color:#8a9ab0;padding:.75rem 1rem;border-radius:8px;background:#f1f5f9">
           Derzeit in Entwicklung, noch nicht verfügbar.
         </div>
       </div>
 
       <!-- Community -->
-      <div style="background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:2rem">
+      <div class="hosting-card" style="background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:2rem">
         <div style="font-size:2rem;margin-bottom:.75rem">🐳</div>
         <div style="font-size:1.1rem;font-weight:700;color:#0D1B2A;margin-bottom:.25rem">Pflegra Community Edition</div>
         <div style="font-size:.8rem;color:#8a9ab0;font-weight:600;margin-bottom:1rem">Kostenlos · Ihre Daten bleiben bei Ihnen · Keine monatlichen Kosten</div>
-        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#5a6a80;line-height:2">
+        <ul class="hosting-list" style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#5a6a80;line-height:2">
           <li>✓ Vollständig kostenlos</li>
           <li>✓ Ihre Daten bleiben bei Ihnen</li>
           <li>✓ Docker, Linux, Windows EXE</li>
@@ -575,7 +628,7 @@
 </section>
 
 <!-- Screenshots -->
-<section class="section" id="screenshots" style="background:#fff; padding-top:3rem; padding-bottom:3rem">
+<section class="section mobile-hide" id="screenshots" style="background:#fff; padding-top:3rem; padding-bottom:3rem">
   <div class="section-inner">
     <div class="section-label">Screenshots</div>
     <h2>Pflegra in Aktion</h2>
@@ -598,7 +651,12 @@
 </section>
 
 <!-- Features -->
-<section class="section" id="features">
+<section class="section mobile-accordion-section" id="features">
+  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-features"
+          onclick="toggleMobileAccordion(this)">
+    <span>Funktionen</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
+  </button>
+  <div id="mobile-features" class="mobile-accordion-content">
   <div class="section-header" style="text-align:center">
     <div class="section-tag">Was ist drin</div>
     <h2 class="section-title">Alles für den Pflegealltag</h2>
@@ -662,6 +720,7 @@
   <p style="text-align:center;font-size:.85rem;color:#8a9ab0;margin-top:1.5rem;max-width:600px;margin-left:auto;margin-right:auto">
     Und vieles mehr: Pflegetagebuch, Zeitachse, Leistungsfinder, PDF-Export, Pflegeberatung § 37.3, automatische Backups und weitere Helfer für den Pflegealltag.
   </p>
+  </div>
 </section>
 <!-- Demo Banner -->
 <section class="demo-banner">
@@ -678,8 +737,12 @@
 </section>
 
 <!-- Datenschutz -->
-<section class="privacy-section" id="datenschutz">
-  <div class="privacy-inner">
+<section class="privacy-section mobile-accordion-section" id="datenschutz">
+  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-privacy"
+          onclick="toggleMobileAccordion(this)">
+    <span>Datenschutz</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
+  </button>
+  <div id="mobile-privacy" class="privacy-inner mobile-accordion-content">
     <div class="privacy-grid">
       <div>
         <div class="section-label">Datenschutz</div>
@@ -721,8 +784,12 @@
 </section>
 
 <!-- Installation -->
-<section class="install-section" id="installation">
-  <div class="section-inner">
+<section class="install-section mobile-accordion-section" id="installation">
+  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-installation"
+          onclick="toggleMobileAccordion(this)">
+    <span>Installation</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
+  </button>
+  <div id="mobile-installation" class="section-inner mobile-accordion-content">
     <div class="section-label">Installation</div>
     <h2>In 3 Schritten starten</h2>
     <p class="section-sub">Pflegra läuft auf Linux Server, Docker Desktop (Windows/Mac/Linux) oder direkt per Python.</p>
@@ -782,7 +849,7 @@ docker run -d -p 8000:8000 \
 
 <!-- Footer -->
 <!-- Nutzerstimmen -->
-<section style="background:#fff;padding:2.5rem 2rem;border-bottom:1px solid #e2e8f0">
+<section class="mobile-hide" style="background:#fff;padding:2.5rem 2rem;border-bottom:1px solid #e2e8f0">
   <div style="max-width:780px;margin:0 auto">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Das sagen Angehörige</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-top:1.25rem">
@@ -806,7 +873,7 @@ docker run -d -p 8000:8000 \
 </section>
 
 <!-- Wer steckt hinter Pflegra -->
-<section style="background:#f8fafc;padding:3rem 2rem;border-top:1px solid #e2e8f0">
+<section class="mobile-hide" style="background:#f8fafc;padding:3rem 2rem;border-top:1px solid #e2e8f0">
   <div style="max-width:680px;margin:0 auto;text-align:center">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.75rem">Wer steckt hinter Pflegra?</div>
     <img src="images/stefan-laura.png" alt="Stefan und Laura Neu"
@@ -852,6 +919,23 @@ docker run -d -p 8000:8000 \
 </div>
 
 <script>
+function toggleMobileAccordion(button) {
+  const content = document.getElementById(button.getAttribute('aria-controls'));
+  const willOpen = button.getAttribute('aria-expanded') !== 'true';
+
+  if (willOpen && window.matchMedia('(max-width: 768px)').matches) {
+    document.querySelectorAll('.mobile-accordion-toggle[aria-expanded="true"]').forEach(other => {
+      if (other !== button) {
+        other.setAttribute('aria-expanded', 'false');
+        document.getElementById(other.getAttribute('aria-controls')).classList.remove('open');
+      }
+    });
+  }
+
+  button.setAttribute('aria-expanded', String(willOpen));
+  content.classList.toggle('open', willOpen);
+}
+
 function showTab(id, event) {
   document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.install-content').forEach(c => c.classList.remove('active'));
