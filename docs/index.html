@@ -957,8 +957,25 @@ function toggleMobileAccordion(button) {
 function closeMobileAccordion(button) {
   const content = button.closest('.mobile-accordion-content');
   const toggle = document.querySelector('[aria-controls="' + content.id + '"]');
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  let scrollTarget = null;
+
+  if (isMobile) {
+    let nextSection = content.closest('section').nextElementSibling;
+    while (nextSection && getComputedStyle(nextSection).display === 'none') {
+      nextSection = nextSection.nextElementSibling;
+    }
+    scrollTarget = nextSection?.querySelector('.mobile-accordion-toggle') || nextSection;
+  }
+
   content.classList.remove('open');
   toggle.setAttribute('aria-expanded', 'false');
+
+  if (scrollTarget) {
+    requestAnimationFrame(() => {
+      scrollTarget.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
+  }
 }
 
 function showTab(id, event) {
