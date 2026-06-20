@@ -959,8 +959,6 @@ function closeMobileAccordion(button) {
   const toggle = document.querySelector('[aria-controls="' + content.id + '"]');
   content.classList.remove('open');
   toggle.setAttribute('aria-expanded', 'false');
-  toggle.focus({ preventScroll: true });
-  toggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function showTab(id, event) {
