@@ -117,7 +117,10 @@
     "dokumente_link": "Dokumente",
     "fristen_link": "Fristen",
     "kontakte_link": "Kontakte",
-    "zeitachse_link": "Zeitachse"
+    "zeitachse_link": "Zeitachse",
+    "kalender_link": "Kalender",
+    "termine_link": "Termine",
+    "naechster_termin": "Nächster Termin"
   },
   "eintraege": {
     "titel": "Pflege-Einträge",

@@ -16,6 +16,7 @@ from models import (
 
 from web.routers.deps import redirect,\
      TEMPLATES, base_ctx, get_db, get_konfig, get_owner_id, audit_log
+from web.validation import Validierungsfehler, validiere_eintrag
 from db.audit import AuditEvent
 
 router = APIRouter(prefix="/eintraege", tags=["Einträge"])
@@ -30,10 +31,11 @@ def _personen_und_jahre(db, request=None):
 
 def _formular_ctx(request, titel, aktion, eintrag, personen, fehler=None, **extra):
     db = get_db(request)
+    owner_id = get_owner_id(request)
     # Ersatzpflegekräfte für gewählte Person laden
     person = (eintrag.person if eintrag else "") or extra.get("person", "")
-    ersatzliste  = db.ersatz_alle(person) if person else []
-    letzten_ersatz = db.ersatz_letzten(person) if person else None
+    ersatzliste = db.ersatz_alle(person, owner_id) if person else []
+    letzten_ersatz = db.ersatz_letzten(person, owner_id) if person else None
     return {
         **base_ctx(request),
         "titel":          titel,
@@ -108,13 +110,15 @@ async def eintraege_liste(
 # ── Neu ───────────────────────────────────────────────────────────────────────
 
 @router.get("/neu", response_class=HTMLResponse)
-async def eintrag_neu_form(request: Request):
+async def eintrag_neu_form(request: Request, person: str = ""):
     db = get_db(request)
     personen = db.personen(get_owner_id(request))
+    if person not in personen:
+        person = personen[0] if personen else ""
     heute = date.today()
     return TEMPLATES.TemplateResponse(request, "eintraege/formular.html",
         _formular_ctx(request, "Neuer Eintrag", "/eintraege/neu", None, personen,
-                      heute=heute.isoformat()))
+                      heute=heute.isoformat(), person=person))
 
 
 @router.post("/neu", response_class=HTMLResponse)

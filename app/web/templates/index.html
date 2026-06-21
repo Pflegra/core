@@ -31,6 +31,22 @@
 </div>
 {% endif %}
 
+{% if naechster_termin_dashboard %}
+<div style="margin-bottom:.75rem;padding:.45rem .9rem;border-radius:8px;
+            background:#ecfeff;border:1px solid #a5f3fc;font-size:.82rem;color:#155e75;
+            display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+    📅 <strong>{{ _('dashboard.naechster_termin') }}:</strong>
+    <a href="{{ request.app.state.ingress_entry }}{{ naechster_termin_dashboard.link }}"
+       style="color:#155e75;text-decoration:none">
+        {{ naechster_termin_dashboard.titel }}
+        {% if naechster_termin_dashboard.person %} · {{ naechster_termin_dashboard.person }}{% endif %}
+        · {{ naechster_termin_dashboard.datum_str }} · {{ naechster_termin_dashboard.zeit_text }}
+    </a>
+    <a href="{{ request.app.state.ingress_entry }}/kalender/"
+       style="margin-left:auto;color:#155e75;text-decoration:underline">{{ _('dashboard.kalender_link') }} →</a>
+</div>
+{% endif %}
+
 {# ── Personenkarten ── #}
 {% if karten %}
 <div class="personen-karten{% if karten|length == 1 %} personen-karten--single{% endif %}">
@@ -121,6 +137,18 @@
         <div class="pk-aktionen">
             <a href="{{ request.app.state.ingress_entry }}/eintraege/?person={{ k.name | urlencode }}&jahr={{ aktuelles_jahr }}"
                class="btn btn-ghost btn-sm">📋 {{ _('dashboard.eintraege_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/kalender/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">🗓️ {{ _('dashboard.kalender_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/termine/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.termine_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/fristen/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.fristen_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/dokumente/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📁 {{ _('dashboard.dokumente_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/kontakte/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📞 {{ _('dashboard.kontakte_link') }}</a>
+            <a href="{{ request.app.state.ingress_entry }}/zeitachse/?person={{ k.name | urlencode }}"
+               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.zeitachse_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/budget/?person={{ k.name | urlencode }}&jahr={{ aktuelles_jahr }}"
                class="btn btn-ghost btn-sm">💰 {{ _('dashboard.budget_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/budget/planung/?jahr={{ aktuelles_jahr }}"
@@ -129,14 +157,6 @@
                class="btn btn-ghost btn-sm">⬇ {{ _('dashboard.export_link') }}</a>
             <a href="{{ request.app.state.ingress_entry }}/antraege/?person={{ k.name | urlencode }}"
                class="btn btn-ghost btn-sm">📝 {{ _('dashboard.antrag_link') }}</a>
-            <a href="{{ request.app.state.ingress_entry }}/dokumente/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📁 {{ _('dashboard.dokumente_link') }}</a>
-            <a href="{{ request.app.state.ingress_entry }}/fristen/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.fristen_link') }}</a>
-            <a href="{{ request.app.state.ingress_entry }}/kontakte/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📞 {{ _('dashboard.kontakte_link') }}</a>
-            <a href="{{ request.app.state.ingress_entry }}/zeitachse/?person={{ k.name | urlencode }}"
-               class="btn btn-ghost btn-sm">📅 {{ _('dashboard.zeitachse_link') }}</a>
         </div>
 
         {# ── Nächste Aufgabe für diese Person ── #}
@@ -153,6 +173,16 @@
             {% if person_aufgaben|length > 1 %}
             <span style="color:var(--text-muted)"> · +{{ person_aufgaben|length - 1 }} {{ _('dashboard.weitere') }}</span>
             {% endif %}
+        </a>
+        {% endif %}
+
+        {% if k.naechster_termin %}
+        {% set t = k.naechster_termin %}
+        <a href="{{ request.app.state.ingress_entry }}{{ t.link }}"
+           style="display:block;margin-top:.6rem;padding:.5rem .75rem;border-radius:6px;font-size:.8rem;
+                  text-decoration:none;color:inherit;border-left:3px solid #0891b2;background:#ecfeff">
+            <span style="font-weight:600;color:#155e75">📅 {{ _('dashboard.naechster_termin') }}:</span>
+            {{ t.titel }} · <span style="color:var(--text-muted)">{{ t.datum_str }} · {{ t.zeit_text }}</span>
         </a>
         {% endif %}
 

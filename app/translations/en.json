@@ -119,7 +119,10 @@
     "dokumente_link": "Documents",
     "fristen_link": "Deadlines",
     "kontakte_link": "Contacts",
-    "zeitachse_link": "Timeline"
+    "zeitachse_link": "Timeline",
+    "kalender_link": "Calendar",
+    "termine_link": "Appointments",
+    "naechster_termin": "Next appointment"
   },
   "eintraege": {
     "titel": "Care Entries",

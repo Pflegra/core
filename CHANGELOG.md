@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.5.6 (20.06.2026)
+
+### Dashboard-Sichtbarkeit Kalender & Termine
+
+- Kalender-Button auf Versicherten-Karte
+- Termine-Button auf Versicherten-Karte
+- Nächster Termin direkt auf Dashboard sichtbar
+- Bessere Auffindbarkeit der Kalenderfunktionen
+
+---
+
 ## v1.5.5 (20.06.2026)
 
 ### Neu

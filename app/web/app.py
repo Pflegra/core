@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Pflegra",
-    version="1.5.5",
+    version="1.5.6",
     root_path=os.environ.get("INGRESS_ENTRY", ""),
 )
 
@@ -334,7 +334,7 @@ from fastapi.responses import JSONResponse
 import time as _time
 
 _start_time = _time.time()
-APP_VERSION = "1.5.5"
+APP_VERSION = "1.5.6"
 
 
 
@@ -431,6 +431,7 @@ async def index(request: Request):
             "ampel": bericht.ampel if bericht else "gruen",
             "eintraege_anzahl": len(person_eintraege),
             "letzter_eintrag": letzter_eintrag,
+            "naechster_termin": None,
         })
 
     statistik = db.statistik(owner_id)
@@ -441,6 +442,20 @@ async def index(request: Request):
         verlauf = db.pg_verlauf_alle(owner_id)
         if verlauf:
             letzter_pg = verlauf[0]  # neuester Eintrag
+    except Exception:
+        pass
+
+    # Eigene Termine fuer Dashboard und Personenkarten
+    naechster_termin_dashboard = None
+    try:
+        from web.routers.termine import _lade_termine
+        from services.termine_service import dashboard_termine
+        eigene_termine = _lade_termine(request, owner_id)
+        termine_pro_person, naechster_termin_dashboard = dashboard_termine(
+            eigene_termine, personen, ab=date.today()
+        )
+        for k in karten:
+            k["naechster_termin"] = termine_pro_person.get(k["name"])
     except Exception:
         pass
 
@@ -601,6 +616,7 @@ async def index(request: Request):
         "fristen": fristen,
         "naechste_aktion": naechste_aktion,
         "offene_aufgaben": offene_aufgaben,
+        "naechster_termin_dashboard": naechster_termin_dashboard,
         "letzte_gutachten": letzte_gutachten,
         "letzte_dokumente": letzte_dokumente,
         "dokumente_gesamt": dokumente_gesamt,

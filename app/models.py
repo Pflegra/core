@@ -131,7 +131,7 @@ class PflegraDB:
     def ersatz_speichern(self, e):                           return self._ersatz.speichern(e)
     def ersatz_loeschen(self, ersatz_id, person):            return self._ersatz.loeschen(ersatz_id, person)
     def ersatz_laden(self, ersatz_id):                       return self._ersatz.laden(ersatz_id)
-    def ersatz_letzten(self, person):                        return self._ersatz.letzten_fuer_person(person)
+    def ersatz_letzten(self, person, owner_id):              return self._ersatz.letzten_fuer_person(person, owner_id)
 
     # -- Entlastungsbetrag -----------------------------------------
     def entlastung_alle(self, person, owner_id, jahr=None):         return self._entlastung.alle(person, owner_id, jahr)

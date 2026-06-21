@@ -4,7 +4,7 @@
 {% block content %}
 <div class="page-header">
     <h1>📋 {{ _("eintraege.titel") }}</h1>
-    <a href="{{ request.app.state.ingress_entry }}/eintraege/neu" class="btn btn-primary">{{ _('eintraege.neuer_eintrag') }}</a>
+    <a href="{{ request.app.state.ingress_entry }}/eintraege/neu{% if filter_person %}?person={{ filter_person | urlencode }}{% endif %}" class="btn btn-primary">{{ _('eintraege.neuer_eintrag') }}</a>
 </div>
 
 {% if request.query_params.get('ok') %}

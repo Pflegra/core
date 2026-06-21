@@ -88,13 +88,16 @@ class ErsatzRepo:
             ).fetchone()
         return Ersatzpflegekraft.from_row(row) if row else None
 
-    def letzten_fuer_person(self, person: str) -> Optional[Ersatzpflegekraft]:
+    def letzten_fuer_person(self, person: str, owner_id: int) -> Optional[Ersatzpflegekraft]:
         with self._c() as conn:
             row = conn.execute("""
                 SELECT e.* FROM ersatzpflegekraefte e
-                INNER JOIN pflege_eintraege p ON p.ersatz_name = e.name AND p.person = e.person
-                WHERE e.person = ?
+                INNER JOIN pflege_eintraege p
+                    ON p.ersatz_name = e.name
+                    AND p.person = e.person
+                    AND p.owner_id = e.owner_id
+                WHERE e.person = ? AND e.owner_id = ?
                 ORDER BY p.datum DESC, p.von DESC
                 LIMIT 1
-            """, (person,)).fetchone()
+            """, (person, owner_id)).fetchone()
         return Ersatzpflegekraft.from_row(row) if row else None

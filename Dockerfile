@@ -1,5 +1,5 @@
-ARG BUILD_FROM
-FROM $BUILD_FROM
+ARG BUILD_FROM=python:3.12-alpine
+FROM ${BUILD_FROM}
 RUN apk add --no-cache python3 py3-pip py3-wheel gcc musl-dev libffi-dev curl tar \
     tesseract-ocr tesseract-ocr-data-deu
 RUN pip3 install --no-cache-dir --break-system-packages \

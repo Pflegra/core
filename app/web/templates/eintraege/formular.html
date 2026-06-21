@@ -21,7 +21,8 @@
         </div>
         <div class="form-group">
             <label for="person">Person *</label>
-            <select id="person" name="person" required tabindex="2">
+            <select id="person" name="person" required tabindex="2"
+                    {% if not eintrag %}onchange="window.location.href='{{ request.app.state.ingress_entry }}/eintraege/neu?person=' + encodeURIComponent(this.value)"{% endif %}>
                 {% for p in personen %}
                 <option value="{{ p }}"
                     {% if eintrag and eintrag.person == p %}selected
@@ -93,14 +94,14 @@
                     {% endfor %}
                 </select>
                 <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">
-                    Verwalten unter <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ eintrag.person if eintrag else '' }}">Stammdaten</a>
+                    Verwalten unter <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ (eintrag.person if eintrag else person) | urlencode }}">Stammdaten</a>
                 </div>
                 {% else %}
                 <input type="text" id="ersatz_name" name="ersatz_name" tabindex="8"
                        value="{{ eintrag.ersatz_name if eintrag else '' }}">
                 <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">
                     Noch keine Ersatzpflegekräfte hinterlegt —
-                    <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ eintrag.person if eintrag else '' }}">jetzt anlegen</a>
+                    <a href="{{ request.app.state.ingress_entry }}/versicherte/?person={{ (eintrag.person if eintrag else person) | urlencode }}">jetzt anlegen</a>
                 </div>
                 {% endif %}
             </div>

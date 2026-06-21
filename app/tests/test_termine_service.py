@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from db.schema import DbSchema
-from services.termine_service import vorkommen_im_monat
+from services.termine_service import dashboard_termine, naechster_termin, vorkommen_im_monat
 from services.kalender_service import baue_kalender
 
 
@@ -21,6 +21,10 @@ class TerminStub:
     wiederholung: str
     titel: str = "Testtermin"
     uhrzeit_von: str = ""
+    uhrzeit_bis: str = ""
+    ganztag: int = 1
+    person: str = ""
+    id: int = 1
 
     @property
     def datum_date(self):
@@ -69,6 +73,41 @@ class TerminserienTests(unittest.TestCase):
         self.assertEqual(tage[3][0].quelle, "termin")
         self.assertEqual(tage[3][0].link, "/termine/7/bearbeiten")
         self.assertEqual(tage[3][0].zeit_text, "15:00–16:00 Uhr")
+
+    def test_naechster_termin_fuer_dashboard(self):
+        termine = [
+            TerminStub("2026-06-01", "einmalig", titel="Vergangen", person="Max"),
+            TerminStub("2026-06-22", "einmalig", titel="Therapie", person="Max", id=2),
+            TerminStub("2026-06-21", "einmalig", titel="Fremd", person="Erika", id=3),
+        ]
+        naechster = naechster_termin(termine, ab=date(2026, 6, 20), person="Max", allgemeine=False)
+        self.assertEqual(naechster.titel, "Therapie")
+        self.assertEqual(naechster.datum_str, "22.06.2026")
+
+    def test_ganztaegiger_dashboard_text(self):
+        termin = TerminStub("2026-06-28", "einmalig", titel="Geburtstag", ganztag=1)
+        naechster = naechster_termin([termin], ab=date(2026, 6, 20))
+        self.assertEqual(naechster.zeit_text, "ganztägig")
+
+    def test_dashboard_text_mit_zeitfenster(self):
+        termin = TerminStub("2026-06-22", "einmalig", titel="Therapie",
+                            uhrzeit_von="15:00", uhrzeit_bis="16:00", ganztag=0)
+        naechster = naechster_termin([termin], ab=date(2026, 6, 20))
+        self.assertEqual(naechster.zeit_text, "15:00–16:00")
+
+    def test_dashboard_ohne_termine(self):
+        pro_person, gesamt = dashboard_termine([], ["Max"], ab=date(2026, 6, 20))
+        self.assertIsNone(pro_person["Max"])
+        self.assertIsNone(gesamt)
+
+    def test_dashboard_mit_personen_und_allgemeinem_termin(self):
+        termine = [
+            TerminStub("2026-06-21", "einmalig", titel="Allgemein", person="", id=2),
+            TerminStub("2026-06-22", "einmalig", titel="Therapie", person="Max", id=3),
+        ]
+        pro_person, gesamt = dashboard_termine(termine, ["Max"], ab=date(2026, 6, 20))
+        self.assertEqual(pro_person["Max"].titel, "Therapie")
+        self.assertEqual(gesamt.titel, "Allgemein")
 
 
 class SchemaV23Tests(unittest.TestCase):
