@@ -82,12 +82,16 @@ def _lade_fristen(request: Request, owner_id: int, person: str = "", nur_offen: 
     with db._schema.connect() as conn:
         if person and nur_offen:
             rows = conn.execute(
-                "SELECT * FROM eigene_fristen WHERE owner_id=? AND person=? AND erledigt=0 ORDER BY datum",
+                """SELECT * FROM eigene_fristen
+                   WHERE owner_id=? AND (person=? OR person='') AND erledigt=0
+                   ORDER BY datum""",
                 (owner_id, person)
             ).fetchall()
         elif person:
             rows = conn.execute(
-                "SELECT * FROM eigene_fristen WHERE owner_id=? AND person=? ORDER BY erledigt, datum",
+                """SELECT * FROM eigene_fristen
+                   WHERE owner_id=? AND (person=? OR person='')
+                   ORDER BY erledigt, datum""",
                 (owner_id, person)
             ).fetchall()
         elif nur_offen:

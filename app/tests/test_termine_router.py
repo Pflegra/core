@@ -11,6 +11,7 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from web.routers.deps import TEMPLATES
 from web.routers.termine import _lade_termine, _validiere
+from web.routers.fristen import _lade_fristen
 
 
 def _dashboard_rendern(termin=None):
@@ -84,6 +85,57 @@ def test_lade_termine_beachtet_owner_id():
         assert [termin.titel for termin in termine] == ["Owner 1"]
         del request, termine, schema
         gc.collect()
+
+
+def test_personenfilter_zeigt_allgemeine_termine_und_fristen():
+    with tempfile.TemporaryDirectory() as tmp:
+        schema = DbSchema(Path(tmp) / "pflegra.db")
+        schema.migrate()
+        with schema.connect() as conn:
+            conn.execute("""INSERT INTO eigene_termine
+                (owner_id, person, titel, datum) VALUES (1, '', 'Allgemeiner Termin', '2026-06-22')""")
+            conn.execute("""INSERT INTO eigene_termine
+                (owner_id, person, titel, datum) VALUES (1, 'Max', 'Max Termin', '2026-06-23')""")
+            conn.execute("""INSERT INTO eigene_fristen
+                (owner_id, person, titel, datum) VALUES (1, '', 'Allgemeine Frist', '2026-06-24')""")
+            conn.execute("""INSERT INTO eigene_fristen
+                (owner_id, person, titel, datum) VALUES (1, 'Max', 'Max Frist', '2026-06-25')""")
+        request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(
+            db=SimpleNamespace(_schema=schema)
+        )))
+        termine = _lade_termine(request, owner_id=1, person="Max")
+        fristen = _lade_fristen(request, owner_id=1, person="Max")
+        assert [t.titel for t in termine] == ["Allgemeiner Termin", "Max Termin"]
+        assert [f.titel for f in fristen] == ["Allgemeine Frist", "Max Frist"]
+        del request, termine, fristen, schema
+        gc.collect()
+
+
+def test_kalender_weitere_ereignisse_sind_aufklappbar():
+    app = Starlette()
+    app.state.ingress_entry = ""
+    request = Request({
+        "type": "http", "method": "GET", "scheme": "http", "path": "/kalender/",
+        "root_path": "", "query_string": b"", "headers": [],
+        "server": ("testserver", 80), "client": ("testclient", 50000), "app": app,
+    })
+    ereignisse = [
+        SimpleNamespace(
+            titel=f"Termin {nr}", person="Max", link=f"/termine/{nr}/bearbeiten",
+            erledigt=False, quelle="termin", quelle_icon="K", zeit_text="Ganztägig",
+        )
+        for nr in range(1, 4)
+    ]
+    html = TEMPLATES.env.get_template("kalender/index.html").render(
+        request=request, _=lambda key, **kwargs: key, current_user=None,
+        is_admin=False, impersonation_aktiv=False, csrf_token="test",
+        monat=6, jahr=2026, monatsname="Juni", wochen=[[1, 0, 0, 0, 0, 0, 0]],
+        tage={1: ereignisse}, heute=date(2026, 6, 22), prev_monat=5, prev_jahr=2026,
+        next_monat=7, next_jahr=2026, personen=["Max"], filter_person="Max",
+    )
+    assert "<details" in html
+    assert "+1 weitere" in html
+    assert "Termin 3" in html
 
 
 def test_dashboard_laedt_ohne_termine():

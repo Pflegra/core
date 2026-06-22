@@ -4,7 +4,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from datetime import date
+from datetime import date, datetime
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Pflegra",
-    version="1.5.6",
+    version="1.6.2",
     root_path=os.environ.get("INGRESS_ENTRY", ""),
 )
 
@@ -334,7 +334,7 @@ from fastapi.responses import JSONResponse
 import time as _time
 
 _start_time = _time.time()
-APP_VERSION = "1.5.6"
+APP_VERSION = "1.6.2"
 
 
 
@@ -363,7 +363,7 @@ async def health(request: Request):
     """Health-Check Endpoint — für Docker Healthcheck und Monitoring."""
     try:
         db = request.app.state.db
-        db.statistik()  # DB-Verbindung testen
+        db.statistik_global_admin()  # DB-Verbindung testen
         db_ok = True
         db_integrity = db._schema.integrity_check()
     except Exception:
@@ -407,11 +407,11 @@ async def index(request: Request):
     # Personenkarten mit Budget + Versichertendaten
     karten = []
     for person in personen:
-        vers = db.versicherter_laden(person)
+        vers = db.versicherter_laden(person, owner_id)
         bericht = None
         try:
             bericht = budget_service.bericht_fuer_person(
-                person, aktuelles_jahr, eintraege=alle_eintraege
+                person, aktuelles_jahr, owner_id, eintraege=alle_eintraege
             )
         except Exception:
             pass
@@ -452,7 +452,7 @@ async def index(request: Request):
         from services.termine_service import dashboard_termine
         eigene_termine = _lade_termine(request, owner_id)
         termine_pro_person, naechster_termin_dashboard = dashboard_termine(
-            eigene_termine, personen, ab=date.today()
+            eigene_termine, personen, ab=datetime.now()
         )
         for k in karten:
             k["naechster_termin"] = termine_pro_person.get(k["name"])

@@ -64,14 +64,15 @@ async def kalender_uebersicht(request: Request, monat: int = 0, jahr: int = 0, p
         budget_service = request.app.state.budget_service
         konfig = request.app.state.konfig
         regelwerk = konfig.regelwerk if hasattr(konfig, "regelwerk") else None
-        aktuelles_jahr = konfig.standard_jahr or heute.year
+        sichtbarer_stichtag = date(jahr, monat, 1)
+        aktuelles_jahr = jahr
         alle_eintraege = db.alle(owner_id)
         for p in personen_namen:
             try:
-                bericht = budget_service.bericht_fuer_person(p, aktuelles_jahr, eintraege=alle_eintraege)
+                bericht = budget_service.bericht_fuer_person(p, aktuelles_jahr, owner_id, eintraege=alle_eintraege)
             except Exception:
                 bericht = None
-            vers = db.versicherter_laden(p) if hasattr(db, "versicherter_laden") else None
+            vers = db.versicherter_laden(p, owner_id) if hasattr(db, "versicherter_laden") else None
             personen_daten.append({
                 "name": p,
                 "bericht": bericht,
@@ -79,7 +80,9 @@ async def kalender_uebersicht(request: Request, monat: int = 0, jahr: int = 0, p
                 "entlastung_verbrauch_gesamt": 0.0,
             })
         if regelwerk is not None:
-            fristen_aus_service = berechne_fristen(personen_daten, aktuelles_jahr, regelwerk)
+            fristen_aus_service = berechne_fristen(
+                personen_daten, aktuelles_jahr, regelwerk, stichtag=sichtbarer_stichtag
+            )
     except Exception:
         fristen_aus_service = []
 

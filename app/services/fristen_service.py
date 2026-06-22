@@ -41,6 +41,7 @@ def berechne_fristen(
     personen_daten: list,   # [{name, vers, bericht, entlastung_verbrauch}]
     aktuelles_jahr: int,
     regelwerk,
+    stichtag: date | None = None,
 ) -> List[Frist]:
     """
     Berechnet alle relevanten Fristen für das Dashboard.
@@ -48,7 +49,7 @@ def berechne_fristen(
     personen_daten: Liste von Dicts mit Person + Budgetstatus
     """
     fristen = []
-    heute = date.today()
+    heute = stichtag or date.today()
     monat = heute.month
     jahr = heute.year
 

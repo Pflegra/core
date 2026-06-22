@@ -47,9 +47,10 @@ async def versicherter_neu(request: Request):
 @router.get("/", response_class=HTMLResponse)
 async def versicherte_liste(request: Request, person: str = "", ok: str = "", fehler: str = ""):
     db = get_db(request)
-    personen = db.personen(get_owner_id(request))
-    versicherter = db.versicherter_laden(person) if person else None
-    ersatzliste  = db.ersatz_alle(person, get_owner_id(request)) if person else []
+    owner_id = get_owner_id(request)
+    personen = db.personen(owner_id)
+    versicherter = db.versicherter_laden(person, owner_id) if person else None
+    ersatzliste  = db.ersatz_alle(person, owner_id) if person else []
     return TEMPLATES.TemplateResponse(request, "versicherte/formular.html", {
         **base_ctx(request),
         "personen":        personen,
@@ -157,7 +158,7 @@ async def ersatz_loeschen(
     person:    str = Form(...),
 ):
     db = get_db(request)
-    db.ersatz_loeschen(ersatz_id, person)
+    db.ersatz_loeschen(ersatz_id, person, get_owner_id(request))
     return redirect(request, 
         f"/versicherte/?person={quote(person, safe='')}&ok=Ersatzpflegekraft+gelöscht",
         status_code=303,

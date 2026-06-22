@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, List
 
-from db.schema import DbSchema
+from db.schema import DbSchema, require_owner_id
 
 
 @dataclass
@@ -40,28 +40,24 @@ class ErsatzRepo:
     def _c(self):
         return self._s.connect()
 
-    def alle(self, person: str, owner_id: int = 0) -> List[Ersatzpflegekraft]:
+    def alle(self, person: str, owner_id: int) -> List[Ersatzpflegekraft]:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            if owner_id:
-                rows = conn.execute(
-                    "SELECT * FROM ersatzpflegekraefte WHERE person=? AND owner_id=? ORDER BY name",
-                    (person, owner_id)
-                ).fetchall()
-            else:
-                rows = conn.execute(
-                    "SELECT * FROM ersatzpflegekraefte WHERE person=? ORDER BY name",
-                    (person,)
-                ).fetchall()
+            rows = conn.execute(
+                "SELECT * FROM ersatzpflegekraefte WHERE person=? AND owner_id=? ORDER BY name",
+                (person, owner_id)
+            ).fetchall()
         return [Ersatzpflegekraft.from_row(r) for r in rows]
 
     def speichern(self, e: Ersatzpflegekraft) -> None:
+        e.owner_id = require_owner_id(e.owner_id)
         with self._c() as conn:
             if e.id:
                 conn.execute("""
                     UPDATE ersatzpflegekraefte
                     SET name=?, geburtsdatum=?, adresse=?, art=?, notiz=?
-                    WHERE id=? AND person=?
-                """, (e.name, e.geburtsdatum, e.adresse, e.art, e.notiz, e.id, e.person))
+                    WHERE id=? AND person=? AND owner_id=?
+                """, (e.name, e.geburtsdatum, e.adresse, e.art, e.notiz, e.id, e.person, e.owner_id))
             else:
                 conn.execute("""
                     INSERT INTO ersatzpflegekraefte (person, name, geburtsdatum, adresse, art, notiz, owner_id)
@@ -73,22 +69,25 @@ class ErsatzRepo:
                         notiz=excluded.notiz
                 """, (e.person, e.name, e.geburtsdatum, e.adresse, e.art, e.notiz, e.owner_id))
 
-    def loeschen(self, ersatz_id: int, person: str) -> bool:
+    def loeschen(self, ersatz_id: int, person: str, owner_id: int) -> bool:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             cur = conn.execute(
-                "DELETE FROM ersatzpflegekraefte WHERE id=? AND person=?",
-                (ersatz_id, person)
+                "DELETE FROM ersatzpflegekraefte WHERE id=? AND person=? AND owner_id=?",
+                (ersatz_id, person, owner_id)
             )
         return cur.rowcount > 0
 
-    def laden(self, ersatz_id: int) -> Optional[Ersatzpflegekraft]:
+    def laden(self, ersatz_id: int, owner_id: int) -> Optional[Ersatzpflegekraft]:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             row = conn.execute(
-                "SELECT * FROM ersatzpflegekraefte WHERE id=?", (ersatz_id,)
+                "SELECT * FROM ersatzpflegekraefte WHERE id=? AND owner_id=?", (ersatz_id, owner_id)
             ).fetchone()
         return Ersatzpflegekraft.from_row(row) if row else None
 
     def letzten_fuer_person(self, person: str, owner_id: int) -> Optional[Ersatzpflegekraft]:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             row = conn.execute("""
                 SELECT e.* FROM ersatzpflegekraefte e

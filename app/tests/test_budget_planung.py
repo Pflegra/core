@@ -692,7 +692,7 @@ class TestSpeichernRouter:
     def _mock_db(self, roh: dict):
         """Minimal-Mock für db.planung_laden()."""
         class MockDB:
-            def planung_laden(self, person, jahr):
+            def planung_laden(self, person, jahr, owner_id):
                 return roh
         return MockDB()
 

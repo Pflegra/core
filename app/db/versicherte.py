@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from db.schema import DbSchema
+from db.schema import DbSchema, require_owner_id
 
 
 @dataclass
@@ -38,9 +38,10 @@ class VersicherterRepo:
     def _c(self):
         return self._s.connect()
 
-    def laden(self, person_name: str) -> Optional[Versicherter]:
+    def laden(self, person_name: str, owner_id: int) -> Optional[Versicherter]:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            row = conn.execute("SELECT * FROM versicherte WHERE person_name=?", (person_name,)).fetchone()
+            row = conn.execute("SELECT * FROM versicherte WHERE person_name=? AND owner_id=?", (person_name, owner_id)).fetchone()
         if not row:
             return None
         return Versicherter(
@@ -58,6 +59,7 @@ class VersicherterRepo:
         )
 
     def speichern(self, v: Versicherter) -> bool:
+        v.owner_id = require_owner_id(v.owner_id)
         with self._c() as conn:
             conn.execute("""
                 INSERT INTO versicherte (person_name,adresse,versicherungsnr,krankenkasse,krankenkasse_adresse,pflegegrad,geburtsdatum,mail,notiz,owner_id)
@@ -69,10 +71,11 @@ class VersicherterRepo:
                     mail=excluded.mail, notiz=excluded.notiz
             """, (v.name, v.adresse, v.versicherungsnr, v.krankenkasse,
                   v.krankenkasse_adresse, v.pflegegrad, v.geburtsdatum, v.mail, v.notiz,
-                  v.owner_id if v.owner_id else 1))
+                  v.owner_id))
         return True
 
-    def loeschen(self, person_name: str, owner_id: int = 1) -> bool:
+    def loeschen(self, person_name: str, owner_id: int) -> bool:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             c = conn.execute("DELETE FROM versicherte WHERE person_name=? AND owner_id=?", (person_name, owner_id))
         return c.rowcount > 0

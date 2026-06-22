@@ -6,15 +6,15 @@
 #   Linux/Mac: ./start.sh
 #   Manuell: docker compose up -d
 
-name: pflegra_test
+name: pflegra_live
 services:
   pflegra:
     build: .
-    image: pflegra_test:1.5.6
-    container_name: pflegra_test
+    image: pflegra:1.6.2
+    container_name: pflegra
     restart: unless-stopped
     ports:
-      - "${PORT:-8001}:8000"
+      - "${PORT:-8000}:8000"
     volumes:
       - ./data:/share/pflegra
     environment:

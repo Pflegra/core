@@ -91,7 +91,7 @@ async def admin_uebersicht(request: Request):
 
     # DB-Statistik
     db = request.app.state.db
-    statistik = db.statistik()
+    statistik = db.statistik_global_admin()
 
     # Nutzungsstatistik
     from db.audit import AuditRepo

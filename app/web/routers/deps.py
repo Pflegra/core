@@ -64,7 +64,10 @@ def get_owner_id(request: Request) -> int:
     """
     from web.auth import get_effective_user_id
     uid = get_effective_user_id(request)
-    return uid if uid else 0
+    if not uid:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Owner-Kontext fehlt")
+    return int(uid)
 
 
 def get_user_settings(request: Request):

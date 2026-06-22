@@ -88,7 +88,7 @@ class TestBackupErstellen:
         pfad = svc.erstelle_backup(grund="test")
         # Backup als neue DB öffnen
         backup_db = PflegraDB(pfad)
-        eintraege = backup_db.alle()
+        eintraege = backup_db.alle(1)
         assert len(eintraege) == 3
 
     def test_mehrere_backups_moeglich(self, backup_svc):
@@ -141,9 +141,9 @@ class TestRestore:
         backup_pfad = svc.erstelle_backup(grund="test")
 
         # Daten löschen
-        for e in db.alle():
-            db.loeschen(e.id)
-        assert len(db.alle()) == 0
+        for e in db.alle(1):
+            db.loeschen(e.id, 1)
+        assert len(db.alle(1)) == 0
 
         # DB-Verbindung schließen vor Restore
         del db
@@ -154,7 +154,7 @@ class TestRestore:
 
         # Neue DB-Instanz nach Restore
         db2 = PflegraDB(db_pfad)
-        eintraege = db2.alle()
+        eintraege = db2.alle(1)
         assert len(eintraege) == 3
 
     def test_restore_erstellt_vorher_backup(self, backup_svc):

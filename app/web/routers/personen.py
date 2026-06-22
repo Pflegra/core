@@ -37,7 +37,7 @@ async def person_anlegen(request: Request, name: str = Form(...), notiz: str = F
     db = get_db(request)
     try:
         name_s = validiere_person_name(name)
-        ok = db.person_anlegen(name_s, notiz.strip(), get_owner_id(request))
+        ok = db.person_anlegen(name_s, notiz.strip(), owner_id=get_owner_id(request))
         if not ok:
             return _fehler("Person bereits vorhanden.")
     except (Validierungsfehler, ValueError) as exc:
@@ -50,7 +50,7 @@ async def person_umbenennen(request: Request, name: str, neuer_name: str = Form(
     db = get_db(request)
     try:
         neuer_name_s = validiere_person_name(neuer_name)
-        ok = db.person_umbenennen(name, neuer_name_s)
+        ok = db.person_umbenennen(name, neuer_name_s, get_owner_id(request))
         if not ok:
             return _fehler("Umbenennung fehlgeschlagen.")
     except (Validierungsfehler, ValueError) as exc:

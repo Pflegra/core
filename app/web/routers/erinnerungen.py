@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from web.routers.deps import TEMPLATES, base_ctx, get_db, redirect
+from web.routers.deps import TEMPLATES, base_ctx, get_db, get_owner_id, redirect
 
 router = APIRouter(prefix="/erinnerungen", tags=["Erinnerungen"])
 
@@ -148,9 +148,9 @@ async def push_subscribe(request: Request):
                 INSERT INTO push_subscriptions (owner_id, endpoint, p256dh, auth)
                 VALUES (?, ?, ?, ?)
                 ON CONFLICT(endpoint) DO UPDATE SET
-                    owner_id=excluded.owner_id,
                     p256dh=excluded.p256dh,
                     auth=excluded.auth
+                WHERE push_subscriptions.owner_id=excluded.owner_id
             """, (owner_id, endpoint, p256dh, auth))
 
         return JSONResponse({"ok": True})
@@ -162,11 +162,15 @@ async def push_subscribe(request: Request):
 async def push_unsubscribe(request: Request):
     """Entfernt eine Web-Push-Subscription."""
     db = get_db(request)
+    owner_id = get_owner_id(request)
     try:
         body = await request.json()
         endpoint = body.get("endpoint", "")
         with db._schema.connect() as conn:
-            conn.execute("DELETE FROM push_subscriptions WHERE endpoint=?", (endpoint,))
+            conn.execute(
+                "DELETE FROM push_subscriptions WHERE endpoint=? AND owner_id=?",
+                (endpoint, owner_id),
+            )
         return JSONResponse({"ok": True})
     except Exception as e:
         return JSONResponse({"ok": False, "fehler": str(e)}, status_code=500)

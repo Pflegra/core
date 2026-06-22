@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.6.2 (22.06.2026)
+
+### Kalender Quality Release
+
+- Dashboard überspringt heute bereits beendete Uhrzeit-Termine
+- automatische Fristen werden anhand des sichtbaren Kalendermonats und -jahres berechnet
+- weitere Tagesereignisse sind im Kalender vollständig aufklappbar
+- Personenfilter zeigen bei eigenen Terminen und Fristen einheitlich allgemeine Einträge
+- Regressionstests für alle vier P1-Korrekturen ergänzt
+
+## v1.6.0 (21.06.2026)
+
+### Owner-Haertung
+
+- Pflegeeintraege bei Suche, Update, Delete und Bulk Delete strikt an `owner_id` gebunden
+- Datenpflege und Duplikatsuche auf den aktuellen Owner begrenzt
+- Versicherte, Personenverwaltung und Ersatzpflegepersonen gegen fremde IDs und gleiche Namen anderer Owner gehaertet
+- Budgetplanung vollstaendig ownergebunden; Schema v24 mit `UNIQUE(owner_id, person, jahr, monat)`
+- Fachliche `owner_id=0`-Fallbacks entfernt
+- Push-Abmeldung an Endpoint und Owner gebunden
+- Zwei-Owner-Regressionstests fuer Lesen, Suchen, Bearbeiten und Loeschen ergaenzt
+
 ## v1.5.6 (20.06.2026)
 
 ### Dashboard-Sichtbarkeit Kalender & Termine

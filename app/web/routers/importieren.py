@@ -66,9 +66,9 @@ async def import_vorschau(
             tmp_path = Path(tmp.name)
 
         if suffix == ".csv":
-            vorschau = service.analysiere(tmp_path, person_fallback=person_fallback or None)
+            vorschau = service.analysiere(tmp_path, get_owner_id(request), person_fallback=person_fallback or None)
         else:
-            vorschau = service.analysiere_tabelle(tmp_path, person_fallback=person_fallback or None)
+            vorschau = service.analysiere_tabelle(tmp_path, get_owner_id(request), person_fallback=person_fallback or None)
 
         return TEMPLATES.TemplateResponse(request, "import/vorschau.html", {
             **base_ctx(request),
@@ -104,11 +104,11 @@ async def import_durchfuehren(
             raise Validierungsfehler(f"Ungültiges Format: {suffix!r}")
 
         if suffix == ".csv":
-            vorschau = service.analysiere(tmp_path, person_fallback=person_fallback or None)
+            vorschau = service.analysiere(tmp_path, get_owner_id(request), person_fallback=person_fallback or None)
         else:
-            vorschau = service.analysiere_tabelle(tmp_path, person_fallback=person_fallback or None)
+            vorschau = service.analysiere_tabelle(tmp_path, get_owner_id(request), person_fallback=person_fallback or None)
 
-        ergebnis = service.importiere(vorschau, auch_duplikate=auch_duplikate)
+        ergebnis = service.importiere(vorschau, get_owner_id(request), auch_duplikate=auch_duplikate)
         tmp_path.unlink(missing_ok=True)
         return redirect(request, f"/import/?ok={quote(str(ergebnis), safe='')}", status_code=303)
     except Validierungsfehler as exc:

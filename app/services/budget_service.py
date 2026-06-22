@@ -67,6 +67,7 @@ class BudgetService:
         self,
         person: str,
         jahr: int,
+        owner_id: int,
         eintraege: Optional[list[PflegeEintrag]] = None,
         stundensatz: Optional[float] = None,
     ) -> PersonenBudgetBericht:
@@ -75,7 +76,7 @@ class BudgetService:
         stundensatz berschreibt den Config-Wert (z.B. aus GUI-Eingabefeld).
         """
         if eintraege is None:
-            eintraege = self._db.alle()
+            eintraege = self._db.alle(owner_id)
         sz = stundensatz if stundensatz is not None else self.stundensatz
 
         budget     = berechne_budget_status(
@@ -100,6 +101,7 @@ class BudgetService:
     def alle_berichte(
         self,
         jahr: int,
+        owner_id: int,
         eintraege: Optional[list[PflegeEintrag]] = None,
         stundensatz: Optional[float] = None,
     ) -> list[PersonenBudgetBericht]:
@@ -108,26 +110,26 @@ class BudgetService:
         stundensatz berschreibt den Config-Wert (z.B. aus GUI-Eingabefeld).
         """
         if eintraege is None:
-            eintraege = self._db.alle()
+            eintraege = self._db.alle(owner_id)
         personen = sorted({e.person for e in eintraege if e.jahr == jahr})
-        return [self.bericht_fuer_person(p, jahr, eintraege, stundensatz) for p in personen]
+        return [self.bericht_fuer_person(p, jahr, owner_id, eintraege, stundensatz) for p in personen]
 
-    def restbudget_in_stunden(self, person: str, jahr: int) -> float:
+    def restbudget_in_stunden(self, person: str, jahr: int, owner_id: int) -> float:
         """Schnellabfrage: Wie viele Stunden sind noch im Budget?"""
-        eintraege = self._db.nach_person_und_jahr(person, jahr)
+        eintraege = self._db.nach_person_und_jahr(person, jahr, owner_id)
         bs = berechne_budget_status(
             eintraege, person, jahr, self.stundensatz,
             self.budget_basis, self._konfig.budget_aufstockung_max,
         )
         return bs.restbudget_in_stunden
 
-    def warnung_fuer_alle(self, jahr: int, eintraege=None) -> list[dict]:
+    def warnung_fuer_alle(self, jahr: int, owner_id: int, eintraege=None) -> list[dict]:
         """
         Gibt strukturierte Warnungen zurück — sprachunabhängig.
         Jede Warnung: {"typ": str, "person": str, "werte": dict}
         Typen: "ausgeschoepft", "prognose", "prozent", "tage_grenze", "tage_fast"
         """
-        berichte = self.alle_berichte(jahr, eintraege=eintraege)
+        berichte = self.alle_berichte(jahr, owner_id, eintraege=eintraege)
         warnungen = []
         for b in berichte:
             if b.ampel == "rot":

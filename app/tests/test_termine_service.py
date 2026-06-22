@@ -5,14 +5,16 @@ import tempfile
 import unittest
 import gc
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from db.schema import DbSchema
 from services.termine_service import dashboard_termine, naechster_termin, vorkommen_im_monat
 from services.kalender_service import baue_kalender
+from services.fristen_service import berechne_fristen
 
 
 @dataclass
@@ -95,6 +97,23 @@ class TerminserienTests(unittest.TestCase):
         naechster = naechster_termin([termin], ab=date(2026, 6, 20))
         self.assertEqual(naechster.zeit_text, "15:00–16:00")
 
+    def test_heute_beendeter_termin_springt_zum_naechsten_vorkommen(self):
+        termin = TerminStub("2026-06-22", "woechentlich", titel="Therapie",
+                            uhrzeit_von="09:00", uhrzeit_bis="10:00", ganztag=0)
+        naechster = naechster_termin([termin], ab=datetime(2026, 6, 22, 15, 0))
+        self.assertEqual(naechster.datum, date(2026, 6, 29))
+
+    def test_heute_kommender_termin_bleibt_heute(self):
+        termin = TerminStub("2026-06-22", "woechentlich", titel="Therapie",
+                            uhrzeit_von="15:00", uhrzeit_bis="16:00", ganztag=0)
+        naechster = naechster_termin([termin], ab=datetime(2026, 6, 22, 14, 0))
+        self.assertEqual(naechster.datum, date(2026, 6, 22))
+
+    def test_heutiger_ganztagstermin_bleibt_bis_tagesende(self):
+        termin = TerminStub("2026-06-22", "jaehrlich", titel="Geburtstag", ganztag=1)
+        naechster = naechster_termin([termin], ab=datetime(2026, 6, 22, 23, 59))
+        self.assertEqual(naechster.datum, date(2026, 6, 22))
+
     def test_dashboard_ohne_termine(self):
         pro_person, gesamt = dashboard_termine([], ["Max"], ab=date(2026, 6, 20))
         self.assertIsNone(pro_person["Max"])
@@ -109,6 +128,17 @@ class TerminserienTests(unittest.TestCase):
         self.assertEqual(pro_person["Max"].titel, "Therapie")
         self.assertEqual(gesamt.titel, "Allgemein")
 
+    def test_automatische_fristen_nutzen_sichtbares_jahr(self):
+        regelwerk = SimpleNamespace(entlastungsbetrag_monatlich=131.0)
+        fristen = berechne_fristen(
+            [{"name": "Max", "entlastung_verbrauch_gesamt": 0.0}],
+            2027,
+            regelwerk,
+            stichtag=date(2027, 6, 1),
+        )
+        uebertrag = [f for f in fristen if f.titel == "Entlastungsbetrag-Übertrag"]
+        self.assertEqual([f.faellig for f in uebertrag], [date(2027, 6, 30)])
+
 
 class SchemaV23Tests(unittest.TestCase):
     def test_migration_erstellt_termintabelle_und_owner_index(self):
@@ -117,7 +147,7 @@ class SchemaV23Tests(unittest.TestCase):
             schema = DbSchema(db_path)
             schema.migrate()
 
-            self.assertEqual(schema.schema_version(), 23)
+            self.assertEqual(schema.schema_version(), 24)
             conn = sqlite3.connect(db_path)
             try:
                 spalten = {row[1] for row in conn.execute("PRAGMA table_info(eigene_termine)")}
@@ -174,7 +204,7 @@ class SchemaV23Tests(unittest.TestCase):
                 version = conn.execute("SELECT version FROM schema_version").fetchone()["version"]
                 self.assertEqual(bestand["titel"], "Bestand")
                 self.assertIsNotNone(neue_tabelle)
-                self.assertEqual(version, 23)
+                self.assertEqual(version, 24)
             finally:
                 conn.close()
             del schema

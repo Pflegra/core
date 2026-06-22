@@ -9,10 +9,18 @@ from pathlib import Path
 DB_PATH = Path("pflegra.db")
 
 
+def require_owner_id(owner_id: int) -> int:
+    """Reject missing or synthetic owner contexts for domain data access."""
+    owner_id = int(owner_id)
+    if owner_id <= 0:
+        raise ValueError("owner_id muss groesser als 0 sein.")
+    return owner_id
+
+
 class DbSchema:
     """Verbindungs- und Migrations-Logik. Wird von allen Repos genutzt."""
 
-    SCHEMA_VERSION = 23
+    SCHEMA_VERSION = 24
 
     def __init__(self, db_path) -> None:
         self.db_path = db_path
@@ -560,6 +568,34 @@ class DbSchema:
                     ON eigene_termine (owner_id, person)
                 """)
                 conn.execute("UPDATE schema_version SET version = 23")
+
+            if v < 24:
+                conn.execute("""
+                    CREATE TABLE budget_planung_v24 (
+                        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                        person   TEXT    NOT NULL,
+                        jahr     INTEGER NOT NULL,
+                        monat    INTEGER NOT NULL,
+                        stunden  REAL    NOT NULL DEFAULT 0,
+                        notiz    TEXT    NOT NULL DEFAULT '',
+                        owner_id INTEGER NOT NULL DEFAULT 1,
+                        UNIQUE(owner_id, person, jahr, monat)
+                    )
+                """)
+                conn.execute("""
+                    INSERT INTO budget_planung_v24
+                        (id, person, jahr, monat, stunden, notiz, owner_id)
+                    SELECT id, person, jahr, monat, stunden, notiz,
+                           CASE WHEN owner_id > 0 THEN owner_id ELSE 1 END
+                    FROM budget_planung
+                """)
+                conn.execute("DROP TABLE budget_planung")
+                conn.execute("ALTER TABLE budget_planung_v24 RENAME TO budget_planung")
+                conn.execute("""
+                    CREATE INDEX idx_budget_planung_owner_person_jahr
+                    ON budget_planung (owner_id, person, jahr)
+                """)
+                conn.execute("UPDATE schema_version SET version = 24")
 
     def schema_version(self) -> int:
         try:

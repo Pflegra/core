@@ -75,7 +75,7 @@ async def export_pdf_monat(
     service = get_export_service(request)
     try:
         zielordner = _zielordner(request, f"{jahr}/{person}")
-        pfad = service.pdf_monat(person, jahr, monat, zielordner=zielordner)
+        pfad = service.pdf_monat(person, jahr, monat, get_owner_id(request), zielordner=zielordner)
         return FileResponse(str(pfad), media_type="application/pdf", filename=pfad.name)
     except ValueError as exc:
         return _fehler_redirect(str(exc))
@@ -117,7 +117,7 @@ async def export_pdf_monate(
         from models import PflegraDB
         db = get_db(request)
         for monat in monate_s:
-            alle_eintraege.extend(db.nach_monat(person, jahr, monat), get_owner_id(request))
+            alle_eintraege.extend(db.nach_monat(person, jahr, monat, get_owner_id(request)))
         if not alle_eintraege:
             return _fehler_redirect(f"Keine Einträge für {person} in den gewählten Monaten")
 
@@ -148,7 +148,7 @@ async def export_pdf_jahr(
     service = get_export_service(request)
     try:
         zielordner = _zielordner(request, f"{jahr}/{person}")
-        pfad = service.pdf_jahr(person, jahr, zielordner=zielordner)
+        pfad = service.pdf_jahr(person, jahr, get_owner_id(request), zielordner=zielordner)
         return FileResponse(str(pfad), media_type="application/pdf", filename=pfad.name)
     except ValueError as exc:
         return _fehler_redirect(str(exc))
@@ -173,7 +173,7 @@ async def export_csv(
         jahr_teil = f"_{jahr}" if jahr else ""
         dateiname = f"pflegra{name_teil}{jahr_teil}.csv"
         pfad = zielordner / dateiname
-        service.csv_export(pfad, person=person or None, jahr=jahr or None)
+        service.csv_export(pfad, get_owner_id(request), person=person or None, jahr=jahr or None)
         return FileResponse(
             str(pfad),
             media_type="text/csv; charset=utf-8",

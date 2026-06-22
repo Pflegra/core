@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from db.schema import DbSchema
+from db.schema import DbSchema, require_owner_id
 
 
 @dataclass
@@ -84,32 +84,36 @@ class PlanungsRepo:
     def _c(self):
         return self._s.connect()
 
-    def laden(self, person: str, jahr: int) -> dict:
+    def laden(self, person: str, jahr: int, owner_id: int) -> dict:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             rows = conn.execute(
-                "SELECT monat, stunden, notiz FROM budget_planung WHERE person=? AND jahr=?",
-                (person, jahr)
+                "SELECT monat, stunden, notiz FROM budget_planung WHERE person=? AND jahr=? AND owner_id=?",
+                (person, jahr, owner_id)
             ).fetchall()
         return {r["monat"]: {"stunden": r["stunden"], "notiz": r["notiz"]} for r in rows}
 
-    def speichern(self, person: str, jahr: int, monat: int, stunden: float, notiz: str = "") -> None:
+    def speichern(self, person: str, jahr: int, monat: int, stunden: float, owner_id: int, notiz: str = "") -> None:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             conn.execute("""
-                INSERT INTO budget_planung (person, jahr, monat, stunden, notiz)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT(person, jahr, monat) DO UPDATE SET
+                INSERT INTO budget_planung (person, jahr, monat, stunden, notiz, owner_id)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(owner_id, person, jahr, monat) DO UPDATE SET
                     stunden=excluded.stunden, notiz=excluded.notiz
-            """, (person, jahr, monat, stunden, notiz))
+            """, (person, jahr, monat, stunden, notiz, owner_id))
 
-    def bulk_speichern(self, person: str, jahr: int, planung: dict) -> None:
+    def bulk_speichern(self, person: str, jahr: int, planung: dict, owner_id: int) -> None:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
             for monat, stunden in planung.items():
                 conn.execute("""
-                    INSERT INTO budget_planung (person, jahr, monat, stunden, notiz)
-                    VALUES (?, ?, ?, ?, '')
-                    ON CONFLICT(person, jahr, monat) DO UPDATE SET stunden=excluded.stunden
-                """, (person, jahr, monat, float(stunden)))
+                    INSERT INTO budget_planung (person, jahr, monat, stunden, notiz, owner_id)
+                    VALUES (?, ?, ?, ?, '', ?)
+                    ON CONFLICT(owner_id, person, jahr, monat) DO UPDATE SET stunden=excluded.stunden
+                """, (person, jahr, monat, float(stunden), owner_id))
 
-    def loeschen(self, person: str, jahr: int) -> None:
+    def loeschen(self, person: str, jahr: int, owner_id: int) -> None:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            conn.execute("DELETE FROM budget_planung WHERE person=? AND jahr=?", (person, jahr))
+            conn.execute("DELETE FROM budget_planung WHERE person=? AND jahr=? AND owner_id=?", (person, jahr, owner_id))

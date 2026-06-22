@@ -22,10 +22,10 @@ MONATE = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
 PLANER_PERSON = "__planer__"
 
 
-def _vorjahr_guthaben(db, jahr: int) -> float:
+def _vorjahr_guthaben(db, jahr: int, owner_id: int) -> float:
     """Liest das Entlastungsbetrag-Vorjahresguthaben aus dem Budgetplaner."""
     try:
-        roh = db.planung_laden(PLANER_PERSON, jahr)
+        roh = db.planung_laden(PLANER_PERSON, jahr, owner_id)
         eintrag_0 = roh.get(0, {})
         extras = json.loads(eintrag_0.get("notiz", "{}") or "{}")
         return float(extras.get("vorjahr_guthaben", 0.0))
@@ -56,7 +56,7 @@ async def entlastung_uebersicht(
     monatlich = regeln.entlastungsbetrag_monatlich  # 131 €
 
     # Vorjahresguthaben aus Budgetplaner
-    vorjahr_guthaben = _vorjahr_guthaben(db, jahr)
+    vorjahr_guthaben = _vorjahr_guthaben(db, jahr, owner_id)
     vorjahr_nutzbar  = date.today() <= date(jahr, 6, 30)
     vorjahr_aktiv    = vorjahr_guthaben > 0 and vorjahr_nutzbar
 
@@ -179,7 +179,7 @@ async def entlastung_pdf(
     regeln   = get_regelwerk(jahr)
     monatlich = regeln.entlastungsbetrag_monatlich
 
-    vorjahr_guthaben = _vorjahr_guthaben(db, jahr)
+    vorjahr_guthaben = _vorjahr_guthaben(db, jahr, owner_id)
     vorjahr_nutzbar  = date.today() <= date(jahr, 6, 30)
     vorjahr_aktiv    = vorjahr_guthaben > 0 and vorjahr_nutzbar
 

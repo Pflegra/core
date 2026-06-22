@@ -66,7 +66,7 @@ async def eintraege_liste(
     personen, jahre = _personen_und_jahre(db, request)
 
     if suche:
-        eintraege = db.suche(suche)
+        eintraege = db.suche(suche, get_owner_id(request))
         # Suche + Person/Jahr filtern
         if person:
             eintraege = [e for e in eintraege if e.person == person]
@@ -201,6 +201,7 @@ async def eintrag_bearbeiten_speichern(
         )
         eintrag = PflegeEintrag.from_datum(**felder)
         eintrag.id = eintrag_id
+        eintrag.owner_id = get_owner_id(request)
         db.update(eintrag)
         audit_log(request, AuditEvent.EINTRAG_BEARBEITET,
                   f"{eintrag.art} · {eintrag.person} · {eintrag.datum} (ID {eintrag_id})")
@@ -227,12 +228,12 @@ async def eintraege_bulk_loeschen(
     if not ids:
         return redirect(request, "/eintraege/?fehler=keine_auswahl", 303)
     db = get_db(request)
-    n = db.bulk_loeschen(ids)
+    n = db.bulk_loeschen(ids, get_owner_id(request))
     return redirect(request, f"/eintraege/?geloescht={n}", 303)
 
 @router.post("/{eintrag_id}/loeschen")
 async def eintrag_loeschen(request: Request, eintrag_id: int):
     db = get_db(request)
     audit_log(request, AuditEvent.EINTRAG_GELOESCHT, f"Eintrag ID {eintrag_id}")
-    db.loeschen(eintrag_id)
+    db.loeschen(eintrag_id, get_owner_id(request))
     return redirect(request, "/eintraege/?geloescht=1", 303)

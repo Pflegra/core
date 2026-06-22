@@ -21,5 +21,5 @@ COPY app/ /app/
 COPY run.sh /app/run.sh
 RUN chmod +x /app/run.sh
 RUN mkdir -p /share/pflegra/Archiv
-RUN echo "1.2.0" > /app/version.txt
+RUN echo "1.6.2" > /app/version.txt
 CMD ["/app/run.sh"]

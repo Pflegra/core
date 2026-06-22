@@ -66,6 +66,7 @@ class ExportService:
         person: str,
         jahr: int,
         monat: int,
+        owner_id: int,
         zielordner: Optional[Path] = None,
         eintraege: Optional[list[PflegeEintrag]] = None,
     ) -> Path:
@@ -74,7 +75,7 @@ class ExportService:
         Gibt den Pfad zur erstellten Datei zurck.
         """
         if eintraege is None:
-            eintraege = self._db.nach_monat(person, jahr, monat)
+            eintraege = self._db.nach_monat(person, jahr, monat, owner_id)
 
         if not eintraege:
             raise ValueError(
@@ -100,6 +101,7 @@ class ExportService:
         person: str,
         jahr: int,
         monate: list[int],
+        owner_id: int,
         zielordner: Optional[Path] = None,
     ) -> Path:
         """Exportiert mehrere Monate als eine zusammengefasste PDF."""
@@ -115,7 +117,7 @@ class ExportService:
         pfad = zielordner / dateiname
         alle_eintraege = []
         for monat in sorted(monate):
-            eintraege = self._db.nach_monat(person, jahr, monat)
+            eintraege = self._db.nach_monat(person, jahr, monat, owner_id)
             alle_eintraege.extend(eintraege)
         if not alle_eintraege:
             raise ValueError(f"Keine Einträge für {person} in den gewählten Monaten")
@@ -131,12 +133,13 @@ class ExportService:
         self,
         person: str,
         jahr: int,
+        owner_id: int,
         zielordner: Optional[Path] = None,
         eintraege: Optional[list[PflegeEintrag]] = None,
     ) -> Path:
         """Exportiert eine Jahresbersicht als PDF."""
         if eintraege is None:
-            eintraege = self._db.nach_person_und_jahr(person, jahr)
+            eintraege = self._db.nach_person_und_jahr(person, jahr, owner_id)
 
         if not eintraege:
             raise ValueError(f"Keine Eintrge fr {person} / {jahr}")
@@ -157,6 +160,7 @@ class ExportService:
 
     def archiv_komplett(
         self,
+        owner_id: int,
         zielordner: Optional[Path] = None,
         fortschritt_callback: Optional[Callable[[str], None]] = None,
     ) -> ExportErgebnis:
@@ -167,7 +171,7 @@ class ExportService:
         if zielordner is None:
             zielordner = Path(self._konfig.archiv_basis)
 
-        alle = self._db.alle()
+        alle = self._db.alle(owner_id)
         if not alle:
             raise ValueError("Keine Eintrge in der Datenbank.")
 
@@ -184,7 +188,7 @@ class ExportService:
             beschr = f"{person} / {MONATE_DE[monat]} {jahr}"
             try:
                 pfad = self.pdf_monat(
-                    person, jahr, monat,
+                    person, jahr, monat, owner_id,
                     zielordner=zielordner / str(jahr) / person,
                     eintraege=eintraege_gruppe,
                 )
@@ -204,6 +208,7 @@ class ExportService:
     def csv_export(
         self,
         zieldatei: Path,
+        owner_id: int,
         person: Optional[str] = None,
         jahr: Optional[int] = None,
     ) -> Path:
@@ -211,7 +216,7 @@ class ExportService:
         Exportiert Eintrge als CSV.
         Optionale Filter: person und/oder jahr.
         """
-        alle = self._db.alle()
+        alle = self._db.alle(owner_id)
 
         gefiltert = alle
         if person:

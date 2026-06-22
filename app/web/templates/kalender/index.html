@@ -9,10 +9,10 @@
 {# ── Navigation ── #}
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
     <div style="display:flex;align-items:center;gap:.75rem">
-        <a href="{{ request.app.state.ingress_entry }}/kalender/?monat={{ prev_monat }}&jahr={{ prev_jahr }}{% if filter_person %}&person={{ filter_person }}{% endif %}"
+        <a href="{{ request.app.state.ingress_entry }}/kalender/?monat={{ prev_monat }}&jahr={{ prev_jahr }}{% if filter_person %}&person={{ filter_person | urlencode }}{% endif %}"
            class="btn btn-ghost btn-sm">←</a>
         <div style="font-size:1.2rem;font-weight:600;min-width:160px;text-align:center">{{ monatsname }} {{ jahr }}</div>
-        <a href="{{ request.app.state.ingress_entry }}/kalender/?monat={{ next_monat }}&jahr={{ next_jahr }}{% if filter_person %}&person={{ filter_person }}{% endif %}"
+        <a href="{{ request.app.state.ingress_entry }}/kalender/?monat={{ next_monat }}&jahr={{ next_jahr }}{% if filter_person %}&person={{ filter_person | urlencode }}{% endif %}"
            class="btn btn-ghost btn-sm">→</a>
     </div>
     <div style="display:flex;gap:.5rem;align-items:center">
@@ -29,7 +29,7 @@
             </select>
         </form>
         {% endif %}
-        <a href="{{ request.app.state.ingress_entry }}/kalender/{% if filter_person %}?person={{ filter_person }}{% endif %}"
+        <a href="{{ request.app.state.ingress_entry }}/kalender/{% if filter_person %}?person={{ filter_person | urlencode }}{% endif %}"
            class="btn btn-ghost btn-sm">Heute</a>
     </div>
 </div>
@@ -86,7 +86,26 @@
                     </a>
                     {% endfor %}
                     {% if tage[tag]|length > 2 %}
-                    <div style="font-size:.62rem;color:var(--text-muted)">+{{ tage[tag]|length - 2 }} weitere</div>
+                    <details style="font-size:.62rem;color:var(--text-muted)">
+                        <summary style="cursor:pointer;padding:.15rem 0">+{{ tage[tag]|length - 2 }} weitere</summary>
+                        <div style="display:flex;flex-direction:column;gap:.15rem;margin-top:.15rem">
+                            {% for e in tage[tag][2:] %}
+                            <a href="{{ request.app.state.ingress_entry }}{{ e.link }}"
+                               style="font-size:.65rem;padding:.1rem .3rem;border-radius:3px;text-decoration:none;line-height:1.3;
+                                      display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+                                      {% if e.erledigt %}opacity:.5;text-decoration:line-through;background:var(--bg-subtle,#f1f1f1);color:var(--text-muted)
+                                      {% elif e.quelle == 'pflegeberatung' %}background:#fef3c7;color:#92400e
+                                      {% elif e.quelle == 'aufgabe' %}background:#fee2e2;color:#991b1b
+                                      {% elif e.quelle == 'dokument' %}background:#ede9fe;color:#5b21b6
+                                      {% elif e.quelle == 'tagebuch' %}background:#dcfce7;color:#166534
+                                      {% elif e.quelle == 'termin' %}background:#cffafe;color:#155e75
+                                      {% else %}background:#dbeafe;color:#1e40af{% endif %}"
+                               title="{{ e.titel }}{% if e.person %} · {{ e.person }}{% endif %}{% if e.zeit_text %} · {{ e.zeit_text }}{% endif %}">
+                                {{ e.quelle_icon }} {% if e.zeit_text and e.zeit_text != 'Ganztägig' %}{{ e.zeit_text.replace(' Uhr', '') }} {% endif %}{{ e.titel }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </details>
                     {% endif %}
                 </div>
                 {% endif %}

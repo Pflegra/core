@@ -25,10 +25,10 @@ async def budget_uebersicht(request: Request, jahr: int = 0):
     jahre    = db.jahre(get_owner_id(request)) or [jahr]
     owner_id = get_owner_id(request)
     eintraege = db.alle(owner_id)
-    berichte = service.alle_berichte(jahr, eintraege=eintraege)
+    berichte = service.alle_berichte(jahr, owner_id, eintraege=eintraege)
     from i18n import get_lang, make_t
     _t = make_t(get_lang(request))
-    warnungen_raw = service.warnung_fuer_alle(jahr, eintraege=eintraege)
+    warnungen_raw = service.warnung_fuer_alle(jahr, owner_id, eintraege=eintraege)
     warnungen = []
     for w in warnungen_raw:
         typ = w["typ"]
@@ -76,7 +76,7 @@ async def budget_person_detail(request: Request, person: str, jahr: int = 0):
     if not jahr:
         jahr = date.today().year
 
-    bericht = service.bericht_fuer_person(person, jahr)
+    bericht = service.bericht_fuer_person(person, jahr, get_owner_id(request))
     return TEMPLATES.TemplateResponse(request, "budget/person_detail.html", {
         **base_ctx(request),
         "bericht": bericht,

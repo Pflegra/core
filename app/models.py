@@ -81,34 +81,35 @@ class PflegraDB:
     # -- Einträge --------------------------------------------------
     def insert(self, eintrag):                               return self._eintraege.insert(eintrag)
     def insert_many(self, eintraege):                        return self._eintraege.insert_many(eintraege)
-    def alle(self, owner_id: int = 0):                       return self._eintraege.alle(owner_id)
-    def nach_person_und_jahr(self, person, jahr, owner_id=0): return self._eintraege.nach_person_und_jahr(person, jahr, owner_id)
-    def nach_monat(self, person, jahr, monat, owner_id=0):   return self._eintraege.nach_monat(person, jahr, monat, owner_id)
-    def jahre(self, owner_id: int = 0):                      return self._eintraege.jahre(owner_id)
+    def alle(self, owner_id):                                return self._eintraege.alle(owner_id)
+    def nach_person_und_jahr(self, person, jahr, owner_id):  return self._eintraege.nach_person_und_jahr(person, jahr, owner_id)
+    def nach_monat(self, person, jahr, monat, owner_id):     return self._eintraege.nach_monat(person, jahr, monat, owner_id)
+    def jahre(self, owner_id):                               return self._eintraege.jahre(owner_id)
     def update(self, eintrag):                               return self._eintraege.update(eintrag)
-    def loeschen(self, eintrag_id):                          return self._eintraege.loeschen(eintrag_id)
-    def bulk_loeschen(self, ids):                            return self._eintraege.bulk_loeschen(ids)
-    def duplikate_finden(self):                              return self._eintraege.duplikate_finden()
-    def suche(self, suchbegriff):                            return self._eintraege.suche(suchbegriff)
-    def statistik(self, owner_id: int = 0):                  return self._eintraege.statistik(owner_id)
+    def loeschen(self, eintrag_id, owner_id):                return self._eintraege.loeschen(eintrag_id, owner_id)
+    def bulk_loeschen(self, ids, owner_id):                  return self._eintraege.bulk_loeschen(ids, owner_id)
+    def duplikate_finden(self, owner_id):                    return self._eintraege.duplikate_finden(owner_id)
+    def suche(self, suchbegriff, owner_id):                  return self._eintraege.suche(suchbegriff, owner_id)
+    def statistik(self, owner_id):                           return self._eintraege.statistik(owner_id)
+    def statistik_global_admin(self):                        return self._eintraege.statistik_global_admin()
 
     # -- Planung ---------------------------------------------------
-    def planung_laden(self, person, jahr):                   return self._planung.laden(person, jahr)
-    def planung_bulk_speichern(self, person, jahr, planung): return self._planung.bulk_speichern(person, jahr, planung)
-    def planung_loeschen(self, person, jahr):                return self._planung.loeschen(person, jahr)
+    def planung_laden(self, person, jahr, owner_id):         return self._planung.laden(person, jahr, owner_id)
+    def planung_bulk_speichern(self, person, jahr, planung, owner_id): return self._planung.bulk_speichern(person, jahr, planung, owner_id)
+    def planung_loeschen(self, person, jahr, owner_id):      return self._planung.loeschen(person, jahr, owner_id)
 
     # -- Personen --------------------------------------------------
-    def person_anlegen(self, name, notiz="", owner_id=0):             return self._personen.anlegen(name, notiz, owner_id)
-    def person_umbenennen(self, alter, neu):                          return self._personen.umbenennen(alter, neu)
-    def person_loeschen(self, name, owner_id=0):                      return self._personen.loeschen(name, owner_id)
-    def person_loeschen_mit_eintraegen(self, name, owner_id=0):       return self._personen.loeschen_mit_eintraegen(name, owner_id)
-    def personen(self, owner_id: int = 0):                            return self._personen.namen(owner_id)
-    def personen_liste(self, owner_id: int = 0):                      return self._personen.liste(owner_id)
+    def person_anlegen(self, name, notiz="", *, owner_id):             return self._personen.anlegen(name, notiz, owner_id=owner_id)
+    def person_umbenennen(self, alter, neu, owner_id):                return self._personen.umbenennen(alter, neu, owner_id)
+    def person_loeschen(self, name, owner_id):                        return self._personen.loeschen(name, owner_id)
+    def person_loeschen_mit_eintraegen(self, name, owner_id):         return self._personen.loeschen_mit_eintraegen(name, owner_id)
+    def personen(self, owner_id):                                     return self._personen.namen(owner_id)
+    def personen_liste(self, owner_id):                               return self._personen.liste(owner_id)
 
     # -- Versicherter ----------------------------------------------
-    def versicherter_laden(self, person_name):               return self._vers.laden(person_name)
+    def versicherter_laden(self, person_name, owner_id):     return self._vers.laden(person_name, owner_id)
     def versicherter_speichern(self, v):                     return self._vers.speichern(v)
-    def versicherter_loeschen(self, person_name, owner_id=1):  return self._vers.loeschen(person_name, owner_id)
+    def versicherter_loeschen(self, person_name, owner_id):  return self._vers.loeschen(person_name, owner_id)
 
     # -- UserSettings ----------------------------------------------
     def user_settings_laden(self, user_id):                  return self._user_settings.laden(user_id)
@@ -127,10 +128,10 @@ class PflegraDB:
     def schema_version(self):                                return self._schema.schema_version()
 
     # -- Ersatzpflegekräfte ----------------------------------------
-    def ersatz_alle(self, person, owner_id: int = 0):        return self._ersatz.alle(person, owner_id)
+    def ersatz_alle(self, person, owner_id):                 return self._ersatz.alle(person, owner_id)
     def ersatz_speichern(self, e):                           return self._ersatz.speichern(e)
-    def ersatz_loeschen(self, ersatz_id, person):            return self._ersatz.loeschen(ersatz_id, person)
-    def ersatz_laden(self, ersatz_id):                       return self._ersatz.laden(ersatz_id)
+    def ersatz_loeschen(self, ersatz_id, person, owner_id):  return self._ersatz.loeschen(ersatz_id, person, owner_id)
+    def ersatz_laden(self, ersatz_id, owner_id):             return self._ersatz.laden(ersatz_id, owner_id)
     def ersatz_letzten(self, person, owner_id):              return self._ersatz.letzten_fuer_person(person, owner_id)
 
     # -- Entlastungsbetrag -----------------------------------------

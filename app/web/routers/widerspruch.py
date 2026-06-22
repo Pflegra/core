@@ -62,7 +62,7 @@ async def widerspruch_pdf(request: Request):
     settings = get_user_settings(request)
 
     person = str(form.get("person", ""))
-    versicherter = db.versicherter_laden(person) if person else None
+    versicherter = db.versicherter_laden(person, get_owner_id(request)) if person else None
 
     # Modul-Kritik sammeln
     module_kritik = []

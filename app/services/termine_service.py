@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import calendar
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 
 
 WIEDERHOLUNGEN = ("einmalig", "taeglich", "woechentlich", "monatlich", "jaehrlich")
@@ -94,42 +94,57 @@ def alle_vorkommen_im_monat(termine: list, jahr: int, monat: int) -> list[Termin
     return vorkommen
 
 
-def naechstes_vorkommen(termin: object, ab: date | None = None) -> TerminVorkommen | None:
+def _ist_heute_beendet(termin: object, kandidat: date, referenz: datetime | None) -> bool:
+    if referenz is None or kandidat != referenz.date() or termin.ganztag:
+        return False
+    if not termin.uhrzeit_bis:
+        return False
+    try:
+        ende = time.fromisoformat(termin.uhrzeit_bis)
+    except (TypeError, ValueError):
+        return False
+    return ende <= referenz.time()
+
+
+def naechstes_vorkommen(termin: object, ab: date | datetime | None = None) -> TerminVorkommen | None:
     """Ermittelt das nächste Vorkommen eines Stammtermins ab dem angegebenen Tag."""
-    ab = ab or date.today()
+    referenz = ab if isinstance(ab, datetime) else (datetime.now() if ab is None else None)
+    ab_datum = referenz.date() if referenz else ab
     start = termin.datum_date
     if start is None or termin.wiederholung not in WIEDERHOLUNGEN:
         return None
 
     kandidat = None
     if termin.wiederholung == "einmalig":
-        kandidat = start if start >= ab else None
+        kandidat = start if start >= ab_datum else None
     elif termin.wiederholung == "taeglich":
-        kandidat = max(start, ab)
+        kandidat = max(start, ab_datum)
     elif termin.wiederholung == "woechentlich":
-        basis = max(start, ab)
+        basis = max(start, ab_datum)
         kandidat = basis + timedelta(days=(start.weekday() - basis.weekday()) % 7)
     elif termin.wiederholung == "monatlich":
-        jahr, monat = max((start.year, start.month), (ab.year, ab.month))
+        jahr, monat = max((start.year, start.month), (ab_datum.year, ab_datum.month))
         for _ in range(24):
             monat_kandidat = _datum_im_monat(jahr, monat, start.day)
-            if monat_kandidat is not None and monat_kandidat >= start and monat_kandidat >= ab:
+            if monat_kandidat is not None and monat_kandidat >= start and monat_kandidat >= ab_datum:
                 kandidat = monat_kandidat
                 break
             monat += 1
             if monat > 12:
                 monat, jahr = 1, jahr + 1
     elif termin.wiederholung == "jaehrlich":
-        for jahr in range(max(start.year, ab.year), max(start.year, ab.year) + 9):
+        for jahr in range(max(start.year, ab_datum.year), max(start.year, ab_datum.year) + 9):
             jahres_kandidat = _datum_im_monat(jahr, start.month, start.day)
-            if jahres_kandidat is not None and jahres_kandidat >= start and jahres_kandidat >= ab:
+            if jahres_kandidat is not None and jahres_kandidat >= start and jahres_kandidat >= ab_datum:
                 kandidat = jahres_kandidat
                 break
 
+    if kandidat and _ist_heute_beendet(termin, kandidat, referenz):
+        return naechstes_vorkommen(termin, ab=kandidat + timedelta(days=1))
     return TerminVorkommen(termin=termin, datum=kandidat) if kandidat else None
 
 
-def naechster_termin(termine: list, ab: date | None = None, person: str | None = None,
+def naechster_termin(termine: list, ab: date | datetime | None = None, person: str | None = None,
                      allgemeine: bool = True) -> TerminVorkommen | None:
     """Ermittelt den nächsten Termin insgesamt oder für eine bestimmte Person."""
     kandidaten = []
@@ -151,7 +166,7 @@ def naechster_termin(termine: list, ab: date | None = None, person: str | None =
     ))
 
 
-def dashboard_termine(termine: list, personen: list[str], ab: date | None = None):
+def dashboard_termine(termine: list, personen: list[str], ab: date | datetime | None = None):
     """Liefert die nächsten personengebundenen Termine und den nächsten Gesamttermin."""
     pro_person = {
         person: naechster_termin(termine, ab=ab, person=person, allgemeine=False)

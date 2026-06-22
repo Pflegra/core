@@ -8,7 +8,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Optional
 
-from db.schema import DbSchema
+from db.schema import DbSchema, require_owner_id
 
 WOCHENTAGE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
 
@@ -125,6 +125,7 @@ class EintragsRepo:
         return self._s.connect()
 
     def insert(self, e: PflegeEintrag) -> PflegeEintrag:
+        e.owner_id = require_owner_id(e.owner_id)
         with self._c() as conn:
             conn.execute("INSERT OR IGNORE INTO personen (name, owner_id) VALUES (?, ?)", (e.person, e.owner_id))
             cur = conn.execute(
@@ -135,103 +136,107 @@ class EintragsRepo:
         return e
 
     def insert_many(self, eintraege) -> list:
+        eintraege = list(eintraege)
+        for e in eintraege:
+            e.owner_id = require_owner_id(e.owner_id)
         with self._c() as conn:
-            for name in {x.person for x in eintraege if x.person}:
-                conn.execute("INSERT OR IGNORE INTO personen (name) VALUES (?)", (name,))
+            for person, owner_id in {(x.person, x.owner_id) for x in eintraege if x.person}:
+                conn.execute("INSERT OR IGNORE INTO personen (name, owner_id) VALUES (?, ?)", (person, owner_id))
             for e in eintraege:
                 cur = conn.execute(
-                    "INSERT INTO pflege_eintraege (datum,monat,jahr,von,bis,stunden,person,wochentag,art,grund,ersatz_name,ersatz_art,ersatz_adresse,notiz) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (e.datum.isoformat(), e.monat, e.jahr, e.von, e.bis, e.stunden, e.person, e.wochentag, e.art, e.grund, e.ersatz_name, e.ersatz_art, e.ersatz_adresse, e.notiz),
+                    "INSERT INTO pflege_eintraege (datum,monat,jahr,von,bis,stunden,person,wochentag,art,grund,ersatz_name,ersatz_art,ersatz_adresse,notiz,owner_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (e.datum.isoformat(), e.monat, e.jahr, e.von, e.bis, e.stunden, e.person, e.wochentag, e.art, e.grund, e.ersatz_name, e.ersatz_art, e.ersatz_adresse, e.notiz, e.owner_id),
                 )
                 e.id = cur.lastrowid
         return eintraege
 
-    def alle(self, owner_id: int = 0) -> list:
+    def alle(self, owner_id: int) -> list:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            if owner_id:
-                rows = conn.execute("SELECT * FROM pflege_eintraege WHERE owner_id=? ORDER BY datum, von", (owner_id,)).fetchall()
-            else:
-                rows = conn.execute("SELECT * FROM pflege_eintraege ORDER BY datum, von").fetchall()
+            rows = conn.execute("SELECT * FROM pflege_eintraege WHERE owner_id=? ORDER BY datum, von", (owner_id,)).fetchall()
         return [_row_to_eintrag(r) for r in rows]
 
-    def nach_person_und_jahr(self, person, jahr, owner_id: int = 0) -> list:
+    def nach_person_und_jahr(self, person, jahr, owner_id: int) -> list:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            if owner_id:
-                rows = conn.execute("SELECT * FROM pflege_eintraege WHERE person=? AND jahr=? AND owner_id=? ORDER BY datum,von", (person, jahr, owner_id)).fetchall()
-            else:
-                rows = conn.execute("SELECT * FROM pflege_eintraege WHERE person=? AND jahr=? ORDER BY datum,von", (person, jahr)).fetchall()
+            rows = conn.execute("SELECT * FROM pflege_eintraege WHERE person=? AND jahr=? AND owner_id=? ORDER BY datum,von", (person, jahr, owner_id)).fetchall()
         return [_row_to_eintrag(r) for r in rows]
 
-    def nach_monat(self, person, jahr, monat, owner_id: int = 0) -> list:
+    def nach_monat(self, person, jahr, monat, owner_id: int) -> list:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            if owner_id:
-                rows = conn.execute("SELECT * FROM pflege_eintraege WHERE person=? AND jahr=? AND monat=? AND owner_id=? ORDER BY datum,von", (person, jahr, monat, owner_id)).fetchall()
-            else:
-                rows = conn.execute("SELECT * FROM pflege_eintraege WHERE person=? AND jahr=? AND monat=? ORDER BY datum,von", (person, jahr, monat)).fetchall()
+            rows = conn.execute("SELECT * FROM pflege_eintraege WHERE person=? AND jahr=? AND monat=? AND owner_id=? ORDER BY datum,von", (person, jahr, monat, owner_id)).fetchall()
         return [_row_to_eintrag(r) for r in rows]
 
-    def jahre(self, owner_id: int = 0) -> list:
+    def jahre(self, owner_id: int) -> list:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            if owner_id:
-                rows = conn.execute("SELECT DISTINCT jahr FROM pflege_eintraege WHERE owner_id=? ORDER BY jahr", (owner_id,)).fetchall()
-            else:
-                rows = conn.execute("SELECT DISTINCT jahr FROM pflege_eintraege ORDER BY jahr").fetchall()
+            rows = conn.execute("SELECT DISTINCT jahr FROM pflege_eintraege WHERE owner_id=? ORDER BY jahr", (owner_id,)).fetchall()
         return [r["jahr"] for r in rows]
 
     def update(self, e: PflegeEintrag) -> bool:
+        e.owner_id = require_owner_id(e.owner_id)
         with self._c() as conn:
             cur = conn.execute(
-                "UPDATE pflege_eintraege SET datum=?,monat=?,jahr=?,von=?,bis=?,stunden=?,person=?,wochentag=?,art=?,grund=?,ersatz_name=?,ersatz_art=?,ersatz_adresse=?,notiz=? WHERE id=?",
-                (e.datum.isoformat(), e.monat, e.jahr, e.von, e.bis, e.stunden, e.person, e.wochentag, e.art, e.grund, e.ersatz_name, e.ersatz_art, e.ersatz_adresse, e.notiz, e.id),
+                "UPDATE pflege_eintraege SET datum=?,monat=?,jahr=?,von=?,bis=?,stunden=?,person=?,wochentag=?,art=?,grund=?,ersatz_name=?,ersatz_art=?,ersatz_adresse=?,notiz=? WHERE id=? AND owner_id=?",
+                (e.datum.isoformat(), e.monat, e.jahr, e.von, e.bis, e.stunden, e.person, e.wochentag, e.art, e.grund, e.ersatz_name, e.ersatz_art, e.ersatz_adresse, e.notiz, e.id, e.owner_id),
             )
         return cur.rowcount > 0
 
-    def loeschen(self, eintrag_id: int) -> bool:
+    def loeschen(self, eintrag_id: int, owner_id: int) -> bool:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            cur = conn.execute("DELETE FROM pflege_eintraege WHERE id=?", (eintrag_id,))
+            cur = conn.execute("DELETE FROM pflege_eintraege WHERE id=? AND owner_id=?", (eintrag_id, owner_id))
         return cur.rowcount > 0
 
-    def bulk_loeschen(self, ids: list) -> int:
+    def bulk_loeschen(self, ids: list, owner_id: int) -> int:
+        owner_id = require_owner_id(owner_id)
         if not ids:
             return 0
         platzhalter = ",".join("?" * len(ids))
         with self._c() as conn:
-            cur = conn.execute(f"DELETE FROM pflege_eintraege WHERE id IN ({platzhalter})", ids)
+            cur = conn.execute(f"DELETE FROM pflege_eintraege WHERE id IN ({platzhalter}) AND owner_id=?", [*ids, owner_id])
         return cur.rowcount
 
-    def duplikate_finden(self) -> list:
-        alle = self.alle()
+    def duplikate_finden(self, owner_id: int) -> list:
+        alle = self.alle(owner_id)
         gruppen: dict = {}
         for e in alle:
             key = (e.person, str(e.datum), e.von, e.bis)
             gruppen.setdefault(key, []).append(e)
         return [g for g in gruppen.values() if len(g) > 1]
 
-    def suche(self, suchbegriff: str) -> list:
+    def suche(self, suchbegriff: str, owner_id: int) -> list:
+        owner_id = require_owner_id(owner_id)
         like = f"%{suchbegriff}%"
         with self._c() as conn:
             rows = conn.execute("""
                 SELECT * FROM pflege_eintraege
-                WHERE person LIKE ?
+                WHERE owner_id=? AND (person LIKE ?
                    OR datum LIKE ?
                    OR wochentag LIKE ?
                    OR notiz LIKE ?
                    OR art LIKE ?
                    OR grund LIKE ?
-                   OR ersatz_name LIKE ?
+                   OR ersatz_name LIKE ?)
                 ORDER BY datum DESC, von
-            """, (like, like, like, like, like, like, like)).fetchall()
+            """, (owner_id, like, like, like, like, like, like, like)).fetchall()
         return [_row_to_eintrag(r) for r in rows]
 
-    def statistik(self, owner_id: int = 0) -> dict:
+    def statistik(self, owner_id: int) -> dict:
+        owner_id = require_owner_id(owner_id)
         with self._c() as conn:
-            if owner_id:
-                g = conn.execute("SELECT COUNT(*) as n, SUM(stunden) as h FROM pflege_eintraege WHERE owner_id=?", (owner_id,)).fetchone()
-                p = conn.execute("SELECT COUNT(DISTINCT person) as n FROM pflege_eintraege WHERE owner_id=?", (owner_id,)).fetchone()
-                j = conn.execute("SELECT COUNT(DISTINCT jahr) as n FROM pflege_eintraege WHERE owner_id=?", (owner_id,)).fetchone()
-            else:
-                g = conn.execute("SELECT COUNT(*) as n, SUM(stunden) as h FROM pflege_eintraege").fetchone()
-                p = conn.execute("SELECT COUNT(DISTINCT person) as n FROM pflege_eintraege").fetchone()
-                j = conn.execute("SELECT COUNT(DISTINCT jahr) as n FROM pflege_eintraege").fetchone()
+            g = conn.execute("SELECT COUNT(*) as n, SUM(stunden) as h FROM pflege_eintraege WHERE owner_id=?", (owner_id,)).fetchone()
+            p = conn.execute("SELECT COUNT(DISTINCT person) as n FROM pflege_eintraege WHERE owner_id=?", (owner_id,)).fetchone()
+            j = conn.execute("SELECT COUNT(DISTINCT jahr) as n FROM pflege_eintraege WHERE owner_id=?", (owner_id,)).fetchone()
+        return {"eintraege_gesamt": g["n"] or 0, "stunden_gesamt": round(g["h"] or 0, 2),
+                "personen_anzahl": p["n"] or 0, "jahre_anzahl": j["n"] or 0}
+
+    def statistik_global_admin(self) -> dict:
+        """Explicit cross-owner aggregate for health checks and admin views only."""
+        with self._c() as conn:
+            g = conn.execute("SELECT COUNT(*) as n, SUM(stunden) as h FROM pflege_eintraege").fetchone()
+            p = conn.execute("SELECT COUNT(DISTINCT owner_id || ':' || person) as n FROM pflege_eintraege").fetchone()
+            j = conn.execute("SELECT COUNT(DISTINCT jahr) as n FROM pflege_eintraege").fetchone()
         return {"eintraege_gesamt": g["n"] or 0, "stunden_gesamt": round(g["h"] or 0, 2),
                 "personen_anzahl": p["n"] or 0, "jahre_anzahl": j["n"] or 0}

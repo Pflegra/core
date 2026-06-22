@@ -95,7 +95,7 @@ async def antrag_vp_erstellen(
         return _fehler("Bitte eine Person auswählen.")
     db = get_db(request)
     konfig = _get_absender(request)
-    versicherter = db.versicherter_laden(person)
+    versicherter = db.versicherter_laden(person, get_owner_id(request))
     if not versicherter:
         return _fehler(f"Keine Versicherten-Daten für {person}.")
     if not konfig.absender_name or not konfig.absender_adresse:
@@ -167,7 +167,7 @@ async def ausfuellhilfe_erstellen(
         return _fehler("Bitte eine Person auswählen.")
     db      = get_db(request)
     konfig  = _get_absender(request)
-    versicherter = db.versicherter_laden(person)
+    versicherter = db.versicherter_laden(person, get_owner_id(request))
     if not versicherter:
         return _fehler(f"Keine Versicherten-Daten für {person}.")
     if not konfig.absender_name:
@@ -243,7 +243,7 @@ async def vollmacht_erstellen(
         return _fehler("Bitte eine Person auswählen.")
     db = get_db(request)
     konfig = _get_absender(request)
-    versicherter = db.versicherter_laden(person)
+    versicherter = db.versicherter_laden(person, get_owner_id(request))
     if not versicherter:
         return _fehler(f"Keine Versicherten-Daten für {person}.")
     if not konfig.absender_name or not konfig.absender_adresse:

@@ -133,7 +133,7 @@ class TestPflegraDB:
     def test_alle_gibt_chronologisch(self, tmp_db, eintrag_feb, eintrag_jan):
         tmp_db.insert(eintrag_feb)
         tmp_db.insert(eintrag_jan)
-        alle = tmp_db.alle()
+        alle = tmp_db.alle(1)
         assert len(alle) == 2
         assert alle[0].datum <= alle[1].datum
 
@@ -142,13 +142,13 @@ class TestPflegraDB:
         schmidt = PflegeEintrag.from_datum(date(2024, 1, 10), "14:00", "17:00", 3.0, "Schmidt")
         tmp_db.insert(schmidt)
 
-        ergebnis = tmp_db.nach_person_und_jahr("Mller, Hans", 2024)
+        ergebnis = tmp_db.nach_person_und_jahr("Mller, Hans", 2024, 1)
         assert len(ergebnis) == 2
         assert all(e.person == "Mller, Hans" for e in ergebnis)
 
     def test_nach_monat(self, tmp_db, eintrag_jan, eintrag_feb):
         tmp_db.insert_many([eintrag_jan, eintrag_feb])
-        januar = tmp_db.nach_monat("Mller, Hans", 2024, 1)
+        januar = tmp_db.nach_monat("Mller, Hans", 2024, 1, 1)
         assert len(januar) == 1
         assert januar[0].monat == 1
 
@@ -156,7 +156,7 @@ class TestPflegraDB:
         tmp_db.insert(eintrag_jan)
         anna = PflegeEintrag.from_datum(date(2024, 1, 10), "14:00", "17:00", 3.0, "Schmidt, Anna")
         tmp_db.insert(anna)
-        personen = tmp_db.personen()
+        personen = tmp_db.personen(1)
         assert "Mller, Hans" in personen
         assert "Schmidt, Anna" in personen
 
@@ -164,19 +164,19 @@ class TestPflegraDB:
         tmp_db.insert(eintrag_jan)
         e2025 = PflegeEintrag.from_datum(date(2025, 3, 1), "09:00", "12:00", 3.0, "Mller, Hans")
         tmp_db.insert(e2025)
-        assert tmp_db.jahre() == [2024, 2025]
+        assert tmp_db.jahre(1) == [2024, 2025]
 
     def test_loeschen(self, tmp_db, eintrag_jan):
         eingefuegt = tmp_db.insert(eintrag_jan)
-        assert tmp_db.loeschen(eingefuegt.id) is True
-        assert tmp_db.alle() == []
+        assert tmp_db.loeschen(eingefuegt.id, 1) is True
+        assert tmp_db.alle(1) == []
 
     def test_loeschen_nicht_vorhanden(self, tmp_db):
-        assert tmp_db.loeschen(9999) is False
+        assert tmp_db.loeschen(9999, 1) is False
 
     def test_roundtrip_datum_bleibt_date(self, tmp_db, eintrag_jan):
         tmp_db.insert(eintrag_jan)
-        gelesen = tmp_db.alle()[0]
+        gelesen = tmp_db.alle(1)[0]
         assert isinstance(gelesen.datum, date)
         assert gelesen.datum == date(2024, 1, 8)
 
@@ -185,7 +185,7 @@ class TestPflegraDB:
         eintrag_jan.stunden = 6.0
         eintrag_jan.von     = "08:00"
         assert tmp_db.update(eintrag_jan) is True
-        aktualisiert = tmp_db.alle()[0]
+        aktualisiert = tmp_db.alle(1)[0]
         assert aktualisiert.stunden == 6.0
         assert aktualisiert.von     == "08:00"
 
@@ -204,26 +204,26 @@ class TestPflegraDB:
         tmp_db.insert(eintrag_jan)
         anna = PflegeEintrag.from_datum(date(2024,1,10),"14:00","17:00",3.0,"Schmidt, Anna")
         tmp_db.insert(anna)
-        ergebnis = tmp_db.suche("Mller")
+        ergebnis = tmp_db.suche("Mller", 1)
         assert len(ergebnis) == 1
         assert ergebnis[0].person == "Mller, Hans"
 
     def test_suche_nach_datum(self, tmp_db, eintrag_jan):
         tmp_db.insert(eintrag_jan)
-        ergebnis = tmp_db.suche("2024-01")
+        ergebnis = tmp_db.suche("2024-01", 1)
         assert len(ergebnis) == 1
 
     def test_suche_kein_treffer(self, tmp_db, eintrag_jan):
         tmp_db.insert(eintrag_jan)
-        assert tmp_db.suche("XYZ_nicht_vorhanden") == []
+        assert tmp_db.suche("XYZ_nicht_vorhanden", 1) == []
 
     def test_statistik(self, tmp_db, eintrag_jan, eintrag_feb):
         tmp_db.insert_many([eintrag_jan, eintrag_feb])
-        s = tmp_db.statistik()
+        s = tmp_db.statistik(1)
         assert s["eintraege_gesamt"] == 2
         assert s["stunden_gesamt"]   == pytest.approx(8.0)
         assert s["personen_anzahl"]  == 1
         assert s["jahre_anzahl"]     == 1
 
     def test_schema_version(self, tmp_db):
-        assert tmp_db.schema_version() == 23
+        assert tmp_db.schema_version() == 24

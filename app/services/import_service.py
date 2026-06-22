@@ -69,7 +69,7 @@ class ImportService:
     def __init__(self, db: PflegraDB):
         self._db = db
 
-    def analysiere_tabelle(self, pfad: Path,
+    def analysiere_tabelle(self, pfad: Path, owner_id: int,
                            person_fallback: str | None = None) -> ImportVorschau:
         """
         Liest eine XLSX/XLS/ODS-Datei und prft auf Duplikate.
@@ -86,8 +86,9 @@ class ImportService:
         )
         vorschau.zeilen_fehlerhaft = fehler_liste
 
-        bestehende = self._lade_duplikat_schluessel()
+        bestehende = self._lade_duplikat_schluessel(owner_id)
         for e in eintraege:
+            e.owner_id = owner_id
             key = self._schluessel(e)
             if key in bestehende:
                 vorschau.eintraege_duplikat.append(e)
@@ -103,7 +104,7 @@ class ImportService:
         )
         return vorschau
 
-    def analysiere(self, csv_pfad: Path,
+    def analysiere(self, csv_pfad: Path, owner_id: int,
                    person_fallback: str | None = None) -> ImportVorschau:
         """
         Liest die CSV und prft auf Duplikate ohne etwas zu speichern.
@@ -120,9 +121,10 @@ class ImportService:
         vorschau.zeilen_fehlerhaft = fehler_liste
 
         # Bestehende Eintrge als Set fr schnellen Duplikat-Check
-        bestehende = self._lade_duplikat_schluessel()
+        bestehende = self._lade_duplikat_schluessel(owner_id)
 
         for e in eintraege:
+            e.owner_id = owner_id
             key = self._schluessel(e)
             if key in bestehende:
                 vorschau.eintraege_duplikat.append(e)
@@ -141,6 +143,7 @@ class ImportService:
     def importiere(
         self,
         vorschau: ImportVorschau,
+        owner_id: int,
         auch_duplikate: bool = False,
     ) -> ImportErgebnis:
         """
@@ -154,6 +157,9 @@ class ImportService:
             zu_importieren = zu_importieren + vorschau.eintraege_duplikat
             uebersprungen  = 0
 
+        for e in zu_importieren:
+            e.owner_id = owner_id
+
         if zu_importieren:
             self._db.insert_many(zu_importieren)
 
@@ -165,19 +171,19 @@ class ImportService:
         log.info("Import abgeschlossen: %s", ergebnis)
         return ergebnis
 
-    def importiere_direkt(self, csv_pfad: Path) -> ImportErgebnis:
+    def importiere_direkt(self, csv_pfad: Path, owner_id: int) -> ImportErgebnis:
         """
         Kombiniert analysiere() + importiere() in einem Schritt.
         Fr programmatischen Aufruf ohne GUI-Dialog.
         """
-        vorschau = self.analysiere(csv_pfad)
-        return self.importiere(vorschau)
+        vorschau = self.analysiere(csv_pfad, owner_id)
+        return self.importiere(vorschau, owner_id)
 
     #  Hilfsmethoden 
 
-    def _lade_duplikat_schluessel(self) -> set[tuple]:
+    def _lade_duplikat_schluessel(self, owner_id: int) -> set[tuple]:
         """Ldt alle bestehenden Eintrge als kompakte Schlsselmenge."""
-        alle = self._db.alle()
+        alle = self._db.alle(owner_id)
         return {self._schluessel(e) for e in alle}
 
     @staticmethod

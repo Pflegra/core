@@ -23,12 +23,12 @@ MONATE_KURZ = ["", "Jan", "Feb", "Mrz", "Apr", "Mai", "Jun",
 PLANER_PERSON = "__planer__"
 
 
-def _lade_gespeicherte_planung(db, jahr: int) -> dict:
+def _lade_gespeicherte_planung(db, jahr: int, owner_id: int) -> dict:
     """
     Lädt gespeicherte Planungsdaten aus der DB.
     Gibt ein Dict mit allen Feldern zurück, Defaults wenn nichts gespeichert.
     """
-    roh = db.planung_laden(PLANER_PERSON, jahr)  # {monat: {stunden, notiz}}
+    roh = db.planung_laden(PLANER_PERSON, jahr, owner_id)  # {monat: {stunden, notiz}}
 
     planung_vp  = {}
     planung_kzp = {}
@@ -72,7 +72,8 @@ def _lade_gespeicherte_planung(db, jahr: int) -> dict:
 async def planung_uebersicht(request: Request, jahr: int = 0):
     db     = get_db(request)
     konfig = get_konfig(request)
-    jahre  = db.jahre(get_owner_id(request)) or [date.today().year]
+    owner_id = get_owner_id(request)
+    jahre  = db.jahre(owner_id) or [date.today().year]
     aktuell = date.today().year
     for j in [aktuell, aktuell + 1]:
         if j not in jahre:
@@ -87,11 +88,11 @@ async def planung_uebersicht(request: Request, jahr: int = 0):
     sl_saetze = {pg: regeln.sachleistung_monatlich(pg) for pg in range(1, 6)}
     tp_saetze = {pg: regeln.tagespflege_monatlich(pg)  for pg in range(1, 6)}
 
-    gespeichert  = _lade_gespeicherte_planung(db, jahr)
-    personen     = db.personen(get_owner_id(request))
+    gespeichert  = _lade_gespeicherte_planung(db, jahr, owner_id)
+    personen     = db.personen(owner_id)
     standard_pflegegrad = 3
     if personen:
-        v = db.versicherter_laden(personen[0])
+        v = db.versicherter_laden(personen[0], owner_id)
         if v and v.pflegegrad:
             standard_pflegegrad = v.pflegegrad
 
@@ -136,6 +137,7 @@ async def planung_ajax_speichern(request: Request):
         body = await request.json()
         jahr     = int(body.get("jahr", date.today().year))
         db       = get_db(request)
+        owner_id = get_owner_id(request)
         vp_data  = {int(k): float(v) for k, v in body.get("vp",  {}).items()}
         kzp_data = {int(k): float(v) for k, v in body.get("kzp", {}).items()}
         sl_data  = {int(k): int(v)   for k, v in body.get("sl",  {}).items()}
@@ -149,11 +151,11 @@ async def planung_ajax_speichern(request: Request):
                     "pg":     pg_data.get(m, 3),
                 })
                 conn.execute("""
-                    INSERT INTO budget_planung (person, jahr, monat, stunden, notiz)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON CONFLICT(person, jahr, monat) DO UPDATE SET
+                    INSERT INTO budget_planung (person, jahr, monat, stunden, notiz, owner_id)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(owner_id, person, jahr, monat) DO UPDATE SET
                         stunden=excluded.stunden, notiz=excluded.notiz
-                """, (PLANER_PERSON, jahr, m, vp_data.get(m, 0.0), zusatz))
+                """, (PLANER_PERSON, jahr, m, vp_data.get(m, 0.0), zusatz, owner_id))
 
             # Jahres-Extras in monat=0
             entlastung_vbr = body.get("entlastung_vbr", {})
@@ -163,10 +165,10 @@ async def planung_ajax_speichern(request: Request):
                 "entlastung_vbr":   {str(k): float(v) for k, v in entlastung_vbr.items()},
             })
             conn.execute("""
-                INSERT INTO budget_planung (person, jahr, monat, stunden, notiz)
-                VALUES (?, ?, 0, 0.0, ?)
-                ON CONFLICT(person, jahr, monat) DO UPDATE SET notiz=excluded.notiz
-            """, (PLANER_PERSON, jahr, extras))
+                INSERT INTO budget_planung (person, jahr, monat, stunden, notiz, owner_id)
+                VALUES (?, ?, 0, 0.0, ?, ?)
+                ON CONFLICT(owner_id, person, jahr, monat) DO UPDATE SET notiz=excluded.notiz
+            """, (PLANER_PERSON, jahr, extras, owner_id))
 
         return JSONResponse({"ok": True})
     except Exception as exc:

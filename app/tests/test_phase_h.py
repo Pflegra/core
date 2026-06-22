@@ -188,12 +188,12 @@ class TestDatenisolation:
         assert eintraege_u1[0].person == "Person A"
         assert eintraege_u2[0].person == "Person B"
 
-    def test_eintraege_ohne_filter(self, db, user1, user2):
+    def test_eintraege_ohne_owner_abgewiesen(self, db, user1, user2):
         """Ohne owner_id: alle Einträge sichtbar (Admin-Kontext)."""
         db.insert(self._eintrag("Person A", user1.id))
         db.insert(self._eintrag("Person B", user2.id))
-        alle = db.alle(0)
-        assert len(alle) == 2
+        with pytest.raises(ValueError):
+            db.alle(0)
 
     def test_personen_getrennt(self, db, user1, user2):
         """User sieht nur eigene Personen."""
@@ -247,8 +247,8 @@ class TestDatenisolation:
         v2 = Versicherter(name="Hans", owner_id=user2.id)
         db.versicherter_speichern(v1)
         db.versicherter_speichern(v2)
-        loaded = db.versicherter_laden("Hans")
-        assert loaded is not None
+        assert db.versicherter_laden("Hans", user1.id).owner_id == user1.id
+        assert db.versicherter_laden("Hans", user2.id).owner_id == user2.id
 
     def test_eintraege_loeschen_nur_eigene(self, db, user1, user2):
         """Beim Löschen werden nur eigene Einträge gelöscht."""
@@ -405,7 +405,7 @@ class TestDemoReset:
 class TestSchemaMigration:
 
     def test_schema_version(self, db):
-        assert db.schema_version() == 23
+        assert db.schema_version() == 24
 
     def test_owner_id_default(self, db, admin):
         """Neue Einträge bekommen owner_id gesetzt."""
