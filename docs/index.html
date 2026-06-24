@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -326,6 +326,25 @@
     font-family: sans-serif; line-height: 1;
   }
   .lightbox-close:hover { opacity: 1; }
+  .feedback-button {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 120;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: .75rem 1rem;
+    font-size: .88rem;
+    font-weight: 700;
+    box-shadow: 0 10px 28px rgba(13,27,42,.24);
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  .feedback-button:hover { background: var(--primary-l); }
   .hero-screen-hint { display: none; }
   .mobile-accordion-toggle { display: none; }
   .mobile-accordion-content { display: block; }
@@ -425,7 +444,7 @@
     <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
     <a href="ueber.html">Über Pflegra</a>
     <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">🖥 Demo</a>
-    <a href="https://github.com/Pflegra/core/releases/tag/v1.5.6" target="_blank" class="nav-cta">⬇ Download</a>
+    <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" class="nav-cta">⬇ Download</a>
   </div>
 </nav>
 
@@ -458,7 +477,7 @@
       <span><strong style="color:#3ABFAB">✓</strong> Weniger Papierchaos</span>
     </div>
     <div class="hero-version" style="margin-bottom:1.5rem;font-size:.78rem;color:var(--muted)">
-      Aktuelle Version: <strong style="color:var(--primary)">v1.5.6</strong>
+      Stabile Version: <strong style="color:var(--primary)">v1.6.2</strong>
       <span style="margin:0 .5rem;opacity:.4">·</span>
       Veröffentlicht: <strong style="color:var(--text)">20.06.2026</strong>
     </div>
@@ -469,7 +488,7 @@
       <a href="https://pflegra.tail5e5060.ts.net/login?next=/gutachten/neueste" target="_blank" class="btn-primary-lg">
         📋 Beispiel-Gutachten ansehen
       </a>
-      <a href="https://github.com/Pflegra/core/releases/tag/v1.5.6" target="_blank" class="btn-secondary-lg">
+      <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" class="btn-secondary-lg">
         ⬇ Download
       </a>
       <a href="https://github.com/Pflegra/core" target="_blank" class="btn-secondary-lg">
@@ -618,7 +637,7 @@
           <li>✓ Mehrere Versicherte pro Account</li>
                     <li>✓ Volle Kontrolle</li>
         </ul>
-        <a href="https://github.com/Pflegra/core/releases/tag/v1.5.6" target="_blank" style="display:block;text-align:center;background:#0D1B2A;color:#fff;padding:.75rem 1rem;border-radius:8px;font-weight:600;font-size:.9rem;text-decoration:none">
+        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" style="display:block;text-align:center;background:#0D1B2A;color:#fff;padding:.75rem 1rem;border-radius:8px;font-weight:600;font-size:.9rem;text-decoration:none">
           ⬇ Jetzt herunterladen
         </a>
       </div>
@@ -806,7 +825,7 @@
     <div id="tab-windows" class="install-content active">
       <div class="code-block">
 <span class="comment"># 1. Pflegra-Paket herunterladen und entpacken</span>
-<span class="comment">#    pflegra_windows_v1.5.6.zip → beliebiger Ordner</span>
+<span class="comment">#    pflegra_windows_v1.6.2.zip → beliebiger Ordner</span>
 
 <span class="comment"># 2. Pflegra.exe doppelklicken</span>
 <span class="comment">#    → Browser öffnet sich automatisch</span>
@@ -814,7 +833,7 @@
       <p class="install-note">
         Kein Docker, keine Installation nötig. Pflegra läuft direkt als eigenständige Windows-Anwendung.
         Daten werden lokal gespeichert und bleiben auf Ihrem PC.
-        <a href="https://github.com/Pflegra/core/releases/tag/v1.5.6" target="_blank">Download →</a>
+        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank">Download →</a>
       </p>
     </div>
 
@@ -909,12 +928,18 @@ docker run -d -p 8000:8000 \
     <a href="/datenschutz.html">Datenschutz</a>
     <a href="https://github.com/Pflegra/core/blob/main/README.md" target="_blank">Dokumentation</a>
   </div>
-  <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt · <a href="https://github.com/Pflegra/core/releases/tag/v1.5.6" target="_blank" style="color:rgba(255,255,255,.5)">v1.5.6</a></div>
+  <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt · <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" style="color:rgba(255,255,255,.5)">v1.6.2</a></div>
   <div style="margin-top:.4rem;font-size:.75rem">
     Pflegra dient der persönlichen Orientierung und ersetzt keine Beratung durch Pflegekassen oder den Medizinischen Dienst.
   </div>
 </footer>
 
+<a class="feedback-button"
+   href="mailto:s.l.neu@web.de?subject=Pflegra%20Landingpage%20Feedback&body=Hallo%20Stefan%2C%0A%0Amein%20Feedback%20zur%20Pflegra-Landingpage%3A%0A%0A"
+   title="Feedback zur Landingpage senden"
+   aria-label="Feedback zur Landingpage senden">
+  ðŸ’¬ Feedback
+</a>
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot in voller Größe"
      aria-hidden="true" onclick="if(event.target === this) closeLightbox()">
   <span class="lightbox-close" onclick="closeLightbox()">✕</span>
@@ -955,3 +980,4 @@ document.addEventListener('keydown', e => {
 
 </body>
 </html>
+
