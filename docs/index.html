@@ -101,6 +101,27 @@
     cursor: zoom-in;
   }
   .hero-screen img { width: 100%; display: block; }
+  .hero-screen-callouts {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    pointer-events: none;
+  }
+  .hero-screen-callout {
+    background: rgba(255,255,255,.94);
+    border: 1px solid rgba(27,77,126,.12);
+    border-radius: 999px;
+    color: var(--primary);
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: .42rem .62rem;
+    box-shadow: 0 6px 18px rgba(13,27,42,.12);
+  }
   .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
   @media (max-width: 900px) {
     .hero { min-height: auto; }
@@ -157,8 +178,8 @@
 
   .btn-accent-lg {
     background: var(--accent); color: #fff;
-    padding: .85rem 2rem; border-radius: 10px;
-    text-decoration: none; font-weight: 600; font-size: 1rem;
+    padding: .9rem 2.1rem; border-radius: 10px;
+    text-decoration: none; font-weight: 700; font-size: 1rem;
     display: inline-flex; align-items: center; gap: .5rem;
     transition: transform .15s, box-shadow .15s;
     box-shadow: 0 4px 16px rgba(58,191,171,.3);
@@ -371,8 +392,9 @@
     .privacy-grid { grid-template-columns: 1fr; }
     .nav-links { display: none; }
     .hero { padding: 5.25rem 1rem 2.5rem; }
-    .hero-tag { margin-bottom: .8rem; font-size: .68rem; }
+    .hero-tag { margin-bottom: .8rem; font-size: .68rem; line-height: 1.35; padding: .4rem .75rem; }
     h1 { font-size: clamp(2.25rem, 11vw, 3rem); margin-bottom: .8rem; }
+    .hero-intro { font-size: 1rem !important; line-height: 1.65 !important; }
     .hero-sub { line-height: 1.5; margin-bottom: 1.25rem; }
     .hero-screen {
       width: 100vw; margin: .75rem calc(50% - 50vw) 1.25rem;
@@ -382,14 +404,29 @@
       display: block; padding: .45rem; background: #fff;
       color: var(--muted); font-size: .72rem; text-align: center;
     }
+    .hero-screen-callouts {
+      position: static;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .35rem;
+      padding: .7rem;
+      background: #fff;
+      border-top: 1px solid #e2e8f0;
+    }
+    .hero-screen-callout {
+      background: #f0fdfb;
+      box-shadow: none;
+      font-size: .68rem;
+      text-align: center;
+    }
     .hero-benefits {
-      display: grid !important; grid-template-columns: 1fr 1fr;
+      display: grid !important; grid-template-columns: 1fr;
       gap: .35rem .75rem !important; margin-bottom: 1rem !important;
-      font-size: .78rem !important;
+      font-size: .82rem !important;
     }
     .hero-version { margin-bottom: 1rem !important; }
-    .hero-ctas { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin-bottom: 1rem; }
-    .hero-ctas a { justify-content: center; padding: .65rem .75rem; font-size: .82rem; text-align: center; }
+    .hero-ctas { display: grid; grid-template-columns: 1fr; gap: .55rem; margin-bottom: 1rem; }
+    .hero-ctas a { justify-content: center; min-height: 48px; padding: .72rem .75rem; font-size: .9rem; text-align: center; }
     .hero-credentials { margin-bottom: 1.25rem !important; padding: .6rem .75rem !important; }
     .hero-trust { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem 1rem; }
     .section, .privacy-section, .install-section, .demo-banner { padding: 2.5rem 1rem; }
@@ -469,7 +506,7 @@
     <a href="#demo">Demo</a>
     <a href="#geschichte">Geschichte</a>
     <a href="#installation">Starten</a>
-    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">Demo</a>
+    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">Demo öffnen</a>
   </div>
 </nav>
 
@@ -492,7 +529,7 @@
     </div>
     <div class="hero-ctas">
       <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-accent-lg">
-        Demo ansehen
+        Kostenlose Demo öffnen
       </a>
       <a href="#geschichte" class="btn-secondary-lg">
         Warum gibt es Pflegra?
@@ -520,6 +557,12 @@
          onclick="openLightbox(this.querySelector('img').src)"
          onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
       <img src="screenshots/dashboard.png" alt="Pflegra Übersicht mit wichtigen Pflegeinformationen">
+      <div class="hero-screen-callouts" aria-hidden="true">
+        <span class="hero-screen-callout">Nächster Termin</span>
+        <span class="hero-screen-callout">Pflegegrad</span>
+        <span class="hero-screen-callout">Offene Aufgaben</span>
+        <span class="hero-screen-callout">Dokumente</span>
+      </div>
       <span class="hero-screen-hint">Zum Vergrößern antippen</span>
     </div>
   </div>
