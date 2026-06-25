@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pflegra – Das Pflege-Management-System für pflegende Angehörige</title>
-<meta name="description" content="Pflegra: Kostenloses Self-hosted Pflege-Management-System. Pflegegrad, Gutachten, Dokumente, Aufgaben, Erinnerungen und Budgetverwaltung, lokal, ohne Cloud, AGPLv3.">
-<meta property="og:title" content="Pflegra – Das Pflege-Management-System für pflegende Angehörige">
-<meta property="og:description" content="Entwickelt aus eigener Erfahrung als pflegender Angehöriger. Open Source. Ihre Daten bleiben bei Ihnen.">
+<title>Pflegra – Der digitale Pflegeordner für Familien</title>
+<meta name="description" content="Pflegra hilft pflegenden Angehörigen, Dokumente, Fristen, Termine und Aufgaben rund um die Pflege an einem Ort zu behalten. Kostenlos testen, ohne Anmeldung, mit Beispieldaten.">
+<meta property="og:title" content="Pflegra – Der digitale Pflegeordner für Familien">
+<meta property="og:description" content="Ein kostenloses Hilfsmittel für pflegende Angehörige: Dokumente, Fristen, Termine und Aufgaben rund um die Pflege besser organisieren.">
 <meta property="og:url" content="https://pflegra.app">
 <meta property="og:image" content="https://pflegra.app/screenshots/dashboard.png">
 <meta property="og:type" content="website">
@@ -101,14 +101,14 @@
     cursor: zoom-in;
   }
   .hero-screen img { width: 100%; display: block; }
-  .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
+  .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
   @media (max-width: 900px) {
     .hero { min-height: auto; }
     .hero-screen {
       display: block; position: relative; right: auto; top: auto;
       width: 100%; margin: 1rem 0 1.5rem;
     }
-    .hero-tag, h1, .hero-sub, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 100%; }
+    .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 100%; }
   }
   .hero-tag {
     display: inline-flex; align-items: center; gap: .4rem;
@@ -130,6 +130,18 @@
     font-size: clamp(1rem, 2vw, 1.2rem);
     color: var(--muted); max-width: 540px;
     font-weight: 300; line-height: 1.7; margin-bottom: 2.5rem;
+  }
+  .hero-benefits {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: .45rem !important;
+  }
+  .hero-benefits span { min-width: 0; }
+  @media (max-width: 640px) {
+    .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-ctas, .hero-trust {
+      max-width: 100%;
+    }
+    .hero-benefits span { display: block; }
   }
   .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
 
@@ -452,61 +464,38 @@
 <nav>
   <a class="nav-logo" href="/">Pflegra<span>.</span>app</a>
   <div class="nav-links">
-    <a href="#features">Funktionen</a>
+    <a href="#hilfe">So hilft Pflegra</a>
     <a href="#datenschutz">Datenschutz</a>
-    <a href="#installation">Installation</a>
-    <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
-    <a href="ueber.html">Über Pflegra</a>
-    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">🖥 Demo</a>
-    <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" class="nav-cta">⬇ Download</a>
+    <a href="#demo">Demo</a>
+    <a href="#geschichte">Geschichte</a>
+    <a href="#installation">Starten</a>
+    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">Demo</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
   <div class="hero-inner">
-    <div class="hero-tag">Kostenlos · Datenschutzfreundlich · Von Angehörigen entwickelt</div>
-    <h1>Das Pflege-<em>Management-</em><br><em>System</em> für<br>pflegende Angehörige.</h1>
-    <p style="font-size:.92rem;color:#1a7066;font-weight:500;margin-bottom:1rem;
+    <div class="hero-tag">Kostenloses Hilfsmittel für pflegende Angehörige</div>
+    <h1>Der digitale<br><em>Pflegeordner</em><br>für Familien.</h1>
+    <p class="hero-intro" style="font-size:.92rem;color:#1a7066;font-weight:500;margin-bottom:1rem;
               border-left:3px solid var(--accent);padding-left:.75rem">
-      Entwickelt von einem pflegenden Angehörigen, nicht von einer Firma.
+      Pflegra hilft Ihnen, Dokumente, Fristen, Termine und Aufgaben rund um die Pflege an einem Ort zu behalten.
     </p>
-    <div class="hero-screen" role="button" tabindex="0" aria-label="Dashboard-Screenshot vergrößern"
-         onclick="openLightbox(this.querySelector('img').src)"
-         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
-      <img src="screenshots/dashboard.png" alt="Pflegra Dashboard Screenshot">
-      <span class="hero-screen-hint">Zum Vergrößern antippen</span>
-    </div>
     <p class="hero-sub">
-      Für Familien, die Pflege organisieren müssen und nicht ständig nach Dokumenten, Fristen oder Bescheiden suchen möchten, damit weniger Zeit für Organisation verloren geht und mehr Zeit bleibt für die Menschen, die sie brauchen.
+      Für Angehörige, die nicht alles im Kopf behalten möchten und einen ruhigen Ort für die Organisation der Pflege brauchen.
     </p>
     <div class="hero-benefits" style="display:flex;flex-wrap:wrap;gap:.4rem .75rem;margin-bottom:1.5rem;font-size:.88rem;color:var(--text)">
-      <span><strong style="color:#3ABFAB">✓</strong> Fristen nie wieder übersehen</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Dokumente sofort finden</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Gutachten automatisch auswerten</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Pflegealltag besser organisieren</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Pflege-Kalender direkt im Dashboard</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Eigene und wiederkehrende Termine</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Mehrere Angehörige an einem Ort</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Weniger Papierchaos</span>
-    </div>
-    <div class="hero-version" style="margin-bottom:1.5rem;font-size:.78rem;color:var(--muted)">
-      Stabile Version: <strong style="color:var(--primary)">v1.6.2</strong>
-      <span style="margin:0 .5rem;opacity:.4">·</span>
-      Veröffentlicht: <strong style="color:var(--text)">20.06.2026</strong>
+      <span><strong style="color:#3ABFAB">✓</strong> Wichtige Unterlagen schneller wiederfinden</span>
+      <span><strong style="color:#3ABFAB">✓</strong> Fristen und Termine nicht mehr allein im Kopf behalten</span>
+      <span><strong style="color:#3ABFAB">✓</strong> Pflegekasse, Gutachten und Nachweise besser organisieren</span>
     </div>
     <div class="hero-ctas">
       <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-accent-lg">
-        🖥 Demo ausprobieren
+        Demo ansehen
       </a>
-      <a href="https://pflegra.tail5e5060.ts.net/login?next=/gutachten/neueste" target="_blank" class="btn-primary-lg">
-        📋 Beispiel-Gutachten ansehen
-      </a>
-      <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" class="btn-secondary-lg">
-        ⬇ Download
-      </a>
-      <a href="https://github.com/Pflegra/core" target="_blank" class="btn-secondary-lg">
-        ★ GitHub
+      <a href="#geschichte" class="btn-secondary-lg">
+        Warum gibt es Pflegra?
       </a>
     </div>
     <div class="hero-credentials" style="margin-bottom:2.5rem;padding:.75rem 1rem;background:rgba(58,191,171,.08);
@@ -519,252 +508,172 @@
         &nbsp;&nbsp;Passwort: <code style="background:rgba(58,191,171,.15);color:#1a7066;padding:.1rem .4rem;
                                           border-radius:4px;font-family:monospace">demo</code>
       </div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:.25rem">Kein Account nötig · Beispieldaten · automatisch zurückgesetzt</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.25rem">Keine Anmeldung · Beispieldaten · Kostenlos · Sie können nichts kaputt machen</div>
     </div>
 
     <div class="hero-trust">
-      <span>🔒 <strong>Volle Datenhoheit</strong>, Ihre Daten bleiben bei Ihnen</span>
-      <span>🆓 <strong>Kostenlos</strong>, AGPLv3</span>
-      <span>🐧 <strong>Linux Server</strong> &amp; VM</span>
-      <span>🐳 <strong>Docker</strong> Windows / Linux / Mac</span>
+      <span>🔒 <strong>Pflegedaten sind persönlich</strong>, deshalb steht Kontrolle im Mittelpunkt</span>
+      <span>🆓 <strong>Kostenlos ausprobieren</strong>, ohne Anmeldung</span>
+      <span>🤝 <strong>Aus eigener Pflegeerfahrung</strong>, nicht aus Verkaufsdruck</span>
+    </div>
+    <div class="hero-screen" role="button" tabindex="0" aria-label="Pflegra-Übersicht vergrößern"
+         onclick="openLightbox(this.querySelector('img').src)"
+         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
+      <img src="screenshots/dashboard.png" alt="Pflegra Übersicht mit wichtigen Pflegeinformationen">
+      <span class="hero-screen-hint">Zum Vergrößern antippen</span>
     </div>
   </div>
 </section>
 
-<!-- Warum Pflegra -->
-<section class="mobile-accordion-section" style="background:#fff;padding:4rem 2rem;border-bottom:1px solid #e2e8f0">
-  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-about"
-          onclick="toggleMobileAccordion(this)">
-    <span>Über Pflegra</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
-  </button>
-  <div id="mobile-about" class="mobile-accordion-content" style="max-width:780px;margin:0 auto">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:1rem">Warum Pflegra?</div>
-    <p style="font-size:1.25rem;font-weight:600;color:#0D1B2A;line-height:1.6;margin-bottom:1.5rem">
-      Wir sind keine Softwarefirma. Wir sind eine Familie, die selbst pflegt.
-    </p>
-    <p style="font-size:.95rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
-      Wie viele andere Familien haben wir irgendwann festgestellt, dass die Pflege nicht die größte Herausforderung ist. Die größte Herausforderung ist oft alles, was drum herum passiert.
-    </p>
-    <p style="font-size:.95rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
-      Anträge ausfüllen. Fristen einhalten. Schreiben der Pflegekasse abheften. Arzttermine organisieren. Nachweise aufbewahren. Ansprechpartner finden. Dokumente wiederfinden, wenn sie Monate später plötzlich gebraucht werden.
-    </p>
-    <p style="font-size:.95rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
-      Jeder einzelne Punkt für sich ist nicht schlimm. Aber mit der Zeit wird daraus ein Berg an Aufgaben.
-    </p>
-    <p style="font-size:.95rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
-      Wir kennen Abende, an denen man eigentlich nur noch auf die Couch möchte, und stattdessen versucht herauszufinden, wann die letzte Pflegeberatung war oder in welchem Ordner ein bestimmtes Schreiben liegt. Wir kennen das Gefühl, ständig Angst zu haben, etwas Wichtiges zu vergessen.
-    </p>
-    <p style="font-size:.95rem;color:#5a6a80;line-height:1.8;margin-bottom:1.5rem">
-      Genau daraus ist Pflegra entstanden. Nicht, weil wir eine App entwickeln wollten. Sondern weil wir selbst Entlastung gebraucht haben.
-    </p>
-    <div style="border-left:3px solid #3ABFAB;padding:.75rem 1.25rem;background:#f0fdfb;border-radius:0 8px 8px 0;margin-bottom:1.5rem">
-      <p style="font-size:1rem;font-weight:600;color:#0D1B2A;line-height:1.6;margin:0">
-        Die Pflege können wir nicht übernehmen. Den Papierkram vielleicht schon.
-      </p>
-    </div>
-    <p style="font-size:.9rem;color:#8a9ab0;line-height:1.7;font-style:italic">
-      Wenn Sie heute mit Ordnern, Zetteln oder Tabellen gut zurechtkommen, ist das völlig in Ordnung. Wir haben lange genau das Gleiche gemacht.<br><br>
-      Die meisten Familien beginnen mit einem Ordner. Wir auch. Pflegra entstand erst, als der Ordner nicht mehr gereicht hat.<br><br>
-      Pflegra ist für den Moment entstanden, in dem man merkt, dass man nicht mehr alles alleine im Kopf tragen kann.
-    </p>
-    <div style="margin-top:1.25rem;padding:1rem 1.25rem;background:#f0fdfb;border-radius:8px;border-left:3px solid #3ABFAB">
-      <p style="font-size:.88rem;color:#2d3748;margin-bottom:.5rem">
-        Pflegra begann nicht als Softwareprojekt. Es begann mit einer einfachen Tabelle für die Verhinderungspflege.
-        Aus dieser Tabelle wurden Makros. Aus Makros wurde PflegeNachweis. Aus PflegeNachweis wurde Pflegra.
-      </p>
-      <a href="ueber.html" style="font-size:.85rem;color:#3ABFAB;font-weight:600;text-decoration:none">Die ganze Geschichte lesen →</a>
-    </div>
-  </div>
-</section>
-
-
-<!-- Typische Probleme -->
-<section class="mobile-hide" style="background:#f8fafc;padding:2.5rem 2rem;border-bottom:1px solid #e2e8f0">
-  <div style="max-width:860px;margin:0 auto">
+<!-- Typische Situationen -->
+<section id="hilfe" style="background:#f8fafc;padding:3.5rem 2rem;border-bottom:1px solid #e2e8f0">
+  <div style="max-width:920px;margin:0 auto">
     <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Kommt Ihnen das bekannt vor?</div>
-    <h2 style="text-align:center;font-size:1.3rem;color:#0D1B2A;margin-bottom:1.5rem">Pflegra hilft genau dort, wo es meistens fehlt</h2>
+    <h2 style="text-align:center;font-size:1.6rem;color:#0D1B2A;margin-bottom:1rem">Wenn Pflege plötzlich auch Papierkram bedeutet.</h2>
+    <p style="max-width:700px;margin:0 auto 1.75rem;text-align:center;font-size:.98rem;color:#5a6a80;line-height:1.8">
+      Pflege heißt nicht nur da sein. Oft kommen Briefe, Fristen, Termine, Anträge, Gutachten und Nachweise dazu. Irgendwann liegt alles irgendwo, aber nichts ist dort, wo man es gerade braucht.
+    </p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem">
-
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.25rem">
-        <div style="font-size:.82rem;color:#e65c00;font-weight:600;margin-bottom:.4rem">😟 Problem</div>
-        <div style="font-size:.9rem;color:#0D1B2A;margin-bottom:.75rem;font-weight:500">Ich verliere den Überblick über Fristen und Termine.</div>
-        <div style="font-size:.8rem;color:#3ABFAB;font-weight:600;margin-bottom:.2rem">✓ Lösung</div>
-        <div style="font-size:.85rem;color:#5a6a80">Eigene Fristen mit Ampelfarben, direkt im Dashboard sichtbar.</div>
-      </div>
-
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.25rem">
-        <div style="font-size:.82rem;color:#e65c00;font-weight:600;margin-bottom:.4rem">😟 Problem</div>
-        <div style="font-size:.9rem;color:#0D1B2A;margin-bottom:.75rem;font-weight:500">Ich finde wichtige Schreiben der Pflegekasse nicht mehr wieder.</div>
-        <div style="font-size:.8rem;color:#3ABFAB;font-weight:600;margin-bottom:.2rem">✓ Lösung</div>
-        <div style="font-size:.85rem;color:#5a6a80">Dokumentenarchiv: alle Unterlagen nach Kategorien sortiert, jederzeit abrufbar.</div>
-      </div>
-
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.25rem">
-        <div style="font-size:.82rem;color:#e65c00;font-weight:600;margin-bottom:.4rem">😟 Problem</div>
-        <div style="font-size:.9rem;color:#0D1B2A;margin-bottom:.75rem;font-weight:500">Ich habe Angst, etwas Wichtiges zu vergessen.</div>
-        <div style="font-size:.8rem;color:#3ABFAB;font-weight:600;margin-bottom:.2rem">✓ Lösung</div>
-        <div style="font-size:.85rem;color:#5a6a80">Aufgaben und Erinnerungen per E-Mail oder Push, nichts geht mehr verloren.</div>
-      </div>
-
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wo ist das Schreiben der Pflegekasse?</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wann war die letzte Pflegeberatung?</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Welche Frist läuft als Nächstes ab?</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wo habe ich das Gutachten abgelegt?</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Was muss ich diese Woche noch erledigen?</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wen muss ich bei der Pflegekasse anrufen?</div>
     </div>
+    <p style="text-align:center;font-size:1rem;color:#1a7066;font-weight:700;margin-top:1.75rem">Genau für diesen Alltag ist Pflegra entstanden.</p>
   </div>
 </section>
-<!-- Zwei Wege -->
-<section class="mobile-accordion-section" style="background:#f8fafc;padding:3.5rem 2rem;border-bottom:1px solid #e2e8f0">
-  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-hosting"
-          onclick="toggleMobileAccordion(this)">
-    <span>Self-Hosting / Cloud</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
-  </button>
-  <div id="mobile-hosting" class="mobile-accordion-content" style="max-width:860px;margin:0 auto">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Wie möchten Sie Pflegra nutzen?</div>
-    <h2 style="text-align:center;font-size:1.5rem;color:#0D1B2A;margin-bottom:2rem">Wählen Sie Ihren Weg</h2>
-    <div class="hosting-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
 
-      <!-- Cloud -->
-      <div class="hosting-card" style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:2rem;position:relative">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#8a9ab0;color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .75rem;border-radius:20px;white-space:nowrap">🚧 In Vorbereitung</div>
-        <div style="font-size:2rem;margin-bottom:.75rem;opacity:.6">☁️</div>
-        <div style="font-size:1.1rem;font-weight:700;color:#4a5568;margin-bottom:.25rem">Pflegra Cloud</div>
-        <div style="font-size:.8rem;color:#8a9ab0;font-weight:600;margin-bottom:1rem">Für Menschen, die keine Installation möchten</div>
-        <ul class="hosting-list" style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#8a9ab0;line-height:2">
-          <li>✓ Keine Installation nötig</li>
-          <li>✓ Von überall erreichbar</li>
-          <li>✓ Automatische Backups</li>
-          <li>✓ Automatische Updates</li>
-          <li>✓ Für alle, auch ohne Technik-Kenntnisse</li>
-        </ul>
-        <div class="hosting-status" style="text-align:center;font-size:.8rem;color:#8a9ab0;padding:.75rem 1rem;border-radius:8px;background:#f1f5f9">
-          Derzeit in Entwicklung, noch nicht verfügbar.
-        </div>
-      </div>
-
-      <!-- Community -->
-      <div class="hosting-card" style="background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:2rem">
-        <div style="font-size:2rem;margin-bottom:.75rem">🐳</div>
-        <div style="font-size:1.1rem;font-weight:700;color:#0D1B2A;margin-bottom:.25rem">Pflegra Community Edition</div>
-        <div style="font-size:.8rem;color:#8a9ab0;font-weight:600;margin-bottom:1rem">Kostenlos · Ihre Daten bleiben bei Ihnen · Keine monatlichen Kosten</div>
-        <ul class="hosting-list" style="list-style:none;padding:0;margin:0 0 1.5rem;font-size:.88rem;color:#5a6a80;line-height:2">
-          <li>✓ Vollständig kostenlos</li>
-          <li>✓ Ihre Daten bleiben bei Ihnen</li>
-          <li>✓ Docker, Linux, Windows EXE</li>
-          <li>✓ AGPLv3 Open Source</li>
-          <li>✓ Mehrere Versicherte pro Account</li>
-                    <li>✓ Volle Kontrolle</li>
-        </ul>
-        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" style="display:block;text-align:center;background:#0D1B2A;color:#fff;padding:.75rem 1rem;border-radius:8px;font-weight:600;font-size:.9rem;text-decoration:none">
-          ⬇ Jetzt herunterladen
-        </a>
-      </div>
-
-    </div>
-    <p style="text-align:center;font-size:.8rem;color:#8a9ab0;margin-top:1.25rem">
-      Die Community Edition bleibt dauerhaft kostenlos und Open Source, unabhängig von der Cloud-Version.
+<!-- Lösung -->
+<section class="section" id="features">
+  <div class="section-header" style="text-align:center">
+    <div class="section-tag">Was Pflegra ordnet</div>
+    <h2 class="section-title">Alles Wichtige zur Pflege an einem Ort.</h2>
+    <p class="section-sub" style="margin-left:auto;margin-right:auto">
+      Pflegra ersetzt keine Pflegeberatung. Es hilft Ihnen, den organisatorischen Teil der Pflege besser zu bewältigen.
     </p>
   </div>
-</section>
 
-<!-- Screenshots -->
-<section class="section mobile-hide" id="screenshots" style="background:#fff; padding-top:3rem; padding-bottom:3rem">
-  <div class="section-inner">
-    <div class="section-label">Screenshots</div>
-    <h2>Pflegra in Aktion</h2>
-    <div class="screens-grid">
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Dashboard</div>
-        <img src="screenshots/dashboard.png" alt="Pflegra Dashboard" loading="eager">
-      </div>
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Gutachten-Analyse</div>
-        <img src="screenshots/gutachten.png" alt="Gutachten-Analyse" loading="eager">
-      </div>
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Pflegegradrechner</div>
-        <img src="screenshots/pflegegradrechner.png" alt="Pflegegradrechner Ergebnis" loading="eager">
-      </div>
-      <p style="text-align:center;font-size:.8rem;color:#8a9ab0;margin-top:.75rem">Screenshots aus der Live-Demo</p>
-    </div>
-  </div>
-</section>
-
-<!-- Features -->
-<section class="section mobile-accordion-section" id="features">
-  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-features"
-          onclick="toggleMobileAccordion(this)">
-    <span>Funktionen</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
-  </button>
-  <div id="mobile-features" class="mobile-accordion-content">
-  <div class="section-header" style="text-align:center">
-    <div class="section-tag">Was ist drin</div>
-    <h2 class="section-title">Alles für den Pflegealltag</h2>
-  </div>
-
-  <!-- Hauptfunktionen: immer sichtbar -->
   <div class="features-main-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
     <div class="feature-card highlight">
       <div class="feature-icon">📁</div>
-      <div class="feature-title">Dokumentenarchiv</div>
-      <div class="feature-desc">Gutachten, Bescheide, Arztberichte und Nachweise in 7 Kategorien archivieren, jederzeit abrufbar.</div>
+      <div class="feature-title">Dokumente organisieren</div>
+      <div class="feature-desc">Bescheide, Gutachten, Arztbriefe und Nachweise gesammelt ablegen und schneller wiederfinden.</div>
     </div>
     <div class="feature-card highlight">
       <div class="feature-icon">📅</div>
-      <div class="feature-title">Fristen</div>
-      <div class="feature-desc">Eigene Fristen anlegen mit Ampelfarben direkt im Dashboard. Nichts mehr vergessen.</div>
+      <div class="feature-title">Fristen im Blick behalten</div>
+      <div class="feature-desc">Wichtige Termine und Fristen festhalten, bevor etwas untergeht.</div>
     </div>
     <div class="feature-card highlight">
       <div class="feature-icon">🗓️</div>
-      <div class="feature-title">Pflege-Kalender <span class="feature-new">Neu</span></div>
-      <div class="feature-desc">Monatsansicht für Fristen, Pflegeberatung, Dokumente, Tagebuch und eigene Termine, direkt vom Dashboard erreichbar.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">📅</div>
-      <div class="feature-title">Eigene Termine <span class="feature-new">Neu</span></div>
-      <div class="feature-desc">Ganztägige oder zeitgebundene Termine einmalig, täglich, wöchentlich, monatlich oder jährlich verwalten.</div>
+      <div class="feature-title">Termine verwalten</div>
+      <div class="feature-desc">Arzttermine, Pflegeberatung und eigene Termine übersichtlich sammeln.</div>
     </div>
     <div class="feature-card highlight">
       <div class="feature-icon">✅</div>
-      <div class="feature-title">Aufgaben &amp; Erinnerungen</div>
-      <div class="feature-desc">Offene Aufgaben mit Ampelfarben. Erinnerungen per E-Mail oder Push-Benachrichtigung.</div>
+      <div class="feature-title">Aufgaben festhalten</div>
+      <div class="feature-desc">Offene Erledigungen notieren und Schritt für Schritt abhaken.</div>
     </div>
     <div class="feature-card highlight">
       <div class="feature-icon">📋</div>
-      <div class="feature-title">Gutachten-Analyse</div>
-      <div class="feature-desc">MD-Gutachten als PDF hochladen und automatisch auswerten: Pflegegrad, Punkte, alle 6 Module.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">🧮</div>
-      <div class="feature-title">Pflegegradrechner</div>
-      <div class="feature-desc">NBA-Begutachtung nach § 15 SGB XI: alle 6 Module, 57 Kriterien mit Alltagserklärungen.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">👨‍👩‍👧</div>
-      <div class="feature-title">Mehrere Versicherte</div>
-      <div class="feature-desc">Mehrere Angehörige in einem Account verwalten, jederzeit zwischen Personen wechselbar.</div>
+      <div class="feature-title">Gutachten nachvollziehen</div>
+      <div class="feature-desc">Pflegegrad und MD-Gutachten besser verstehen und einordnen.</div>
     </div>
     <div class="feature-card highlight">
       <div class="feature-icon">📞</div>
-      <div class="feature-title">Kontakte</div>
-      <div class="feature-desc">Hausarzt, Pflegekasse, Pflegedienst und Beratungsstelle pro Person, mit Direktanruf per Klick.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">📊</div>
-      <div class="feature-title">Budgetplanung</div>
-      <div class="feature-desc">VP und KZP Budget in Echtzeit. 56-Tage-Grenze, Jahresprognose, Entlastungsbetrag mit Übertragsfrist.</div>
+      <div class="feature-title">Kontakte sammeln</div>
+      <div class="feature-desc">Pflegekasse, Ärzte, Pflegedienst und Beratungsstellen griffbereit halten.</div>
     </div>
   </div>
 
-  <!-- Weitere Funktionen -->
-  <p style="text-align:center;font-size:.85rem;color:#8a9ab0;margin-top:1.5rem;max-width:600px;margin-left:auto;margin-right:auto">
-    Und vieles mehr: Pflegetagebuch, Zeitachse, Leistungsfinder, PDF-Export, Pflegeberatung § 37.3, automatische Backups und weitere Helfer für den Pflegealltag.
+  <p style="text-align:center;font-size:.88rem;color:#8a9ab0;margin-top:1.5rem;max-width:640px;margin-left:auto;margin-right:auto">
+    Pflegra kann noch mehr. Für den ersten Überblick reicht aber genau das: Ordnung, Erinnerung und schnelleres Wiederfinden.
   </p>
+</section>
+
+<!-- Warum Pflegra -->
+<section id="geschichte" style="background:#fff;padding:4rem 2rem;border-bottom:1px solid #e2e8f0">
+  <div style="max-width:780px;margin:0 auto">
+    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:1rem">Warum Pflegra?</div>
+    <h2 style="font-size:1.6rem;color:#0D1B2A;line-height:1.35;margin-bottom:1.25rem">Pflegra entstand nicht in einer Firma. Sondern in einer Pflegesituation.</h2>
+    <p style="font-size:.98rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
+      Am Anfang reichten Ordner, Zettel und Tabellen. Dann wurden es mehr Schreiben, mehr Fristen, mehr Fragen und mehr Dinge, die man nicht vergessen durfte.
+    </p>
+    <p style="font-size:.98rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
+      Pflegra ist aus diesem Alltag entstanden. Nicht, weil jemand eine Software verkaufen wollte. Sondern weil eine Familie selbst eine Lösung brauchte, um den Überblick zu behalten.
+    </p>
+    <p style="font-size:.98rem;color:#5a6a80;line-height:1.8;margin-bottom:1.5rem">
+      Heute soll Pflegra anderen Angehörigen genau dabei helfen.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div style="background:#f0fdfb;border-left:3px solid #3ABFAB;border-radius:0 8px 8px 0;padding:.85rem 1rem;color:#2d3748;font-size:.9rem">Entwickelt aus eigener Pflegeerfahrung</div>
+      <div style="background:#f0fdfb;border-left:3px solid #3ABFAB;border-radius:0 8px 8px 0;padding:.85rem 1rem;color:#2d3748;font-size:.9rem">Für Familien, die Ordnung in den Pflegealltag bringen möchten</div>
+      <div style="background:#f0fdfb;border-left:3px solid #3ABFAB;border-radius:0 8px 8px 0;padding:.85rem 1rem;color:#2d3748;font-size:.9rem">Ohne Werbung und ohne Tracking</div>
+    </div>
+    <a href="ueber.html" style="font-size:.9rem;color:#3ABFAB;font-weight:700;text-decoration:none">Die ganze Geschichte lesen →</a>
   </div>
 </section>
+
+<!-- Datenschutz -->
+<section class="privacy-section" id="datenschutz">
+  <div class="privacy-inner">
+    <div class="privacy-grid">
+      <div>
+        <div class="section-label">Datenschutz</div>
+        <h2>Pflegedaten sind persönlich. Sie sollen es bleiben.</h2>
+        <p class="section-sub">
+          In Pflegedokumenten stehen sehr private Informationen: Diagnosen, Gutachten, Bescheide, Kontakte und persönliche Notizen. Deshalb soll jeder selbst entscheiden können, wo diese Daten gespeichert werden.
+        </p>
+      </div>
+      <div class="privacy-points">
+        <div class="privacy-point">
+          <span class="privacy-point-icon">🔒</span>
+          <div class="privacy-point-text">
+            <strong>Keine Werbung</strong>
+            <span>Pflegra ist kein Werbeprodukt und verkauft keine Aufmerksamkeit.</span>
+          </div>
+        </div>
+        <div class="privacy-point">
+          <span class="privacy-point-icon">📡</span>
+          <div class="privacy-point-text">
+            <strong>Kein Tracking</strong>
+            <span>Kein Analytics, keine Verhaltensprofile, keine versteckte Auswertung Ihrer Nutzung.</span>
+          </div>
+        </div>
+        <div class="privacy-point">
+          <span class="privacy-point-icon">🤝</span>
+          <div class="privacy-point-text">
+            <strong>Keine Weitergabe Ihrer Daten</strong>
+            <span>Pflegedaten sollen unter Ihrer Kontrolle bleiben.</span>
+          </div>
+        </div>
+        <div class="privacy-point">
+          <span class="privacy-point-icon">🔍</span>
+          <div class="privacy-point-text">
+            <strong>Für technisch Interessierte transparent</strong>
+            <span>Pflegra kann selbst betrieben werden. Der Quellcode ist öffentlich einsehbar.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Demo Banner -->
-<section class="demo-banner">
-  <div style="max-width:700px;margin:0 auto">
-    <h2>Pflegra selbst ausprobieren</h2>
-    <p>Kein Account, keine Installation, einfach einloggen und alle Funktionen mit Beispieldaten testen.</p>
+<section class="demo-banner" id="demo">
+  <div style="max-width:720px;margin:0 auto">
+    <h2>Schauen Sie sich Pflegra in Ruhe an.</h2>
+    <p>Die Demo zeigt Pflegra mit Beispieldaten. Sie brauchen keinen Account, müssen nichts installieren und können nichts kaputt machen.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1rem 0 1.25rem;font-size:.9rem">
+      <span>✓ Keine Anmeldung</span>
+      <span>✓ Kostenlose Beispieldaten</span>
+      <span>✓ Jederzeit zurückgesetzt</span>
+      <span>✓ Direkt im Browser ansehen</span>
+    </div>
     <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-accent-lg">
-      🖥 Demo starten
+      Demo öffnen
     </a>
     <div class="demo-credentials">
       Login: <code>demo</code> / <code>demo</code> &nbsp;·&nbsp; Daten werden automatisch zurückgesetzt
@@ -772,49 +681,25 @@
   </div>
 </section>
 
-<!-- Datenschutz -->
-<section class="privacy-section mobile-accordion-section" id="datenschutz">
-  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-privacy"
-          onclick="toggleMobileAccordion(this)">
-    <span>Datenschutz</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
-  </button>
-  <div id="mobile-privacy" class="privacy-inner mobile-accordion-content">
-    <div class="privacy-grid">
-      <div>
-        <div class="section-label">Datenschutz</div>
-        <h2>Ihre Daten gehören Ihnen.</h2>
-        <p class="section-sub">Pflegra wurde von Grund auf nach dem Prinzip „Daten bleiben lokal" entwickelt.</p>
+<!-- Screenshots -->
+<section class="section mobile-hide" id="screenshots" style="background:#fff; padding-top:3rem; padding-bottom:3rem">
+  <div class="section-inner">
+    <div class="section-label">Screenshots</div>
+    <h2>Ein Blick in Pflegra</h2>
+    <div class="screens-grid">
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Alles Wichtige auf einen Blick</div>
+        <img src="screenshots/dashboard.png" alt="Pflegra Übersicht mit wichtigen Pflegeinformationen" loading="eager">
       </div>
-      <div class="privacy-points">
-        <div class="privacy-point">
-          <span class="privacy-point-icon">🔒</span>
-          <div class="privacy-point-text">
-            <strong>Keine Cloud, kein Server</strong>
-            <span>Alle Daten liegen in einer SQLite-Datenbank auf Ihrem eigenen System.</span>
-          </div>
-        </div>
-        <div class="privacy-point">
-          <span class="privacy-point-icon">📡</span>
-          <div class="privacy-point-text">
-            <strong>Keine Telemetrie</strong>
-            <span>Kein Analytics, kein Tracking, keine Übertragung an externe Server.</span>
-          </div>
-        </div>
-        <div class="privacy-point">
-          <span class="privacy-point-icon">🔍</span>
-          <div class="privacy-point-text">
-            <strong>Quellcode offen</strong>
-            <span>Jede Zeile Code ist auf GitHub einsehbar. AGPLv3 lizenziert.</span>
-          </div>
-        </div>
-        <div class="privacy-point">
-          <span class="privacy-point-icon">💾</span>
-          <div class="privacy-point-text">
-            <strong>Automatische Backups</strong>
-            <span>Tägliche automatische Backups mit integrierter Wiederherstellung, Ihre Daten sind auch bei Serverproblemen sicher.</span>
-          </div>
-        </div>
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Gutachten besser verstehen</div>
+        <img src="screenshots/gutachten.png" alt="Pflegra Gutachtenansicht" loading="eager">
       </div>
+      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
+        <div class="screen-label">Pflegegrad nachvollziehen</div>
+        <img src="screenshots/pflegegradrechner.png" alt="Pflegra Pflegegradrechner" loading="eager">
+      </div>
+      <p style="text-align:center;font-size:.8rem;color:#8a9ab0;margin-top:.75rem">Screenshots aus der Live-Demo</p>
     </div>
   </div>
 </section>
@@ -823,17 +708,35 @@
 <section class="install-section mobile-accordion-section" id="installation">
   <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-installation"
           onclick="toggleMobileAccordion(this)">
-    <span>Installation</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
+    <span>Starten</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
   </button>
   <div id="mobile-installation" class="section-inner mobile-accordion-content">
-    <div class="section-label">Installation</div>
-    <h2>In 3 Schritten starten</h2>
-    <p class="section-sub">Pflegra läuft auf Linux Server, Docker Desktop (Windows/Mac/Linux) oder direkt per Python.</p>
+    <div class="section-label">Starten</div>
+    <h2>So können Sie Pflegra nutzen.</h2>
+    <p class="section-sub">Beginnen Sie am einfachsten mit der Demo. Download, GitHub, Docker, Linux und Versionen finden Sie hier für später oder für technisch Interessierte.</p>
+
+    <div class="hosting-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem">
+      <div class="hosting-card" style="background:#fff;border:2px solid #3ABFAB;border-radius:12px;padding:1.5rem">
+        <div style="font-size:1.05rem;font-weight:700;color:#0D1B2A;margin-bottom:.5rem">Demo ansehen</div>
+        <p style="font-size:.88rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">Am einfachsten: Pflegra im Browser mit Beispieldaten testen.</p>
+        <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" style="display:block;text-align:center;background:#3ABFAB;color:#fff;padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none">Demo öffnen</a>
+      </div>
+      <div class="hosting-card" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem">
+        <div style="font-size:1.05rem;font-weight:700;color:#0D1B2A;margin-bottom:.5rem">Windows-Version nutzen</div>
+        <p style="font-size:.88rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">Für alle, die Pflegra lokal auf dem eigenen PC ausprobieren möchten.</p>
+        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" style="display:block;text-align:center;background:#0D1B2A;color:#fff;padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none">Download ansehen</a>
+      </div>
+      <div class="hosting-card" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem">
+        <div style="font-size:1.05rem;font-weight:700;color:#0D1B2A;margin-bottom:.5rem">Selbst betreiben</div>
+        <p style="font-size:.88rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">Für Menschen mit technischer Erfahrung, Docker, Linux oder eigenem Server.</p>
+        <a href="https://github.com/Pflegra/core" target="_blank" style="display:block;text-align:center;background:#fff;color:#0D1B2A;padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none;border:1px solid #cbd5e1">GitHub ansehen</a>
+      </div>
+    </div>
 
     <div class="install-tabs">
-      <button class="install-tab active" onclick="showTab('windows', event)">🪟 Windows</button>
-      <button class="install-tab" onclick="showTab('docker', event)">🐳 Docker</button>
-      <button class="install-tab" onclick="showTab('ha', event)">🐧 Linux Server</button>
+      <button class="install-tab active" onclick="showTab('windows', event)">Windows</button>
+      <button class="install-tab" onclick="showTab('docker', event)">Docker</button>
+      <button class="install-tab" onclick="showTab('ha', event)">Linux Server</button>
     </div>
 
     <div id="tab-windows" class="install-content active">
@@ -845,9 +748,9 @@
 <span class="comment">#    → Browser öffnet sich automatisch</span>
 <span class="comment">#    → Tray-Symbol erscheint in der Taskleiste</span></div>
       <p class="install-note">
-        Kein Docker, keine Installation nötig. Pflegra läuft direkt als eigenständige Windows-Anwendung.
+        Kein Docker nötig. Pflegra läuft direkt als eigenständige Windows-Anwendung.
         Daten werden lokal gespeichert und bleiben auf Ihrem PC.
-        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank">Download →</a>
+        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank">Download v1.6.2 →</a>
       </p>
     </div>
 
