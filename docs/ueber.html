@@ -3,12 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Über Pflegra – Aus dem Pflegealltag heraus entwickelt</title>
-  <meta name="description" content="Pflegra entstand aus dem Pflegealltag einer Familie: von einer Tabelle für Nachweise zum offenen Pflege-Management-System.">
+  <title>Über Pflegra – Von einer Tabelle zum Pflege-Management-System</title>
+  <meta name="description" content="Die Geschichte von Pflegra: Wie aus einer Tabelle für die Verhinderungspflege ein offenes Pflege-Management-System entstand – entwickelt von Stefan und Laura Neu.">
   <link rel="canonical" href="https://pflegra.app/ueber.html">
   <meta name="theme-color" content="#0d4e43">
   <link rel="stylesheet" href="assets/site.css">
   <script src="assets/site.js" defer></script>
+  <style>
+    .story { max-width: 880px; margin: 0 auto; }
+    .story-step { padding: clamp(1.5rem, 4vw, 2.5rem) 0; border-bottom: 1px solid var(--line); }
+    .story-step:last-child { border-bottom: 0; }
+    .story-heading { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+    .story-icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: 0 0 2.75rem; border-radius: 50%; background: var(--green); color: #fff; font-size: 1.15rem; }
+    .story-step h2 { margin: .15rem 0 0; }
+    .story-step p { margin: 0 0 .85rem; }
+    .story-image { display: block; width: 100%; margin: 1.25rem 0 .5rem; border: 1px solid var(--line); border-radius: 1rem; box-shadow: 0 12px 30px rgba(13,78,67,.09); cursor: zoom-in; }
+    .image-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin: 1.25rem 0; }
+    .image-grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .image-item img { display: block; width: 100%; border: 1px solid var(--line); border-radius: .8rem; cursor: zoom-in; }
+    .caption, .image-item p { margin: .4rem 0 0; color: var(--muted); font-size: .82rem; text-align: center; }
+    .story-quote { margin: 1.25rem 0; padding: 1rem 1.25rem; border-left: 4px solid var(--green); border-radius: 0 .75rem .75rem 0; background: var(--soft); font-weight: 600; }
+    .today-box { margin-top: 1.25rem; padding: 1.5rem; border-radius: 1rem; background: var(--green-dark); color: #fff; }
+    .today-box h3, .today-box p { color: #fff; }
+    .team-card { display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: center; padding: 2rem; border: 1px solid var(--line); border-radius: 1.25rem; background: #fff; }
+    .team-card img { width: 180px; height: 180px; object-fit: cover; border-radius: 50%; }
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; padding: 2rem; background: rgba(0,0,0,.88); }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 92vw; max-height: 86vh; border-radius: .75rem; }
+    .lightbox-close { position: absolute; top: 1rem; right: 1.25rem; border: 0; background: transparent; color: #fff; font-size: 2rem; cursor: pointer; }
+    @media (max-width: 700px) {
+      .image-grid, .image-grid.three, .team-card { grid-template-columns: 1fr; }
+      .team-card { text-align: center; }
+      .team-card img { margin: 0 auto; }
+    }
+  </style>
 </head>
 <body>
   <a class="skip-link" href="#inhalt">Direkt zum Inhalt</a>
@@ -17,33 +45,105 @@
       <a class="brand" href="index.html">Pflegra<span class="brand-mark">.</span></a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptmenue" aria-label="Navigation öffnen">Menü</button>
       <div class="nav-links" id="hauptmenue" data-open="false">
-        <a href="index.html#funktionen">Funktionen</a><a href="index.html#modelle">Zugangsmodelle</a>
-        <a href="index.html#datenhoheit">Datenhoheit</a><a class="button button-primary" href="index.html#ausprobieren">Pflegra kennenlernen</a>
+        <a href="index.html#pflegealltag">Pflegealltag</a><a href="index.html#funktionen">Funktionen</a><a href="index.html#modelle">Zugangsmodelle</a>
+        <a href="index.html#datenhoheit">Datenhoheit</a><a aria-current="page" href="ueber.html">Über Pflegra</a><a class="button button-primary" href="index.html#ausprobieren">Pflegra kennenlernen</a>
       </div>
     </nav>
   </header>
+
   <main id="inhalt">
     <section class="hero">
       <div class="wrap">
-        <p class="eyebrow">Über Pflegra</p>
-        <h1>Aus einem echten Pflegealltag entstanden.</h1>
-        <p class="lead">Pflegra begann nicht als Produktidee, sondern als praktische Hilfe: weniger Zeit mit Papierkram verlieren und wichtige Informationen zuverlässig wiederfinden.</p>
+        <p class="eyebrow">Die Geschichte von Pflegra</p>
+        <h1>Von einer Tabelle zu Pflegra.</h1>
+        <p class="lead">Wie aus einer praktischen Hilfe für den eigenen Pflegealltag Schritt für Schritt ein offenes Pflege-Management-System wurde.</p>
       </div>
     </section>
+
     <section class="section section-soft">
-      <div class="wrap history">
-        <article class="history-step"><p class="card-kicker">2024 · Der Anfang</p><h2>Eine Tabelle für die Verhinderungspflege</h2><p>Am Küchentisch entstand eine einfache Tabelle, um Stunden zu dokumentieren und das verfügbare Budget im Blick zu behalten.</p></article>
-        <article class="history-step"><p class="card-kicker">2025 · Automatisierung</p><h2>Nachweise mit weniger Handarbeit</h2><p>Aus Einträgen konnten automatisch unterschriftsfertige Nachweise erzeugt werden. Aus einer Tabelle wurde schrittweise ein Werkzeug für wiederkehrende Bürokratie.</p></article>
-        <article class="history-step"><p class="card-kicker">2026 · Pflegra</p><h2>Ein gemeinsamer Ort für den Pflegealltag</h2><p>Mit wachsendem Umfang wurden die Grenzen der Tabellenlösung sichtbar. Pflegra entstand als moderne Webanwendung für Dokumentation, Termine, Fristen, Budgets, Dokumente und Zusammenarbeit.</p></article>
+      <div class="wrap story">
+        <article class="story-step">
+          <div class="story-heading"><div class="story-icon" aria-hidden="true">1</div><div><p class="card-kicker">2024 · Der Anfang</p><h2>Eine Tabelle für die Verhinderungspflege</h2></div></div>
+          <p>Pflegra begann nicht als Softwareprojekt. Es begann am Küchentisch.</p>
+          <p>Wie viele pflegende Angehörige standen auch wir vor derselben Herausforderung: Nachweise, Fristen, Bescheide und immer mehr Papierkram. Am Anfang gab es nur eine einfache Tabelle für die Verhinderungspflege. Sie half uns, Stunden zu dokumentieren und den Überblick über das verfügbare Budget zu behalten.</p>
+          <img class="story-image" src="images/geschichte/2025_tabelle_plus_nachweis_makro.png" alt="Die erste LibreOffice-Tabelle mit Stundeneintragungen" data-lightbox>
+          <p class="caption">Die erste Version: eine einfache LibreOffice-Tabelle mit Stundeneintragungen</p>
+        </article>
+
+        <article class="story-step">
+          <div class="story-heading"><div class="story-icon" aria-hidden="true">2</div><div><p class="card-kicker">2025 · Der erste Durchbruch</p><h2>Automatische Nachweise per Makro</h2></div></div>
+          <p>Schnell wurde klar, dass die eigentliche Arbeit nicht das Eintragen der Stunden war, sondern das Erstellen der Nachweise. Deshalb entstand das erste Makro, das automatisch unterschriftsfertige Nachweise als PDF erzeugte.</p>
+          <blockquote class="story-quote">Das war der Wechsel von „Ich trage Stunden ein“ zu „Die Software erledigt die Bürokratie“ – die eigentliche Geburtsstunde von Pflegra.</blockquote>
+          <div class="image-grid">
+            <div class="image-item"><img src="images/geschichte/2025_erstellter_nachweis_in_tabelle.png" alt="Nachweis in LibreOffice Calc" data-lightbox><p>Nachweis in LibreOffice Calc</p></div>
+            <div class="image-item"><img src="images/geschichte/2025_erstellter_nachweis.png" alt="Automatisch erstellter PDF-Nachweis" data-lightbox><p>Automatisch erstellter PDF-Nachweis</p></div>
+          </div>
+        </article>
+
+        <article class="story-step">
+          <div class="story-heading"><div class="story-icon" aria-hidden="true">3</div><div><p class="card-kicker">2025 · PflegeNachweis 2.0</p><h2>Mehr als nur eine Tabelle</h2></div></div>
+          <p>Aus der einfachen Tabelle wurde eine kleine Anwendung. Mehrere Personen konnten verwaltet, Zeiträume ausgewählt und Nachweise automatisch erstellt werden. Quartale, Halbjahre und das gesamte Jahr waren auf einen Blick verfügbar.</p>
+          <img class="story-image" src="images/geschichte/2025_pflegenachweis2_0.png" alt="PflegeNachweis 2.0 mit Jahresübersicht" data-lightbox>
+          <p class="caption">PflegeNachweis 2.0: Jahresübersicht mit automatischer Nachweis-Erstellung</p>
+        </article>
+
+        <article class="story-step">
+          <div class="story-heading"><div class="story-icon" aria-hidden="true">4</div><div><p class="card-kicker">2026 · PflegeNachweis 2.3</p><h2>Das erste richtige System</h2></div></div>
+          <p>Mit Version 2.3 war aus einem Hilfsmittel ein richtiges System geworden: Dashboard, Mehrpersonenverwaltung, Statistiken und eine automatische Archivierung aller erstellten Nachweise.</p>
+          <p>Doch je größer das Projekt wurde, desto deutlicher wurden die Grenzen einer Tabellenkalkulation.</p>
+          <img class="story-image" src="images/geschichte/2026_dashboard_pflegenachweis2_3.png" alt="Dashboard von PflegeNachweis 2.3" data-lightbox>
+          <p class="caption">Das Dashboard von PflegeNachweis 2.3</p>
+          <div class="image-grid three">
+            <div class="image-item"><img src="images/geschichte/2026_user_pflegenachweis2_3.png" alt="Personenverwaltung" data-lightbox><p>Mehrere Versicherte</p></div>
+            <div class="image-item"><img src="images/geschichte/2026_statistiken_pflegenachweis2_3.png" alt="Statistiken und Budget" data-lightbox><p>Statistiken &amp; Budget</p></div>
+            <div class="image-item"><img src="images/geschichte/2026_historie_pflegenachweis2_3.png" alt="Automatisches Archiv" data-lightbox><p>Automatisches Archiv</p></div>
+          </div>
+        </article>
+
+        <article class="story-step">
+          <div class="story-heading"><div class="story-icon" aria-hidden="true">5</div><div><p class="card-kicker">Heute · Pflegra</p><h2>Aus PflegeNachweis wird Pflegra</h2></div></div>
+          <p><em>Alles, was hier zu sehen ist, wurde ursprünglich für unsere eigene Familie entwickelt. Nicht für Kunden und nicht für Investoren, sondern weil wir selbst dieselben Probleme hatten wie viele andere pflegende Angehörige.</em></p>
+          <p>PflegeNachweis bestand am Ende aus zahlreichen Tabellenblättern, Makros und Automatisierungen. Neue Funktionen wurden immer schwieriger umzusetzen. Deshalb fiel die Entscheidung, das gesamte Projekt als moderne Webanwendung neu zu entwickeln.</p>
+          <div class="today-box"><h3>Pflegra heute</h3><p>Dokumente, Fristen, Budgets, Pflegeberatungen, Gutachten und der gesamte Pflegealltag an einem Ort. Was als einfache Tabelle begann, begleitet heute Familien dabei, den Überblick zu behalten und sich auf das Wesentliche zu konzentrieren: die Menschen, die sie pflegen.</p></div>
+          <p>Pflegra wurde aus echter Pflegepraxis heraus entwickelt. Das war der Anfang und das bleibt der Kern.</p>
+          <div class="image-grid three">
+            <div class="image-item"><img src="screenshots/dashboard.png" alt="Pflegra Dashboard" data-lightbox><p>Dashboard</p></div>
+            <div class="image-item"><img src="screenshots/pflegegradrechner.png" alt="Pflegegradrechner" data-lightbox><p>Pflegegradrechner</p></div>
+            <div class="image-item"><img src="screenshots/antraege_dokomente.png" alt="Dokumentenverwaltung" data-lightbox><p>Dokumentenverwaltung</p></div>
+          </div>
+        </article>
       </div>
     </section>
-    <section class="section">
+
+    <section class="section" aria-labelledby="ueber-uns">
+      <div class="wrap">
+        <div class="team-card">
+          <img src="images/stefan-laura.png" alt="Stefan und Laura Neu">
+          <div><p class="eyebrow">Über uns</p><h2 id="ueber-uns">Stefan &amp; Laura Neu</h2><p>Pflegende Angehörige und Entwickler aus Deutschland. Pflegra ist aus unserem eigenen Pflegealltag entstanden, nicht aus einem Büro.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft">
       <div class="wrap path-grid">
         <div><p class="eyebrow">Der Kern bleibt</p><h2>Für pflegende Angehörige, transparent entwickelt.</h2><p class="section-intro">Pflegra richtet sich zuerst an Menschen, die Pflege in Familien organisieren. Der gemeinsame Core ist Open Source. Community kann selbst betrieben werden; Hosted ist ein geplanter Zugang zu diesem Core; Professional für Unternehmer ist in Vorbereitung.</p></div>
-        <aside class="path-box"><h2>Warum Open Source?</h2><p>Pflegedaten sind sensibel. Ein offener Core macht die technische Grundlage prüfbar und ermöglicht selbst verantworteten Betrieb.</p><a class="button button-secondary" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Repository öffnen</a></aside>
+        <aside class="path-box"><h2>Warum Open Source?</h2><p>Pflegedaten sind sensibel. Ein offener Core macht die technische Grundlage prüfbar und ermöglicht selbst verantworteten Betrieb.</p><p>Die Pflege können wir nicht übernehmen. Den Papierkram vielleicht schon.</p><a class="button button-secondary" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Repository öffnen</a></aside>
       </div>
     </section>
   </main>
+
   <footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand" href="index.html" style="color:#fff">Pflegra<span class="brand-mark">.</span></a><p>Pflege gemeinsam übersichtlicher organisieren.</p></div><div class="footer-links"><a href="index.html">Startseite</a><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a><a href="https://github.com/Pflegra/core" rel="noopener noreferrer">GitHub</a></div></div></footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildansicht">
+    <button class="lightbox-close" type="button" aria-label="Bildansicht schließen">×</button><img id="lightbox-image" alt="">
+  </div>
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    function closeLightbox() { lightbox.classList.remove('active'); lightboxImage.removeAttribute('src'); }
+    document.querySelectorAll('[data-lightbox]').forEach((image) => image.addEventListener('click', () => { lightboxImage.src = image.src; lightboxImage.alt = image.alt; lightbox.classList.add('active'); }));
+    lightbox.addEventListener('click', (event) => { if (event.target !== lightboxImage) closeLightbox(); });
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeLightbox(); });
+  </script>
 </body>
 </html>
