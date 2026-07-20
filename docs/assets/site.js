@@ -25,3 +25,37 @@ if (toggle && links) {
     }
   });
 }
+
+const lightbox = document.querySelector("#lightbox");
+const lightboxImage = document.querySelector("#lightbox-image");
+const lightboxClose = document.querySelector(".lightbox-close");
+let lightboxTrigger = null;
+
+function closeLightbox() {
+  if (!lightbox || !lightboxImage) return;
+  lightbox.hidden = true;
+  lightboxImage.removeAttribute("src");
+  lightboxImage.alt = "";
+  document.body.style.overflow = "";
+  if (lightboxTrigger) lightboxTrigger.focus();
+}
+
+document.querySelectorAll("[data-lightbox-src]").forEach((trigger) => {
+  trigger.addEventListener("click", () => {
+    if (!lightbox || !lightboxImage) return;
+    lightboxTrigger = trigger;
+    lightboxImage.src = trigger.dataset.lightboxSrc;
+    lightboxImage.alt = trigger.dataset.lightboxAlt || "";
+    lightbox.hidden = false;
+    document.body.style.overflow = "hidden";
+    lightboxClose?.focus();
+  });
+});
+
+lightboxClose?.addEventListener("click", closeLightbox);
+lightbox?.addEventListener("click", (event) => {
+  if (event.target === lightbox) closeLightbox();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && lightbox && !lightbox.hidden) closeLightbox();
+});
