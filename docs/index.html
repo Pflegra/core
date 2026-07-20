@@ -1,943 +1,172 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pflegra – Der digitale Pflegeordner für Familien</title>
-<meta name="description" content="Pflegra hilft pflegenden Angehörigen, Dokumente, Fristen, Termine und Aufgaben rund um die Pflege an einem Ort zu behalten. Kostenlos testen, ohne Anmeldung, mit Beispieldaten.">
-<meta property="og:title" content="Pflegra – Der digitale Pflegeordner für Familien">
-<meta property="og:description" content="Ein kostenloses Hilfsmittel für pflegende Angehörige: Dokumente, Fristen, Termine und Aufgaben rund um die Pflege besser organisieren.">
-<meta property="og:url" content="https://pflegra.app">
-<meta property="og:image" content="https://pflegra.app/screenshots/dashboard.png">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://pflegra.app/screenshots/dashboard.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --primary:   #1B4D7E;
-    --primary-l: #2C6FAC;
-    --accent:    #3ABFAB;
-    --dark:      #0D1B2A;
-    --mid:       #2E4057;
-    --text:      #1a2233;
-    --muted:     #5a6a80;
-    --bg:        #F4F7FA;
-    --white:     #ffffff;
-    --border:    #dce4ef;
-    --radius:    12px;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-
-  /* ── Nav ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: rgba(244,247,250,.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: .9rem 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .nav-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.4rem; color: var(--primary);
-    text-decoration: none; letter-spacing: -.02em;
-  }
-  .nav-logo span { color: var(--accent); }
-  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
-  .nav-links a {
-    color: var(--muted); text-decoration: none; font-size: .9rem;
-    font-weight: 500; transition: color .2s;
-  }
-  .nav-links a:hover { color: var(--primary); }
-  .nav-cta {
-    background: var(--primary); color: #fff !important;
-    padding: .45rem 1.1rem; border-radius: 8px;
-    font-weight: 600 !important; font-size: .85rem !important;
-    transition: background .2s !important;
-  }
-  .nav-cta:hover { background: var(--primary-l) !important; }
-  .nav-demo {
-    background: var(--accent); color: #fff !important;
-    padding: .45rem 1.1rem; border-radius: 8px;
-    font-weight: 600 !important; font-size: .85rem !important;
-    transition: background .2s !important;
-  }
-  .nav-demo:hover { background: #2ea898 !important; }
-
-  /* ── Hero ── */
-  .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 8rem 2rem 4rem;
-    position: relative; overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 60% 30%, rgba(58,191,171,.08) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 20% 70%, rgba(27,77,126,.06) 0%, transparent 60%);
-    pointer-events: none;
-  }
-  .hero-inner { max-width: 1100px; margin: 0 auto; width: 100%; position: relative; }
-  .hero-screen {
-    position: absolute; right: 0; top: 0;
-    width: 52%; border-radius: 12px; overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0,0,0,.35);
-    border: 1px solid rgba(255,255,255,.08);
-    cursor: zoom-in;
-  }
-  .hero-screen img { width: 100%; display: block; }
-  .hero-screen-callouts {
-    position: absolute;
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: .45rem;
-    pointer-events: none;
-  }
-  .hero-screen-callout {
-    background: rgba(255,255,255,.94);
-    border: 1px solid rgba(27,77,126,.12);
-    border-radius: 999px;
-    color: var(--primary);
-    font-size: .72rem;
-    font-weight: 700;
-    line-height: 1;
-    padding: .42rem .62rem;
-    box-shadow: 0 6px 18px rgba(13,27,42,.12);
-  }
-  .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 50%; }
-  @media (max-width: 900px) {
-    .hero { min-height: auto; }
-    .hero-screen {
-      display: block; position: relative; right: auto; top: auto;
-      width: 100%; margin: 1rem 0 1.5rem;
-    }
-    .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-entstehung, .hero-ctas, .hero-trust { max-width: 100%; }
-  }
-  .hero-tag {
-    display: inline-flex; align-items: center; gap: .4rem;
-    background: rgba(58,191,171,.12); color: #1a7066;
-    border: 1px solid rgba(58,191,171,.3);
-    border-radius: 20px; padding: .3rem .85rem;
-    font-size: .78rem; font-weight: 600; letter-spacing: .04em;
-    text-transform: uppercase; margin-bottom: 1.5rem;
-  }
-  .hero-tag::before { content: '●'; font-size: .5rem; }
-  h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    line-height: 1.1; color: var(--dark);
-    letter-spacing: -.03em; margin-bottom: 1.25rem;
-  }
-  h1 em { font-style: italic; color: var(--primary); }
-  .hero-sub {
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    color: var(--muted); max-width: 540px;
-    font-weight: 300; line-height: 1.7; margin-bottom: 2.5rem;
-  }
-  .hero-benefits {
-    display: grid !important;
-    grid-template-columns: 1fr;
-    gap: .45rem !important;
-  }
-  .hero-benefits span { min-width: 0; }
-  @media (max-width: 640px) {
-    .hero-tag, h1, .hero-intro, .hero-sub, .hero-benefits, .hero-credentials, .hero-ctas, .hero-trust {
-      max-width: 100%;
-    }
-    .hero-benefits span { display: block; }
-  }
-  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-
-  .btn-primary-lg {
-    background: var(--primary); color: #fff;
-    padding: .85rem 2rem; border-radius: 10px;
-    text-decoration: none; font-weight: 600; font-size: 1rem;
-    display: inline-flex; align-items: center; gap: .5rem;
-    transition: transform .15s, box-shadow .15s;
-    box-shadow: 0 4px 16px rgba(27,77,126,.25);
-  }
-  .btn-primary-lg:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,77,126,.3); }
-
-  .btn-accent-lg {
-    background: var(--accent); color: #fff;
-    padding: .9rem 2.1rem; border-radius: 10px;
-    text-decoration: none; font-weight: 700; font-size: 1rem;
-    display: inline-flex; align-items: center; gap: .5rem;
-    transition: transform .15s, box-shadow .15s;
-    box-shadow: 0 4px 16px rgba(58,191,171,.3);
-  }
-  .btn-accent-lg:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(58,191,171,.35); background: #2ea898; }
-
-  .btn-secondary-lg {
-    background: #fff; color: var(--primary);
-    padding: .85rem 2rem; border-radius: 10px;
-    text-decoration: none; font-weight: 600; font-size: 1rem;
-    display: inline-flex; align-items: center; gap: .5rem;
-    border: 1.5px solid var(--border);
-    transition: border-color .15s, transform .15s;
-  }
-  .btn-secondary-lg:hover { border-color: var(--primary); transform: translateY(-2px); }
-
-  .demo-hint {
-    font-size: .8rem; color: var(--muted);
-    margin-bottom: 2.5rem;
-  }
-  .demo-hint code {
-    background: rgba(58,191,171,.1); color: #1a7066;
-    padding: .1rem .4rem; border-radius: 4px;
-    font-family: monospace; font-size: .82rem;
-  }
-
-  .hero-entstehung {
-    font-size: .88rem; color: var(--muted);
-    font-style: italic; margin-bottom: 1.5rem;
-    border-left: 2px solid var(--accent); padding-left: .75rem;
-  }
-  .hero-trust {
-    display: flex; gap: 2rem; flex-wrap: wrap;
-    font-size: .82rem; color: var(--muted);
-  }
-  .hero-trust span { display: flex; align-items: center; gap: .35rem; }
-  .hero-trust strong { color: var(--text); }
-
-  /* ── Features ── */
-  .section { padding: 5rem 2rem; }
-  .section-inner { max-width: 1100px; margin: 0 auto; }
-  .section-label {
-    font-size: .75rem; font-weight: 700; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--accent); margin-bottom: .75rem;
-  }
-  h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--dark); letter-spacing: -.025em;
-    line-height: 1.15; margin-bottom: 1rem;
-  }
-  .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 520px; margin-bottom: 3rem; }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-  }
-  .feature-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.5rem;
-    transition: transform .2s, box-shadow .2s;
-  }
-  .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
-  .feature-card.highlight {
-    border-color: var(--accent);
-    background: linear-gradient(135deg, rgba(58,191,171,.04) 0%, #fff 100%);
-  }
-  .feature-icon { font-size: 1.75rem; margin-bottom: .75rem; }
-  .feature-title { font-weight: 600; font-size: 1rem; margin-bottom: .4rem; color: var(--dark); }
-  .feature-desc { font-size: .87rem; color: var(--muted); line-height: 1.55; }
-  .feature-new {
-    display: inline-block; font-size: .65rem; font-weight: 700;
-    background: var(--accent); color: #fff;
-    padding: .1rem .4rem; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: .05em;
-    margin-left: .4rem; vertical-align: middle;
-  }
-
-  /* ── Privacy ── */
-  .privacy-section { background: var(--dark); color: #fff; padding: 5rem 2rem; }
-  .privacy-inner { max-width: 1100px; margin: 0 auto; }
-  .privacy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
-  .privacy-section h2 { color: #fff; }
-  .privacy-section .section-label { color: var(--accent); }
-  .privacy-section .section-sub { color: rgba(255,255,255,.6); }
-  .privacy-points { display: flex; flex-direction: column; gap: .75rem; }
-  .privacy-point {
-    display: flex; align-items: flex-start; gap: .75rem;
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
-    border-radius: 10px; padding: .85rem 1rem;
-  }
-  .privacy-point-icon { font-size: 1.2rem; flex-shrink: 0; }
-  .privacy-point-text strong { display: block; font-size: .9rem; color: #fff; margin-bottom: .15rem; }
-  .privacy-point-text span { font-size: .8rem; color: rgba(255,255,255,.5); }
-
-  /* ── Install ── */
-  .install-section { background: #fff; padding: 5rem 2rem; }
-  .install-tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
-  .install-tab {
-    padding: .5rem 1.2rem; border-radius: 8px; border: 1.5px solid var(--border);
-    background: var(--bg); font-size: .88rem; font-weight: 600;
-    cursor: pointer; transition: all .15s; color: var(--muted);
-  }
-  .install-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .install-content { display: none; }
-  .install-content.active { display: block; }
-  .code-block {
-    background: var(--dark); border-radius: var(--radius);
-    padding: 1.25rem 1.5rem; font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: .88rem; color: #a8d8b0; overflow-x: auto; margin-bottom: 1rem;
-    border: 1px solid rgba(255,255,255,.05);
-  }
-  .code-block .comment { color: rgba(255,255,255,.3); }
-  .install-note { font-size: .82rem; color: var(--muted); }
-  .install-note a { color: var(--primary); }
-
-  /* ── Demo CTA Banner ── */
-  .demo-banner {
-    background: linear-gradient(135deg, var(--primary) 0%, #1a5f9a 100%);
-    padding: 3.5rem 2rem; text-align: center; color: #fff;
-  }
-  .demo-banner h2 { color: #fff; margin-bottom: .75rem; }
-  .demo-banner p { color: rgba(255,255,255,.75); margin-bottom: 2rem; font-size: 1.05rem; }
-  .demo-banner .btn-accent-lg { font-size: 1.1rem; padding: 1rem 2.5rem; }
-  .demo-credentials {
-    margin-top: 1rem; font-size: .82rem; color: rgba(255,255,255,.6);
-  }
-  .demo-credentials code {
-    background: rgba(255,255,255,.15); color: #fff;
-    padding: .15rem .5rem; border-radius: 4px;
-    font-family: monospace;
-  }
-
-  /* ── Footer ── */
-  footer {
-    background: var(--dark); color: rgba(255,255,255,.5);
-    padding: 2.5rem 2rem; text-align: center; font-size: .82rem;
-  }
-  footer a { color: rgba(255,255,255,.6); text-decoration: none; margin: 0 .75rem; }
-  footer a:hover { color: #fff; }
-  .footer-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem; color: #fff; margin-bottom: .75rem; display: block;
-  }
-  .footer-logo span { color: var(--accent); }
-
-  /* ── Screens ── */
-  .screens-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem; margin-top: 1.5rem;
-  }
-  .screen-card {
-    border-radius: 10px; overflow: hidden;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 16px rgba(0,0,0,.07);
-    transition: transform .2s, box-shadow .2s;
-    cursor: zoom-in;
-  }
-  .screen-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-  .screen-label {
-    background: var(--dark); color: rgba(255,255,255,.7);
-    font-size: .75rem; font-weight: 600; padding: .4rem .75rem;
-    text-transform: uppercase; letter-spacing: .06em;
-  }
-  .screen-card img { width: 100%; display: block; }
-  .lightbox {
-    display: none; position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,.82); align-items: center; justify-content: center;
-    cursor: zoom-out;
-  }
-  .lightbox.active { display: flex; }
-  .lightbox img { max-width: 92vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 24px 80px rgba(0,0,0,.6); }
-  .lightbox-close {
-    position: absolute; top: 20px; right: 28px;
-    color: #fff; font-size: 2rem; cursor: pointer; opacity: .7;
-    font-family: sans-serif; line-height: 1;
-  }
-  .lightbox-close:hover { opacity: 1; }
-  .feedback-button {
-    position: fixed;
-    right: 1.25rem;
-    bottom: 1.25rem;
-    z-index: 120;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    min-width: max-content;
-    max-width: calc(100vw - 2.5rem);
-    background: var(--primary);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 999px;
-    padding: .75rem 1rem;
-    font-size: .88rem;
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: visible;
-    box-shadow: 0 10px 28px rgba(13,27,42,.24);
-    border: 1px solid rgba(255,255,255,.18);
-  }
-  .feedback-button:hover { background: var(--primary-l); }
-  .hero-screen-hint { display: none; }
-  .mobile-accordion-toggle { display: none; }
-  .mobile-accordion-content { display: block; }
-
-  @media (max-width: 768px) {
-    .privacy-grid { grid-template-columns: 1fr; }
-    .nav-links { display: none; }
-    .hero { padding: 5.25rem 1rem 2.5rem; }
-    .hero-tag { margin-bottom: .8rem; font-size: .68rem; line-height: 1.35; padding: .4rem .75rem; }
-    h1 { font-size: clamp(2.25rem, 11vw, 3rem); margin-bottom: .8rem; }
-    .hero-intro { font-size: 1rem !important; line-height: 1.65 !important; }
-    .hero-sub { line-height: 1.5; margin-bottom: 1.25rem; }
-    .hero-screen {
-      width: 100vw; margin: .75rem calc(50% - 50vw) 1.25rem;
-      border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.22);
-    }
-    .hero-screen-hint {
-      display: block; padding: .45rem; background: #fff;
-      color: var(--muted); font-size: .72rem; text-align: center;
-    }
-    .hero-screen-callouts {
-      position: static;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .35rem;
-      padding: .7rem;
-      background: #fff;
-      border-top: 1px solid #e2e8f0;
-    }
-    .hero-screen-callout {
-      background: #f0fdfb;
-      box-shadow: none;
-      font-size: .68rem;
-      text-align: center;
-    }
-    .hero-benefits {
-      display: grid !important; grid-template-columns: 1fr;
-      gap: .35rem .75rem !important; margin-bottom: 1rem !important;
-      font-size: .82rem !important;
-    }
-    .hero-version { margin-bottom: 1rem !important; }
-    .hero-ctas { display: grid; grid-template-columns: 1fr; gap: .55rem; margin-bottom: 1rem; }
-    .hero-ctas a { justify-content: center; min-height: 48px; padding: .72rem .75rem; font-size: .9rem; text-align: center; }
-    .hero-credentials { margin-bottom: 1.25rem !important; padding: .6rem .75rem !important; }
-    .hero-trust { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem 1rem; }
-    .section, .privacy-section, .install-section, .demo-banner { padding: 2.5rem 1rem; }
-    body > section[style] {
-      padding-top: 2.5rem !important; padding-bottom: 2.5rem !important;
-      padding-left: 1rem !important; padding-right: 1rem !important;
-    }
-    .section-sub { margin-bottom: 1.5rem; }
-    .features-main-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: .65rem !important;
-    }
-    .feature-card { padding: .8rem; border-radius: 10px; }
-    .feature-icon { font-size: 1.25rem; margin-bottom: .3rem; }
-    .feature-title { font-size: .82rem; line-height: 1.2; margin-bottom: .25rem; }
-    .feature-desc { font-size: .72rem; line-height: 1.35; }
-    .feature-new { font-size: .55rem; margin-left: .2rem; }
-    .screens-grid { gap: .75rem; margin-top: 1rem; }
-    .mobile-hide { display: none !important; }
-    section.mobile-accordion-section {
-      padding: 0 1rem !important;
-      border-bottom: 1px solid var(--border) !important;
-    }
-    .mobile-accordion-toggle {
-      width: 100%; display: flex; align-items: center; justify-content: space-between;
-      gap: 1rem; padding: .8rem 0; border: 0; background: transparent;
-      position: static;
-      color: var(--dark); font: inherit; font-size: 1rem; font-weight: 700;
-      text-align: left; cursor: pointer;
-    }
-    .mobile-accordion-toggle:focus-visible {
-      outline: 3px solid rgba(58,191,171,.4); outline-offset: 3px; border-radius: 6px;
-    }
-    .mobile-accordion-chevron {
-      color: var(--primary); font-size: 1.2rem; transition: transform .2s ease;
-    }
-    .mobile-accordion-toggle[aria-expanded="true"] .mobile-accordion-chevron {
-      transform: rotate(180deg);
-    }
-    .mobile-accordion-content { display: none; padding: .25rem 0 1.5rem; }
-    .mobile-accordion-content.open { display: block; }
-    .mobile-accordion-content .section-header { margin-bottom: 1rem; }
-    .mobile-accordion-content .section-header h2,
-    .mobile-accordion-content > h2 { font-size: 1.45rem !important; margin-bottom: .75rem !important; }
-    .privacy-section .mobile-accordion-toggle { color: #fff; }
-    .privacy-section .mobile-accordion-chevron { color: var(--accent); }
-    .hosting-grid { grid-template-columns: 1fr !important; gap: .75rem !important; }
-    .hosting-card { padding: 1rem !important; }
-    .hosting-card:nth-child(2) { order: -1; }
-    .hosting-card > div:first-of-type { font-size: 1.35rem !important; margin-bottom: .35rem !important; }
-    .hosting-list { margin-bottom: .75rem !important; line-height: 1.6 !important; }
-    .hosting-list li:nth-child(n+5) { display: none; }
-    .hosting-status { padding: .55rem .75rem !important; }
-    .install-tabs { overflow-x: auto; margin-bottom: 1rem; }
-    .install-tab { flex: 0 0 auto; padding: .45rem .75rem; font-size: .8rem; }
-    .code-block { font-size: .7rem; padding: .8rem; }
-    .about-team img { width: 120px !important; height: 120px !important; margin-bottom: .6rem !important; }
-    .about-team p { line-height: 1.5 !important; }
-    .feedback-button {
-      right: auto;
-      left: max(.75rem, env(safe-area-inset-left));
-      bottom: max(.75rem, env(safe-area-inset-bottom));
-      max-width: calc(100vw - 1.5rem);
-      padding: .72rem .9rem;
-      font-size: .82rem;
-    }
-  }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pflegra – Pflege im Alltag gemeinsam organisieren</title>
+  <meta name="description" content="Pflegra hilft pflegenden Angehörigen, Dokumentation, Termine, Fristen, Budgets und Dokumente an einem Ort zu organisieren. Open Source und selbst betreibbar.">
+  <link rel="canonical" href="https://pflegra.app/">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pflegra">
+  <meta property="og:title" content="Pflegra – Pflege im Alltag gemeinsam organisieren">
+  <meta property="og:description" content="Weniger suchen, Fristen im Blick behalten und Pflege gemeinsam organisieren. Ein Pflegra, ein gemeinsamer Core.">
+  <meta property="og:url" content="https://pflegra.app/">
+  <meta property="og:image" content="https://pflegra.app/images/social-preview.svg">
+  <meta property="og:image:alt" content="Pflegra – Pflege organisieren und gemeinsam den Überblick behalten">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0d4e43">
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
 </head>
 <body>
-
-<nav>
-  <a class="nav-logo" href="/">Pflegra<span>.</span>app</a>
-  <div class="nav-links">
-    <a href="#hilfe">So hilft Pflegra</a>
-    <a href="#datenschutz">Datenschutz</a>
-    <a href="#demo">Demo</a>
-    <a href="#geschichte">Geschichte</a>
-    <a href="#installation">Starten</a>
-    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="nav-demo">Demo öffnen</a>
-  </div>
-</nav>
-
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-tag">Kostenloses Hilfsmittel für pflegende Angehörige</div>
-    <h1>Der digitale<br><em>Pflegeordner</em><br>für Familien.</h1>
-    <p class="hero-intro" style="font-size:.92rem;color:#1a7066;font-weight:500;margin-bottom:1rem;
-              border-left:3px solid var(--accent);padding-left:.75rem">
-      Pflegra hilft Ihnen, Dokumente, Fristen, Termine und Aufgaben rund um die Pflege an einem Ort zu behalten.
-    </p>
-    <p class="hero-sub">
-      Für Angehörige, die nicht alles im Kopf behalten möchten und einen ruhigen Ort für die Organisation der Pflege brauchen.
-    </p>
-    <div class="hero-benefits" style="display:flex;flex-wrap:wrap;gap:.4rem .75rem;margin-bottom:1.5rem;font-size:.88rem;color:var(--text)">
-      <span><strong style="color:#3ABFAB">✓</strong> Wichtige Unterlagen schneller wiederfinden</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Fristen und Termine nicht mehr allein im Kopf behalten</span>
-      <span><strong style="color:#3ABFAB">✓</strong> Pflegekasse, Gutachten und Nachweise besser organisieren</span>
-    </div>
-    <div class="hero-ctas">
-      <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-accent-lg">
-        Kostenlose Demo öffnen
-      </a>
-      <a href="#geschichte" class="btn-secondary-lg">
-        Warum gibt es Pflegra?
-      </a>
-    </div>
-    <div class="hero-credentials" style="margin-bottom:2.5rem;padding:.75rem 1rem;background:rgba(58,191,171,.08);
-                border:1px solid rgba(58,191,171,.25);border-radius:8px;display:inline-block">
-      <div style="font-size:.78rem;font-weight:600;color:#1a7066;text-transform:uppercase;
-                  letter-spacing:.05em;margin-bottom:.35rem">Sofort ausprobieren</div>
-      <div style="font-size:.92rem;color:#2d3748">
-        Benutzer: <code style="background:rgba(58,191,171,.15);color:#1a7066;padding:.1rem .4rem;
-                               border-radius:4px;font-family:monospace">demo</code>
-        &nbsp;&nbsp;Passwort: <code style="background:rgba(58,191,171,.15);color:#1a7066;padding:.1rem .4rem;
-                                          border-radius:4px;font-family:monospace">demo</code>
+  <a class="skip-link" href="#inhalt">Direkt zum Inhalt</a>
+  <header class="site-header">
+    <nav class="nav wrap" aria-label="Hauptnavigation">
+      <a class="brand" href="index.html" aria-label="Pflegra Startseite">Pflegra<span class="brand-mark">.</span></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptmenue" aria-label="Navigation öffnen">Menü</button>
+      <div class="nav-links" id="hauptmenue" data-open="false">
+        <a href="#alltag">Pflegealltag</a>
+        <a href="#funktionen">Funktionen</a>
+        <a href="#modelle">Zugangsmodelle</a>
+        <a href="#datenhoheit">Datenhoheit</a>
+        <a href="ueber.html">Über Pflegra</a>
+        <a class="button button-primary" href="#ausprobieren">Pflegra kennenlernen</a>
       </div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:.25rem">Keine Registrierung erforderlich. Die Demo enthält Beispieldaten und kann jederzeit gefahrlos ausprobiert werden.</div>
-    </div>
+    </nav>
+  </header>
 
-    <div class="hero-trust">
-      <span>🔒 <strong>Pflegedaten sind persönlich</strong>, deshalb steht Kontrolle im Mittelpunkt</span>
-      <span>🆓 <strong>Kostenlos ausprobieren</strong>, ohne Anmeldung</span>
-      <span>🤝 <strong>Aus eigener Pflegeerfahrung</strong>, nicht aus Verkaufsdruck</span>
-    </div>
-    <div class="hero-screen" role="button" tabindex="0" aria-label="Pflegra-Übersicht vergrößern"
-         onclick="openLightbox(this.querySelector('img').src)"
-         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openLightbox(this.querySelector('img').src); }">
-      <img src="screenshots/dashboard.png" alt="Pflegra Übersicht mit wichtigen Pflegeinformationen">
-      <div class="hero-screen-callouts" aria-hidden="true">
-        <span class="hero-screen-callout">Nächster Termin</span>
-        <span class="hero-screen-callout">Pflegegrad</span>
-        <span class="hero-screen-callout">Offene Aufgaben</span>
-        <span class="hero-screen-callout">Dokumente</span>
-      </div>
-      <span class="hero-screen-hint">Zum Vergrößern antippen</span>
-    </div>
-  </div>
-</section>
-
-<!-- Typische Situationen -->
-<section id="hilfe" style="background:#f8fafc;padding:3.5rem 2rem;border-bottom:1px solid #e2e8f0">
-  <div style="max-width:920px;margin:0 auto">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Kommt Ihnen das bekannt vor?</div>
-    <h2 style="text-align:center;font-size:1.6rem;color:#0D1B2A;margin-bottom:1rem">Wenn Pflege plötzlich auch Papierkram bedeutet.</h2>
-    <p style="max-width:700px;margin:0 auto 1.75rem;text-align:center;font-size:.98rem;color:#5a6a80;line-height:1.8">
-      Pflege heißt nicht nur da sein. Oft kommen Briefe, Fristen, Termine, Anträge, Gutachten und Nachweise dazu. Irgendwann liegt alles irgendwo, aber nichts ist dort, wo man es gerade braucht.
-    </p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem">
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wo ist das Schreiben der Pflegekasse?</div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wann war die letzte Pflegeberatung?</div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Welche Frist läuft als Nächstes ab?</div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wo habe ich das Gutachten abgelegt?</div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Was muss ich diese Woche noch erledigen?</div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.15rem;font-size:.95rem;color:#0D1B2A;font-weight:600">Wen muss ich bei der Pflegekasse anrufen?</div>
-    </div>
-    <p style="text-align:center;font-size:1rem;color:#1a7066;font-weight:700;margin-top:1.75rem">Genau für diesen Alltag ist Pflegra entstanden.</p>
-  </div>
-</section>
-
-<!-- Lösung -->
-<section class="section" id="features">
-  <div class="section-header" style="text-align:center">
-    <div class="section-tag">Was Pflegra ordnet</div>
-    <h2 class="section-title">Alles Wichtige zur Pflege an einem Ort.</h2>
-    <p class="section-sub" style="margin-left:auto;margin-right:auto">
-      Pflegra ersetzt keine Pflegeberatung. Es hilft Ihnen, den organisatorischen Teil der Pflege besser zu bewältigen.
-    </p>
-  </div>
-
-  <div class="features-main-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto">
-    <div class="feature-card highlight">
-      <div class="feature-icon">📁</div>
-      <div class="feature-title">Dokumente organisieren</div>
-      <div class="feature-desc">Bescheide, Gutachten, Arztbriefe und Nachweise gesammelt ablegen und schneller wiederfinden.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">📅</div>
-      <div class="feature-title">Fristen im Blick behalten</div>
-      <div class="feature-desc">Wichtige Termine und Fristen festhalten, bevor etwas untergeht.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">🗓️</div>
-      <div class="feature-title">Termine verwalten</div>
-      <div class="feature-desc">Arzttermine, Pflegeberatung und eigene Termine übersichtlich sammeln.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">✅</div>
-      <div class="feature-title">Aufgaben festhalten</div>
-      <div class="feature-desc">Offene Erledigungen notieren und Schritt für Schritt abhaken.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">📋</div>
-      <div class="feature-title">Gutachten nachvollziehen</div>
-      <div class="feature-desc">Pflegegrad und MD-Gutachten besser verstehen und einordnen.</div>
-    </div>
-    <div class="feature-card highlight">
-      <div class="feature-icon">📞</div>
-      <div class="feature-title">Kontakte sammeln</div>
-      <div class="feature-desc">Pflegekasse, Ärzte, Pflegedienst und Beratungsstellen griffbereit halten.</div>
-    </div>
-  </div>
-
-  <p style="text-align:center;font-size:.88rem;color:#8a9ab0;margin-top:1.5rem;max-width:640px;margin-left:auto;margin-right:auto">
-    Pflegra kann noch mehr. Für den ersten Überblick reicht aber genau das: Ordnung, Erinnerung und schnelleres Wiederfinden.
-  </p>
-</section>
-
-<!-- Warum Pflegra -->
-<section id="geschichte" style="background:#fff;padding:4rem 2rem;border-bottom:1px solid #e2e8f0">
-  <div style="max-width:780px;margin:0 auto">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:1rem">Warum Pflegra?</div>
-    <h2 style="font-size:1.6rem;color:#0D1B2A;line-height:1.35;margin-bottom:1.25rem">Pflegra entstand nicht in einer Firma. Sondern in einer Pflegesituation.</h2>
-    <p style="font-size:.98rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
-      Am Anfang reichten Ordner, Zettel und Tabellen. Dann wurden es mehr Schreiben, mehr Fristen, mehr Fragen und mehr Dinge, die man nicht vergessen durfte.
-    </p>
-    <p style="font-size:.98rem;color:#5a6a80;line-height:1.8;margin-bottom:1rem">
-      Pflegra ist aus diesem Alltag entstanden. Nicht, weil jemand eine Software verkaufen wollte. Sondern weil eine Familie selbst eine Lösung brauchte, um den Überblick zu behalten.
-    </p>
-    <p style="font-size:.98rem;color:#5a6a80;line-height:1.8;margin-bottom:1.5rem">
-      Heute soll Pflegra anderen Angehörigen genau dabei helfen.
-    </p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-bottom:1.25rem">
-      <div style="background:#f0fdfb;border-left:3px solid #3ABFAB;border-radius:0 8px 8px 0;padding:.85rem 1rem;color:#2d3748;font-size:.9rem">Entwickelt aus eigener Pflegeerfahrung</div>
-      <div style="background:#f0fdfb;border-left:3px solid #3ABFAB;border-radius:0 8px 8px 0;padding:.85rem 1rem;color:#2d3748;font-size:.9rem">Für Familien, die Ordnung in den Pflegealltag bringen möchten</div>
-      <div style="background:#f0fdfb;border-left:3px solid #3ABFAB;border-radius:0 8px 8px 0;padding:.85rem 1rem;color:#2d3748;font-size:.9rem">Ohne Werbung und ohne Tracking</div>
-    </div>
-    <a href="ueber.html" style="font-size:.9rem;color:#3ABFAB;font-weight:700;text-decoration:none">Die ganze Geschichte lesen →</a>
-  </div>
-</section>
-
-<!-- Datenschutz -->
-<section class="privacy-section" id="datenschutz">
-  <div class="privacy-inner">
-    <div class="privacy-grid">
-      <div>
-        <div class="section-label">Datenschutz</div>
-        <h2>Pflegedaten sind persönlich. Sie sollen es bleiben.</h2>
-        <p class="section-sub">
-          In Pflegedokumenten stehen sehr private Informationen: Diagnosen, Gutachten, Bescheide, Kontakte und persönliche Notizen. Deshalb soll jeder selbst entscheiden können, wo diese Daten gespeichert werden.
-        </p>
-      </div>
-      <div class="privacy-points">
-        <div class="privacy-point">
-          <span class="privacy-point-icon">🔒</span>
-          <div class="privacy-point-text">
-            <strong>Keine Werbung</strong>
-            <span>Pflegra ist kein Werbeprodukt und verkauft keine Aufmerksamkeit.</span>
+  <main id="inhalt">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Für pflegende Angehörige</p>
+          <h1>Pflege organisieren. Gemeinsam den Überblick behalten.</h1>
+          <p class="lead">Pflegra bündelt wichtige Informationen aus dem Pflegealltag: Dokumentation, Termine, Fristen, Budgets, Leistungen und Dokumente – verständlich an einem Ort.</p>
+          <div class="actions">
+            <a class="button button-primary" href="#funktionen">Funktionen entdecken</a>
+            <a class="button button-secondary" href="#ausprobieren">Community entdecken</a>
           </div>
+          <ul class="trust-row" aria-label="Pflegra Grundsätze">
+            <li>Open Source</li>
+            <li>selbst betreibbar</li>
+            <li>Datenhoheit beim Betreiber</li>
+          </ul>
         </div>
-        <div class="privacy-point">
-          <span class="privacy-point-icon">📡</span>
-          <div class="privacy-point-text">
-            <strong>Kein Tracking</strong>
-            <span>Kein Analytics, keine Verhaltensprofile, keine versteckte Auswertung Ihrer Nutzung.</span>
-          </div>
-        </div>
-        <div class="privacy-point">
-          <span class="privacy-point-icon">🤝</span>
-          <div class="privacy-point-text">
-            <strong>Keine Weitergabe Ihrer Daten</strong>
-            <span>Pflegedaten sollen unter Ihrer Kontrolle bleiben.</span>
-          </div>
-        </div>
-        <div class="privacy-point">
-          <span class="privacy-point-icon">🔍</span>
-          <div class="privacy-point-text">
-            <strong>Für technisch Interessierte transparent</strong>
-            <span>Pflegra kann selbst betrieben werden. Der Quellcode ist öffentlich einsehbar.</span>
-          </div>
+        <div class="care-map" aria-label="Pflegra verbindet die wichtigen Bereiche des Pflegealltags">
+          <div class="care-center">Ein Ort für den Pflegealltag</div>
+          <span class="care-chip">Termine &amp; Fristen</span>
+          <span class="care-chip">Dokumente</span>
+          <span class="care-chip">Budget &amp; Leistungen</span>
+          <span class="care-chip">Pflegeteam</span>
+          <p class="care-note">Ein Pflegra. Ein gemeinsamer Core.</p>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- Demo Banner -->
-<section class="demo-banner" id="demo">
-  <div style="max-width:720px;margin:0 auto">
-    <h2>Schauen Sie sich Pflegra in Ruhe an.</h2>
-    <p>Die Demo zeigt Pflegra mit Beispieldaten. Sie brauchen keinen Account, müssen nichts installieren und können nichts kaputt machen.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1rem 0 1.25rem;font-size:.9rem">
-      <span>✓ Keine Anmeldung</span>
-      <span>✓ Kostenlose Beispieldaten</span>
-      <span>✓ Jederzeit zurückgesetzt</span>
-      <span>✓ Direkt im Browser ansehen</span>
-    </div>
-    <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" class="btn-accent-lg">
-      Demo öffnen
-    </a>
-    <div class="demo-credentials">
-      Login: <code>demo</code> / <code>demo</code> &nbsp;·&nbsp; Daten werden automatisch zurückgesetzt
-    </div>
-  </div>
-</section>
-
-<!-- Screenshots -->
-<section class="section mobile-hide" id="screenshots" style="background:#fff; padding-top:3rem; padding-bottom:3rem">
-  <div class="section-inner">
-    <div class="section-label">Screenshots</div>
-    <h2>Ein Blick in Pflegra</h2>
-    <div class="screens-grid">
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Alles Wichtige auf einen Blick</div>
-        <img src="screenshots/dashboard.png" alt="Pflegra Übersicht mit wichtigen Pflegeinformationen" loading="eager">
+    <section class="section section-soft" id="alltag">
+      <div class="wrap">
+        <p class="eyebrow">Entlastung im Alltag</p>
+        <h2>Weniger suchen. Weniger doppelt notieren.</h2>
+        <p class="section-intro">Pflege bringt viele parallele Aufgaben mit sich. Pflegra schafft eine gemeinsame, nachvollziehbare Arbeitsgrundlage für Familien und Pflegeteams.</p>
+        <div class="problem-grid">
+          <article class="card"><p class="card-kicker">Orientierung</p><h3>Wichtige Dinge im Blick</h3><p>Anstehende Termine, Fristen und Aufgaben werden an einem Ort zusammengeführt.</p></article>
+          <article class="card"><p class="card-kicker">Nachvollziehbarkeit</p><h3>Pflegeverlauf dokumentieren</h3><p>Einträge und Ereignisse helfen dabei, Entwicklungen später verständlich nachzuvollziehen.</p></article>
+          <article class="card"><p class="card-kicker">Zusammenarbeit</p><h3>Als Team organisiert bleiben</h3><p>Informationen lassen sich innerhalb eines Pflegeteams gemeinsam und rollenbasiert nutzen.</p></article>
+        </div>
       </div>
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Gutachten besser verstehen</div>
-        <img src="screenshots/gutachten.png" alt="Pflegra Gutachtenansicht" loading="eager">
+    </section>
+
+    <section class="section" id="funktionen">
+      <div class="wrap">
+        <p class="eyebrow">Aktueller Funktionsumfang</p>
+        <h2>Die zentralen Bereiche der Pflege zusammenführen</h2>
+        <p class="section-intro">Die Auswahl beschreibt nachweisbare Fachbereiche des gemeinsamen Pflegra Core nach AR-092 – aus Sicht des Pflegealltags, nicht als technische Modulliste.</p>
+        <div class="feature-grid">
+          <article class="card"><div class="feature-icon">01</div><h3>Menschen</h3><p>Gepflegte Personen und zugehörige Informationen übersichtlich verwalten.</p></article>
+          <article class="card"><div class="feature-icon">02</div><h3>Dokumentation</h3><p>Einträge, Tagebuch und Zeitachse für einen nachvollziehbaren Verlauf nutzen.</p></article>
+          <article class="card"><div class="feature-icon">03</div><h3>Kalender</h3><p>Eigene Termine, pflegebezogene Termine und Fristen gemeinsam überblicken.</p></article>
+          <article class="card"><div class="feature-icon">04</div><h3>Budget</h3><p>Pflegeleistungen, Budgets und Verbräuche strukturiert planen und auswerten.</p></article>
+          <article class="card"><div class="feature-icon">05</div><h3>Dokumente</h3><p>Unterlagen, Anträge und Nachweise geordnet dem Pflegekontext zuordnen.</p></article>
+          <article class="card"><div class="feature-icon">06</div><h3>Pflegegrad</h3><p>Pflegegrad, Gutachten und fachliche Orientierungshilfen gebündelt nutzen.</p></article>
+          <article class="card"><div class="feature-icon">07</div><h3>Pflegeteam</h3><p>Verantwortung teilen und Zugriffe im gemeinsamen Pflegebereich steuern.</p></article>
+          <article class="card"><div class="feature-icon">08</div><h3>Transparenz</h3><p>Änderungen und Zusammenhänge nachvollziehbar halten – ohne Tracking auf dieser Website.</p></article>
+        </div>
       </div>
-      <div class="screen-card" onclick="openLightbox(this.querySelector('img').src)">
-        <div class="screen-label">Pflegegrad nachvollziehen</div>
-        <img src="screenshots/pflegegradrechner.png" alt="Pflegra Pflegegradrechner" loading="eager">
+    </section>
+
+    <section class="section section-dark" id="datenhoheit">
+      <div class="wrap">
+        <p class="eyebrow">Datenhoheit</p>
+        <h2>Pflegedaten brauchen klare Verantwortung.</h2>
+        <p class="section-intro">Bei Community liegt die Datenhoheit beim Betreiber der eigenen Installation. Pflegra ist Open Source; der Quellcode kann geprüft und die Anwendung selbst betrieben werden. Diese Website verwendet keine Analyse- oder Tracking-Skripte.</p>
+        <div class="info-grid">
+          <article><h3>Selbst betreibbar</h3><p>Community läuft in der vom Betreiber verantworteten Umgebung.</p></article>
+          <article><h3>Offener Core</h3><p>Der gemeinsame Core steht unter der AGPLv3-Lizenz zur Verfügung.</p></article>
+          <article><h3>Keine erfundenen Wege</h3><p>Nicht öffentlich verfügbare Demo- oder Hosted-Zugänge werden nicht als aktiv beworben.</p></article>
+        </div>
       </div>
-      <p style="text-align:center;font-size:.8rem;color:#8a9ab0;margin-top:.75rem">Screenshots aus der Live-Demo</p>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- Installation -->
-<section class="install-section mobile-accordion-section" id="installation">
-  <button class="mobile-accordion-toggle" type="button" aria-expanded="false" aria-controls="mobile-installation"
-          onclick="toggleMobileAccordion(this)">
-    <span>Starten</span><span class="mobile-accordion-chevron" aria-hidden="true">⌄</span>
-  </button>
-  <div id="mobile-installation" class="section-inner mobile-accordion-content">
-    <div class="section-label">Starten</div>
-    <h2>So können Sie Pflegra nutzen.</h2>
-    <p class="section-sub">Beginnen Sie am einfachsten mit der Demo. Download, GitHub, Docker, Linux und Versionen finden Sie hier für später oder für technisch Interessierte.</p>
-
-    <div class="hosting-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem">
-      <div class="hosting-card" style="background:#fff;border:2px solid #3ABFAB;border-radius:12px;padding:1.5rem">
-        <div style="font-size:1.05rem;font-weight:700;color:#0D1B2A;margin-bottom:.5rem">Demo ansehen</div>
-        <p style="font-size:.88rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">Am einfachsten: Pflegra im Browser mit Beispieldaten testen.</p>
-        <a href="https://pflegra.tail5e5060.ts.net/login" target="_blank" style="display:block;text-align:center;background:#3ABFAB;color:#fff;padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none">Demo öffnen</a>
+    <section class="section section-soft" id="modelle">
+      <div class="wrap">
+        <p class="eyebrow">Ein Pflegra, ein gemeinsamer Core</p>
+        <h2>Unterschiedliche Zugangs- und Geschäftsmodelle</h2>
+        <p class="section-intro">Community, Hosted und Professional sind keine getrennten Produktwelten. Sie basieren auf demselben Pflegra Core und unterscheiden sich im Zugang beziehungsweise Geschäftsmodell.</p>
+        <div class="model-grid">
+          <article class="card model-card">
+            <span class="status">Verfügbar als Quellcode</span><h3>Community</h3>
+            <p>Der frei verfügbare Open Source Core zur selbst betriebenen Nutzung.</p>
+            <ul class="model-list"><li>selbst betreibbar</li><li>AGPLv3</li><li>Datenhoheit beim Betreiber</li></ul>
+            <a class="button button-secondary" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Repository öffnen</a>
+          </article>
+          <article class="card model-card">
+            <span class="status status-planned">Öffentlicher Zugang nicht verfügbar</span><h3>Hosted</h3>
+            <p>Der geplante, durch Pflegra angebotene gehostete Zugang zum gemeinsamen Core.</p>
+            <ul class="model-list"><li>kein eigener Produkt-Core</li><li>keine öffentliche Registrierung</li><li>Verfügbarkeit folgt nach Freigabe</li></ul>
+            <a class="button button-secondary" href="#ausprobieren">Aktuellen Stand lesen</a>
+          </article>
+          <article class="card model-card">
+            <span class="status status-planned">In Vorbereitung</span><h3>Professional</h3>
+            <p>Pflegra Professional für Unternehmer ist in Vorbereitung.</p>
+            <ul class="model-list"><li>noch nicht buchbar</li><li>keine Preise oder Tarife festgelegt</li><li>keine Leistungsversprechen</li></ul>
+            <a class="button button-secondary" href="#ausprobieren">Einordnung lesen</a>
+          </article>
+        </div>
       </div>
-      <div class="hosting-card" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem">
-        <div style="font-size:1.05rem;font-weight:700;color:#0D1B2A;margin-bottom:.5rem">Windows-Version nutzen</div>
-        <p style="font-size:.88rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">Für alle, die Pflegra lokal auf dem eigenen PC ausprobieren möchten.</p>
-        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" style="display:block;text-align:center;background:#0D1B2A;color:#fff;padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none">Download ansehen</a>
+    </section>
+
+    <section class="section" id="ausprobieren">
+      <div class="wrap">
+        <div class="path-grid">
+          <div class="callout">
+            <p class="eyebrow">Aktueller Handlungsweg</p>
+            <h2>Community kennenlernen und selbst betreiben</h2>
+            <p>Der verlässliche öffentliche Einstieg ist derzeit das GitHub-Repository. Dort kann der Quellcode geprüft und bezogen werden. Für Downloads führt der Weg zur Release-Übersicht, ohne eine möglicherweise veraltete Versionsnummer fest zu verdrahten.</p>
+            <div class="actions">
+              <a class="button button-secondary" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Zum Repository</a>
+              <a class="button button-secondary" href="https://github.com/Pflegra/core/releases" rel="noopener noreferrer">Releases prüfen</a>
+            </div>
+          </div>
+          <aside class="path-box" aria-labelledby="status-heading">
+            <p class="eyebrow">Ehrlicher Status</p>
+            <h2 id="status-heading">Demo und Hosted</h2>
+            <p>Eine dauerhaft erreichbare öffentliche Demo und eine allgemein freigegebene Hosted-Registrierung sind für diese Veröffentlichung nicht nachgewiesen. Deshalb gibt es hier keinen scheinbar aktiven Demo- oder Registrierungsbutton.</p>
+            <p class="fine-print">Professional bleibt bis zu einer gesonderten Produktentscheidung ausschließlich „in Vorbereitung“.</p>
+          </aside>
+        </div>
       </div>
-      <div class="hosting-card" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem">
-        <div style="font-size:1.05rem;font-weight:700;color:#0D1B2A;margin-bottom:.5rem">Selbst betreiben</div>
-        <p style="font-size:.88rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">Für Menschen mit technischer Erfahrung, Docker, Linux oder eigenem Server.</p>
-        <a href="https://github.com/Pflegra/core" target="_blank" style="display:block;text-align:center;background:#fff;color:#0D1B2A;padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none;border:1px solid #cbd5e1">GitHub ansehen</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div><a class="brand" href="index.html" style="color:#fff">Pflegra<span class="brand-mark">.</span></a><p>Aus dem Pflegealltag heraus entwickelt. Open Source unter AGPLv3.</p></div>
+      <div class="footer-links">
+        <a href="ueber.html">Über Pflegra</a><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a>
+        <a href="https://github.com/Pflegra/core" rel="noopener noreferrer">GitHub</a>
       </div>
     </div>
-
-    <div class="install-tabs">
-      <button class="install-tab active" onclick="showTab('windows', event)">Windows</button>
-      <button class="install-tab" onclick="showTab('docker', event)">Docker</button>
-      <button class="install-tab" onclick="showTab('ha', event)">Linux Server</button>
-    </div>
-
-    <div id="tab-windows" class="install-content active">
-      <div class="code-block">
-<span class="comment"># 1. Pflegra-Paket herunterladen und entpacken</span>
-<span class="comment">#    pflegra_windows_v1.6.2.zip → beliebiger Ordner</span>
-
-<span class="comment"># 2. Pflegra.exe doppelklicken</span>
-<span class="comment">#    → Browser öffnet sich automatisch</span>
-<span class="comment">#    → Tray-Symbol erscheint in der Taskleiste</span></div>
-      <p class="install-note">
-        Kein Docker nötig. Pflegra läuft direkt als eigenständige Windows-Anwendung.
-        Daten werden lokal gespeichert und bleiben auf Ihrem PC.
-        <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank">Download v1.6.2 →</a>
-      </p>
-    </div>
-
-    <div id="tab-docker" class="install-content">
-      <div class="code-block">
-<span class="comment"># Einzeiler</span>
-docker run -d -p 8000:8000 -v pflegra_data:/data ghcr.io/pflegra/core:latest
-
-<span class="comment"># Oder mit docker compose</span>
-git clone https://github.com/Pflegra/core.git
-cd core
-docker compose up -d</div>
-      <p class="install-note">Pflegra läuft dann unter <strong>http://localhost:8000</strong></p>
-    </div>
-
-    <div id="tab-ha" class="install-content">
-      <div class="code-block">
-<span class="comment"># Docker installieren</span>
-curl -fsSL https://get.docker.com | sudo sh
-
-<span class="comment"># Pflegra starten</span>
-mkdir -p ~/pflegra/data
-docker run -d -p 8000:8000 \
-  -v ~/pflegra/data:/data \
-  --name pflegra \
-  --restart unless-stopped \
-  ghcr.io/pflegra/core:latest</div>
-      <p class="install-note">
-        Pflegra läuft unter <strong>http://SERVER-IP:8000</strong><br>
-        Für Fernzugriff: <a href="https://tailscale.com" target="_blank">Tailscale</a> installieren und Funnel aktivieren.
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<!-- Nutzerstimmen -->
-<section class="mobile-hide" style="background:#fff;padding:2.5rem 2rem;border-bottom:1px solid #e2e8f0">
-  <div style="max-width:780px;margin:0 auto">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.5rem;text-align:center">Das sagen Angehörige</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-top:1.25rem">
-
-      <div style="background:#f8fafc;border-radius:10px;padding:1.25rem;border-left:3px solid #3ABFAB">
-        <p style="font-size:.9rem;color:#2d3748;line-height:1.7;margin-bottom:.75rem;font-style:italic">
-          "Die Pflege selbst ist schon herausfordernd genug. Wenn dann noch Formulare, Nachweise und Fristen dazukommen, wird es schnell zu viel."
-        </p>
-        <div style="font-size:.75rem;color:#8a9ab0">Kommentar aus unserer Community</div>
-      </div>
-
-      <div style="background:#f8fafc;border-radius:10px;padding:1.25rem;border-left:3px solid #3ABFAB">
-        <p style="font-size:.9rem;color:#2d3748;line-height:1.7;margin-bottom:.75rem;font-style:italic">
-          "Ich habe meine Oma und ihre Schwester gepflegt. Mit drei kleinen Kindern. Und dazu noch der Druck der Ämter."
-        </p>
-        <div style="font-size:.75rem;color:#8a9ab0">Kommentar aus Facebook</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- Wer steckt hinter Pflegra -->
-<section class="about-team" style="background:#f8fafc;padding:3rem 2rem;border-top:1px solid #e2e8f0">
-  <div style="max-width:680px;margin:0 auto;text-align:center">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3ABFAB;margin-bottom:.75rem">Wer steckt hinter Pflegra?</div>
-    <img src="images/stefan-laura.png" alt="Stefan und Laura Neu"
-         style="width:180px;height:180px;object-fit:cover;border-radius:50%;margin:0 auto 1rem;display:block;border:3px solid #e2e8f0">
-    <p style="font-size:1rem;font-weight:600;color:#0D1B2A;margin-bottom:.5rem">Stefan & Laura Neu</p>
-    <p style="font-size:.85rem;color:#5a6a80;line-height:1.7;margin-bottom:1rem">
-      Pflegra entstand nicht in einem Büro, sondern mitten im Pflegealltag.<br>
-      Zwischen Arztbriefen, Anträgen und dem Wunsch, den Überblick nicht zu verlieren.<br>
-      Was als eigene Lösung begann, soll heute auch anderen Familien helfen.
-    </p>
-    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
-      <a href="https://github.com/sMaa-Ger" target="_blank"
-         style="font-size:.82rem;color:#5a6a80;text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border:1px solid #e2e8f0;border-radius:20px;background:#fff">
-        GitHub
-      </a>
-      <a href="https://github.com/Pflegra/core" target="_blank"
-         style="font-size:.82rem;color:#5a6a80;text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border:1px solid #e2e8f0;border-radius:20px;background:#fff">
-        Pflegra Repository
-      </a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <a class="footer-logo" href="/">Pflegra<span>.</span>app</a>
-  <div style="margin-bottom:.75rem">
-    <a href="/impressum.html">Impressum</a>
-    <a href="https://github.com/Pflegra/core" target="_blank">GitHub</a>
-    <a href="https://github.com/Pflegra/core/releases" target="_blank">Releases</a>
-    <a href="/datenschutz.html">Datenschutz</a>
-    <a href="https://github.com/Pflegra/core/blob/main/README.md" target="_blank">Dokumentation</a>
-  </div>
-  <div>© 2024–2026 Stefan Neu · AGPLv3 · Pflegra ist ein privates Open-Source-Projekt · <a href="https://github.com/Pflegra/core/releases/tag/v1.6.2" target="_blank" style="color:rgba(255,255,255,.5)">v1.6.2</a></div>
-  <div style="margin-top:.4rem;font-size:.75rem">
-    Pflegra dient der persönlichen Orientierung und ersetzt keine Beratung durch Pflegekassen oder den Medizinischen Dienst.
-  </div>
-</footer>
-
-<a class="feedback-button"
-   href="mailto:s.l.neu@web.de?subject=Pflegra%20Landingpage%20Feedback&body=Hallo%20Stefan%2C%0A%0Amein%20Feedback%20zur%20Pflegra-Landingpage%3A%0A%0A"
-   title="Feedback zur Landingpage senden"
-   aria-label="Feedback zur Landingpage senden">
-  Feedback
-</a>
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot in voller Größe"
-     aria-hidden="true" onclick="if(event.target === this) closeLightbox()">
-  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
-  <img id="lightbox-img" src="" alt="Screenshot in voller Größe" onclick="event.stopPropagation()">
-</div>
-
-<script>
-function toggleMobileAccordion(button) {
-  const content = document.getElementById(button.getAttribute('aria-controls'));
-  const willOpen = button.getAttribute('aria-expanded') !== 'true';
-  button.setAttribute('aria-expanded', String(willOpen));
-  content.classList.toggle('open', willOpen);
-}
-
-function showTab(id, event) {
-  document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.install-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  event.target.classList.add('active');
-}
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('active');
-  document.getElementById('lightbox').setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('active');
-  document.getElementById('lightbox').setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && document.getElementById('lightbox').classList.contains('active')) {
-    closeLightbox();
-  }
-});
-</script>
-
+  </footer>
 </body>
 </html>
-
