@@ -8,7 +8,7 @@
     <circle cx="886" cy="216" r="7"/><circle cx="944" cy="266" r="7"/><circle cx="1002" cy="216" r="7"/>
     <circle cx="1060" cy="266" r="7"/><circle cx="1118" cy="216" r="7"/>
   </g>
-  <text x="96" y="230" fill="#ffffff" font-family="system-ui, sans-serif" font-size="92" font-weight="800">Pflegra.</text>
+  <image href="pflegra-logo-white.svg" x="96" y="118" width="420" height="132" preserveAspectRatio="xMinYMid meet"/>
   <text x="96" y="340" fill="#ffffff" font-family="system-ui, sans-serif" font-size="48" font-weight="650">Pflege organisieren.</text>
   <text x="96" y="405" fill="#cceee5" font-family="system-ui, sans-serif" font-size="48" font-weight="650">Mehr Zeit füreinander.</text>
   <text x="96" y="515" fill="#dcebf3" font-family="system-ui, sans-serif" font-size="25">Ein Zuhause für den Pflegealltag · Open Source</text>

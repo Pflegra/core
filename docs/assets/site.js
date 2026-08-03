@@ -21,6 +21,7 @@ if (toggle && links) {
     if (event.key === "Escape") {
       links.dataset.open = "false";
       toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Navigation öffnen");
       toggle.focus();
     }
   });

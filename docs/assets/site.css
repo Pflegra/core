@@ -50,9 +50,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   background: rgba(244, 247, 251, .95); backdrop-filter: blur(14px);
 }
 .nav { min-height: 4.75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.brand { color: var(--navy-900); font-size: 1.35rem; font-weight: 850; letter-spacing: -.04em; text-decoration: none; text-transform: uppercase; }
-.brand-mark { color: var(--teal-600); }
-.brand-light { color: #fff; }
+.brand { display: inline-flex; flex: 0 0 auto; align-items: center; text-decoration: none; }
+.brand-logo { display: block; width: 10rem; height: auto; }
+.brand-logo-footer { width: 10rem; }
 .nav-toggle {
   display: none; min-width: 44px; min-height: 44px; padding: .55rem;
   border: 1px solid var(--line); border-radius: .75rem; background: var(--surface);
@@ -98,6 +98,11 @@ h3 { margin-bottom: .55rem; font-size: 1.2rem; }
   position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; text-align: center;
 }
 .hero-copy h1 { margin-inline: auto; color: var(--navy-900); font-size: clamp(3rem, 6.2vw, 5.25rem); letter-spacing: -.055em; }
+.demo-note {
+  max-width: 52rem; margin: .9rem auto 0; padding: .75rem 1rem; border: 1px solid rgba(31, 120, 147, .22);
+  border-radius: .75rem; background: rgba(255,255,255,.7); color: var(--muted); font-size: .9rem; line-height: 1.5;
+}
+.demo-note strong { color: var(--navy-900); }
 .hero-lead { max-width: 740px; margin: 0 auto; color: var(--muted); font-size: clamp(1.05rem, 1.8vw, 1.25rem); }
 .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.6rem 0; }
 .hero-copy .actions { justify-content: center; margin: 1.8rem 0 1.3rem; }
@@ -203,6 +208,7 @@ h3 { margin-bottom: .55rem; font-size: 1.2rem; }
 .lightbox-close { position: absolute; top: 1rem; right: 1.25rem; width: 46px; height: 46px; border: 1px solid rgba(255,255,255,.5); border-radius: 50%; background: rgba(255,255,255,.12); color: #fff; font-size: 1.8rem; cursor: pointer; }
 
 @media (max-width: 1000px) {
+  .nav-links { gap: .85rem; }
   .situation-grid { grid-template-columns: 1fr 1fr; }
   .benefit-grid { grid-template-columns: repeat(2, 1fr); }
   .benefit-card:last-child { grid-column: 1 / -1; }
@@ -234,6 +240,7 @@ h3 { margin-bottom: .55rem; font-size: 1.2rem; }
   h2 { font-size: clamp(1.8rem, 9vw, 2.35rem); }
   .hero { padding-top: 2.6rem; background: linear-gradient(180deg, var(--page) 0%, #f7fafc 66%, var(--sky-100) 66%, var(--sky-100) 100%); }
   .hero-copy { text-align: left; }
+  .demo-note { margin-inline: 0; }
   .hero-lead { font-size: .98rem; line-height: 1.55; }
   .actions { display: grid; }
   .hero-copy .actions { justify-content: stretch; margin: 1.3rem 0 1rem; }
