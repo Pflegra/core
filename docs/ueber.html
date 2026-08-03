@@ -3,147 +3,233 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Über Pflegra – Von einer Tabelle zum Pflege-Management-System</title>
-  <meta name="description" content="Die Geschichte von Pflegra: Wie aus einer Tabelle für die Verhinderungspflege ein offenes Pflege-Management-System entstand – entwickelt von Stefan und Laura Neu.">
-  <link rel="canonical" href="https://pflegra.app/ueber.html">
-  <meta name="theme-color" content="#0d4e43">
+  <title>Pflegra – Ein Zuhause für deinen Pflegealltag</title>
+  <meta name="description" content="Pflegra hilft Familien, Dokumente, Termine, Fristen, Aufgaben und Budgets im Pflegealltag an einem vertrauten Ort zusammenzuführen.">
+  <link rel="canonical" href="https://pflegra.app/">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pflegra">
+  <meta property="og:title" content="Pflegra – Ein Zuhause für deinen Pflegealltag">
+  <meta property="og:description" content="Mehr Überblick im Pflegealltag. Wichtige Informationen gemeinsam an einem vertrauten Ort organisieren.">
+  <meta property="og:url" content="https://pflegra.app/">
+  <meta property="og:image" content="https://pflegra.app/images/social-preview.svg">
+  <meta property="og:image:alt" content="Pflegra – Mehr Überblick. Mehr Zeit füreinander.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pflegra – Ein Zuhause für deinen Pflegealltag">
+  <meta name="twitter:description" content="Mehr Überblick im Pflegealltag. Wichtige Informationen gemeinsam an einem vertrauten Ort organisieren.">
+  <meta name="twitter:image" content="https://pflegra.app/images/social-preview.svg">
+  <meta name="twitter:image:alt" content="Pflegra – Mehr Überblick. Mehr Zeit füreinander.">
+  <meta name="theme-color" content="#143d5d">
+  <link rel="icon" href="images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="images/pflegra-app-icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" href="assets/site.css">
   <script src="assets/site.js" defer></script>
-  <style>
-    .story { max-width: 880px; margin: 0 auto; }
-    .story-step { padding: clamp(1.5rem, 4vw, 2.5rem) 0; border-bottom: 1px solid var(--line); }
-    .story-step:last-child { border-bottom: 0; }
-    .story-heading { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
-    .story-icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: 0 0 2.75rem; border-radius: 50%; background: var(--green); color: #fff; font-size: 1.15rem; }
-    .story-step h2 { margin: .15rem 0 0; }
-    .story-step p { margin: 0 0 .85rem; }
-    .story-image { display: block; width: 100%; margin: 1.25rem 0 .5rem; border: 1px solid var(--line); border-radius: 1rem; box-shadow: 0 12px 30px rgba(13,78,67,.09); cursor: zoom-in; }
-    .image-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin: 1.25rem 0; }
-    .image-grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
-    .image-item img { display: block; width: 100%; border: 1px solid var(--line); border-radius: .8rem; cursor: zoom-in; }
-    .caption, .image-item p { margin: .4rem 0 0; color: var(--muted); font-size: .82rem; text-align: center; }
-    .story-quote { margin: 1.25rem 0; padding: 1rem 1.25rem; border-left: 4px solid var(--green); border-radius: 0 .75rem .75rem 0; background: var(--soft); font-weight: 600; }
-    .today-box { margin-top: 1.25rem; padding: 1.5rem; border-radius: 1rem; background: var(--green-dark); color: #fff; }
-    .today-box h3, .today-box p { color: #fff; }
-    .team-card { display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: center; padding: 2rem; border: 1px solid var(--line); border-radius: 1.25rem; background: #fff; }
-    .team-card img { width: 180px; height: 180px; object-fit: cover; border-radius: 50%; }
-    .lightbox { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; padding: 2rem; background: rgba(0,0,0,.88); }
-    .lightbox.active { display: flex; }
-    .lightbox img { max-width: 92vw; max-height: 86vh; border-radius: .75rem; }
-    .lightbox-close { position: absolute; top: 1rem; right: 1.25rem; border: 0; background: transparent; color: #fff; font-size: 2rem; cursor: pointer; }
-    @media (max-width: 700px) {
-      .image-grid, .image-grid.three, .team-card { grid-template-columns: 1fr; }
-      .team-card { text-align: center; }
-      .team-card img { margin: 0 auto; }
-    }
-  </style>
 </head>
 <body>
   <a class="skip-link" href="#inhalt">Direkt zum Inhalt</a>
   <header class="site-header">
     <nav class="nav wrap" aria-label="Hauptnavigation">
-      <a class="brand" href="index.html">Pflegra<span class="brand-mark">.</span></a>
+      <a class="brand" href="index.html" aria-label="Pflegra Startseite"><img class="brand-logo" src="images/pflegra-logo-color.svg" width="905" height="284" alt="Pflegra"></a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptmenue" aria-label="Navigation öffnen">Menü</button>
       <div class="nav-links" id="hauptmenue" data-open="false">
-        <a href="index.html#pflegealltag">Pflegealltag</a><a href="index.html#funktionen">Funktionen</a><a href="index.html#modelle">Zugangsmodelle</a>
-        <a href="index.html#datenhoheit">Datenhoheit</a><a aria-current="page" href="ueber.html">Über Pflegra</a><a class="button button-primary" href="index.html#ausprobieren">Pflegra kennenlernen</a>
+        <a href="#pflegealltag">Pflegealltag</a>
+        <a href="#entlastung">Entlastung</a>
+        <a href="#einblicke">Einblicke</a>
+        <a href="#geschichte">Unsere Geschichte</a>
+        <a href="#community">Pflegra kennenlernen</a>
+        <a class="button button-primary" href="https://pflegra.tail5e5060.ts.net/login" target="_blank" rel="noopener noreferrer">Living Demo</a>
       </div>
     </nav>
   </header>
 
   <main id="inhalt">
     <section class="hero">
-      <div class="wrap">
-        <p class="eyebrow">Die Geschichte von Pflegra</p>
-        <h1>Von einer Tabelle zu Pflegra.</h1>
-        <p class="lead">Wie aus einer praktischen Hilfe für den eigenen Pflegealltag Schritt für Schritt ein offenes Pflege-Management-System wurde.</p>
-      </div>
-    </section>
-
-    <section class="section section-soft">
-      <div class="wrap story">
-        <article class="story-step">
-          <div class="story-heading"><div class="story-icon" aria-hidden="true">1</div><div><p class="card-kicker">2024 · Der Anfang</p><h2>Eine Tabelle für die Verhinderungspflege</h2></div></div>
-          <p>Pflegra begann nicht als Softwareprojekt. Es begann am Küchentisch.</p>
-          <p>Wie viele pflegende Angehörige standen auch wir vor derselben Herausforderung: Nachweise, Fristen, Bescheide und immer mehr Papierkram. Am Anfang gab es nur eine einfache Tabelle für die Verhinderungspflege. Sie half uns, Stunden zu dokumentieren und den Überblick über das verfügbare Budget zu behalten.</p>
-          <img class="story-image" src="images/geschichte/2025_tabelle_plus_nachweis_makro.png" alt="Die erste LibreOffice-Tabelle mit Stundeneintragungen" data-lightbox>
-          <p class="caption">Die erste Version: eine einfache LibreOffice-Tabelle mit Stundeneintragungen</p>
-        </article>
-
-        <article class="story-step">
-          <div class="story-heading"><div class="story-icon" aria-hidden="true">2</div><div><p class="card-kicker">2025 · Der erste Durchbruch</p><h2>Automatische Nachweise per Makro</h2></div></div>
-          <p>Schnell wurde klar, dass die eigentliche Arbeit nicht das Eintragen der Stunden war, sondern das Erstellen der Nachweise. Deshalb entstand das erste Makro, das automatisch unterschriftsfertige Nachweise als PDF erzeugte.</p>
-          <blockquote class="story-quote">Das war der Wechsel von „Ich trage Stunden ein“ zu „Die Software erledigt die Bürokratie“ – die eigentliche Geburtsstunde von Pflegra.</blockquote>
-          <div class="image-grid">
-            <div class="image-item"><img src="images/geschichte/2025_erstellter_nachweis_in_tabelle.png" alt="Nachweis in LibreOffice Calc" data-lightbox><p>Nachweis in LibreOffice Calc</p></div>
-            <div class="image-item"><img src="images/geschichte/2025_erstellter_nachweis.png" alt="Automatisch erstellter PDF-Nachweis" data-lightbox><p>Automatisch erstellter PDF-Nachweis</p></div>
+      <div class="wrap hero-flow">
+        <div class="hero-copy">
+          <p class="eyebrow">Pflege gemeinsam organisieren</p>
+          <h1>Mehr Überblick.<br>Mehr Zeit füreinander.</h1>
+          <p class="hero-lead">Wenn Dokumente, Termine, Fristen und Aufgaben überall verteilt sind, wird Pflege noch anstrengender. Pflegra bringt das Wichtige an einem vertrauten Ort zusammen.</p>
+          <div class="actions">
+            <a class="button button-accent" href="https://pflegra.tail5e5060.ts.net/login" target="_blank" rel="noopener noreferrer">Living Demo testen</a>
+            <a class="button button-secondary" href="#einblicke">Pflegra ansehen</a>
+            <a class="button button-secondary" href="#community">Community entdecken</a>
           </div>
-        </article>
-
-        <article class="story-step">
-          <div class="story-heading"><div class="story-icon" aria-hidden="true">3</div><div><p class="card-kicker">2025 · PflegeNachweis 2.0</p><h2>Mehr als nur eine Tabelle</h2></div></div>
-          <p>Aus der einfachen Tabelle wurde eine kleine Anwendung. Mehrere Personen konnten verwaltet, Zeiträume ausgewählt und Nachweise automatisch erstellt werden. Quartale, Halbjahre und das gesamte Jahr waren auf einen Blick verfügbar.</p>
-          <img class="story-image" src="images/geschichte/2025_pflegenachweis2_0.png" alt="PflegeNachweis 2.0 mit Jahresübersicht" data-lightbox>
-          <p class="caption">PflegeNachweis 2.0: Jahresübersicht mit automatischer Nachweis-Erstellung</p>
-        </article>
-
-        <article class="story-step">
-          <div class="story-heading"><div class="story-icon" aria-hidden="true">4</div><div><p class="card-kicker">2026 · PflegeNachweis 2.3</p><h2>Das erste richtige System</h2></div></div>
-          <p>Mit Version 2.3 war aus einem Hilfsmittel ein richtiges System geworden: Dashboard, Mehrpersonenverwaltung, Statistiken und eine automatische Archivierung aller erstellten Nachweise.</p>
-          <p>Doch je größer das Projekt wurde, desto deutlicher wurden die Grenzen einer Tabellenkalkulation.</p>
-          <img class="story-image" src="images/geschichte/2026_dashboard_pflegenachweis2_3.png" alt="Dashboard von PflegeNachweis 2.3" data-lightbox>
-          <p class="caption">Das Dashboard von PflegeNachweis 2.3</p>
-          <div class="image-grid three">
-            <div class="image-item"><img src="images/geschichte/2026_user_pflegenachweis2_3.png" alt="Personenverwaltung" data-lightbox><p>Mehrere Versicherte</p></div>
-            <div class="image-item"><img src="images/geschichte/2026_statistiken_pflegenachweis2_3.png" alt="Statistiken und Budget" data-lightbox><p>Statistiken &amp; Budget</p></div>
-            <div class="image-item"><img src="images/geschichte/2026_historie_pflegenachweis2_3.png" alt="Automatisches Archiv" data-lightbox><p>Automatisches Archiv</p></div>
-          </div>
-        </article>
-
-        <article class="story-step">
-          <div class="story-heading"><div class="story-icon" aria-hidden="true">5</div><div><p class="card-kicker">Heute · Pflegra</p><h2>Aus PflegeNachweis wird Pflegra</h2></div></div>
-          <p><em>Alles, was hier zu sehen ist, wurde ursprünglich für unsere eigene Familie entwickelt. Nicht für Kunden und nicht für Investoren, sondern weil wir selbst dieselben Probleme hatten wie viele andere pflegende Angehörige.</em></p>
-          <p>PflegeNachweis bestand am Ende aus zahlreichen Tabellenblättern, Makros und Automatisierungen. Neue Funktionen wurden immer schwieriger umzusetzen. Deshalb fiel die Entscheidung, das gesamte Projekt als moderne Webanwendung neu zu entwickeln.</p>
-          <div class="today-box"><h3>Pflegra heute</h3><p>Dokumente, Fristen, Budgets, Pflegeberatungen, Gutachten und der gesamte Pflegealltag an einem Ort. Was als einfache Tabelle begann, begleitet heute Familien dabei, den Überblick zu behalten und sich auf das Wesentliche zu konzentrieren: die Menschen, die sie pflegen.</p></div>
-          <p>Pflegra wurde aus echter Pflegepraxis heraus entwickelt. Das war der Anfang und das bleibt der Kern.</p>
-          <div class="image-grid three">
-            <div class="image-item"><img src="screenshots/dashboard.png" alt="Pflegra Dashboard" data-lightbox><p>Dashboard</p></div>
-            <div class="image-item"><img src="screenshots/pflegegradrechner.png" alt="Pflegegradrechner" data-lightbox><p>Pflegegradrechner</p></div>
-            <div class="image-item"><img src="screenshots/antraege_dokomente.png" alt="Dokumentenverwaltung" data-lightbox><p>Dokumentenverwaltung</p></div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" aria-labelledby="ueber-uns">
-      <div class="wrap">
-        <div class="team-card">
-          <img src="images/stefan-laura.png" alt="Stefan und Laura Neu">
-          <div><p class="eyebrow">Über uns</p><h2 id="ueber-uns">Stefan &amp; Laura Neu</h2><p>Pflegende Angehörige und Entwickler aus Deutschland. Pflegra ist aus unserem eigenen Pflegealltag entstanden, nicht aus einem Büro.</p></div>
+          <p class="demo-note"><strong>Hinweis:</strong> Isolierte Living Demo mit Beispieldaten. Keine echten Pflege- oder Personendaten eingeben.</p>
+          <ul class="hero-trust" aria-label="Pflegra Grundsätze">
+            <li>Für Familien gemacht</li>
+            <li>Einfach im Alltag</li>
+            <li>Open Source</li>
+          </ul>
+        </div>
+        <div class="hero-product-stage">
+          <figure class="hero-product">
+            <button class="image-button" type="button" data-lightbox-src="screenshots/dashboard.png" data-lightbox-alt="Pflegra-Übersicht mit Aufgaben, Termin, gepflegter Person und Budget">
+              <img src="screenshots/dashboard.png" alt="Pflegra-Übersicht mit Aufgaben, Termin, gepflegter Person und Budget">
+              <span class="zoom-hint">Ansicht vergrößern</span>
+            </button>
+            <figcaption><strong>Ein vertrauter Ort für euren Pflegealltag.</strong> Menschen, Termine, Aufgaben und Budget gemeinsam im Blick.</figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
-    <section class="section section-soft">
-      <div class="wrap path-grid">
-        <div><p class="eyebrow">Der Kern bleibt</p><h2>Für pflegende Angehörige, transparent entwickelt.</h2><p class="section-intro">Pflegra richtet sich zuerst an Menschen, die Pflege in Familien organisieren. Der gemeinsame Core ist Open Source. Community kann selbst betrieben werden; Hosted ist ein geplanter Zugang zu diesem Core; Professional für Unternehmer ist in Vorbereitung.</p></div>
-        <aside class="path-box"><h2>Warum Open Source?</h2><p>Pflegedaten sind sensibel. Ein offener Core macht die technische Grundlage prüfbar und ermöglicht selbst verantworteten Betrieb.</p><p>Die Pflege können wir nicht übernehmen. Den Papierkram vielleicht schon.</p><a class="button button-secondary" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Repository öffnen</a></aside>
+    <section class="section familiar-section" id="pflegealltag">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">Kommt dir das bekannt vor?</p>
+          <h2>Im Pflegealltag ist Wichtiges oft überall verteilt.</h2>
+          <p>Ein Bescheid im Ordner, ein Termin im Kalender, eine Frist auf einem Zettel – und die entscheidende Information irgendwo im Kopf.</p>
+        </div>
+        <div class="situation-grid">
+          <article class="situation-card"><span aria-hidden="true">📄</span><h3>Wo war der letzte Bescheid?</h3><p>Dokumente und Nachweise sollen auffindbar sein, wenn du sie brauchst.</p></article>
+          <article class="situation-card"><span aria-hidden="true">📅</span><h3>Wann endet die nächste Frist?</h3><p>Termine, Aufgaben und Fristen brauchen einen gemeinsamen Überblick.</p></article>
+          <article class="situation-card"><span aria-hidden="true">🤝</span><h3>Wer kümmert sich worum?</h3><p>Wenn mehrere Menschen helfen, müssen Informationen für alle verständlich bleiben.</p></article>
+          <article class="situation-card"><span aria-hidden="true">📝</span><h3>Was wurde schon dokumentiert?</h3><p>Einträge helfen, Entwicklungen und Absprachen später nachzuvollziehen.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="entlastung">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">Ein gemeinsamer Ort</p>
+          <h2>Pflegra bringt Ruhe in die Organisation.</h2>
+          <p>Nicht als weiteres System, das Aufmerksamkeit verlangt – sondern als Werkzeug, das dir hilft, Wichtiges schneller zu finden und gemeinsam im Blick zu behalten.</p>
+        </div>
+        <div class="benefit-grid">
+          <article class="benefit-card"><div class="number">01</div><h3>Schneller wiederfinden</h3><p>Dokumente, Nachweise und Informationen geordnet dem richtigen Pflegekontext zuordnen.</p></article>
+          <article class="benefit-card"><div class="number">02</div><h3>Gemeinsam überblicken</h3><p>Termine, Fristen und Aufgaben zusammen sehen, statt zwischen Listen zu wechseln.</p></article>
+          <article class="benefit-card"><div class="number">03</div><h3>Nachvollziehbar festhalten</h3><p>Pflegeverläufe und wichtige Ereignisse dokumentieren, ohne Zusammenhänge zu verlieren.</p></article>
+          <article class="benefit-card"><div class="number">04</div><h3>Verantwortung teilen</h3><p>Informationen im Pflegeteam verfügbar machen und Zuständigkeiten gemeinsam organisieren.</p></article>
+          <article class="benefit-card"><div class="number">05</div><h3>Leistungen einordnen</h3><p>Budgets, Pflegeleistungen und Nachweise strukturiert zusammenführen.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section product-section" id="einblicke">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">Pflegra tatsächlich sehen</p>
+          <h2>So sieht dein gemeinsamer Pflegeort aus.</h2>
+          <p>Echte Ansichten aus Pflegra – mit neutralen Beispieldaten und einem klaren Nutzen für den Alltag.</p>
+        </div>
+        <div class="showcase">
+          <figure class="showcase-item showcase-wide">
+            <button class="image-button" type="button" data-lightbox-src="screenshots/dashboard.png" data-lightbox-alt="Pflegra-Übersicht">
+              <img src="screenshots/dashboard.png" alt="Pflegra-Übersicht mit Aufgaben, Termin und Budget">
+              <span class="zoom-hint">Vergrößern</span>
+            </button>
+            <figcaption><strong>Alles Wichtige im Blick.</strong> Die Übersicht verbindet gepflegte Personen mit Aufgaben, Terminen, Dokumenten und Budget.</figcaption>
+          </figure>
+          <figure class="showcase-item">
+            <button class="image-button" type="button" data-lightbox-src="screenshots/eintraege.png" data-lightbox-alt="Pflege-Einträge in Pflegra">
+              <img src="screenshots/eintraege.png" alt="Pflege-Einträge mit Filtern und chronologischer Liste">
+              <span class="zoom-hint">Vergrößern</span>
+            </button>
+            <figcaption><strong>Dokumentation wiederfinden.</strong> Einträge lassen sich filtern und zeitlich nachvollziehen.</figcaption>
+          </figure>
+          <figure class="showcase-item">
+            <button class="image-button" type="button" data-lightbox-src="screenshots/budgetplanung_2.png" data-lightbox-alt="Budgetplanung in Pflegra">
+              <img src="screenshots/budgetplanung_2.png" alt="Pflegra-Budgetplanung mit Pflegeleistungen und Monatsübersicht">
+              <span class="zoom-hint">Vergrößern</span>
+            </button>
+            <figcaption><strong>Leistungen geordnet planen.</strong> Budgets und Ansprüche werden in einer gemeinsamen Jahresansicht sichtbar.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section steps-section" aria-labelledby="alltag-heading">
+      <div class="wrap steps-layout">
+        <div>
+          <p class="eyebrow">So funktioniert es im Alltag</p>
+          <h2 id="alltag-heading">Ankommen, sammeln, gemeinsam den Überblick behalten.</h2>
+        </div>
+        <ol class="steps-list">
+          <li><span>1</span><div><h3>Pflegekontext anlegen</h3><p>Menschen und die wichtigsten Informationen übersichtlich zusammenführen.</p></div></li>
+          <li><span>2</span><div><h3>Wichtiges sammeln</h3><p>Dokumente, Termine, Fristen, Aufgaben und Einträge an einem Ort ablegen.</p></div></li>
+          <li><span>3</span><div><h3>Gemeinsam weiterarbeiten</h3><p>Verantwortung teilen und Entwicklungen nachvollziehbar im Blick behalten.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section trust-section" id="datenhoheit">
+      <div class="wrap trust-layout">
+        <div>
+          <p class="eyebrow eyebrow-light">Vertrauen und Datenhoheit</p>
+          <h2>Pflegedaten sind persönlich. Ihr Umgang braucht Klarheit.</h2>
+          <p>Pflegra Community ist Open Source und selbst betreibbar. Beim Selbstbetrieb wählst und verantwortest du das System, auf dem deine Pflegedaten gespeichert werden. Der gemeinsame Core ist offen einsehbar.</p>
+        </div>
+        <div class="trust-points">
+          <article><span aria-hidden="true">✓</span><div><h3>Offener Core</h3><p>Der Quellcode kann eingesehen und nachvollzogen werden.</p></div></article>
+          <article><span aria-hidden="true">✓</span><div><h3>Selbst betreibbare Community</h3><p>Datenhoheit und Betrieb liegen beim Betreiber der Installation.</p></div></article>
+          <article><span aria-hidden="true">✓</span><div><h3>Keine Werbetracker</h3><p>Diese öffentliche Website nutzt keine Analyse- oder Werbeskripte.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section story-section" id="geschichte">
+      <div class="wrap story-layout">
+        <div class="story-portrait">
+          <img src="images/stefan-laura.png" alt="Stefan und Laura Neu">
+        </div>
+        <div>
+          <p class="eyebrow">Aus unserem eigenen Pflegealltag</p>
+          <h2>Pflegra begann am Küchentisch.</h2>
+          <p>Am Anfang standen Tabellen, Nachweise und die Frage, wie sich all die organisatorischen Aufgaben verlässlich zusammenhalten lassen. Aus dieser eigenen Belastung wuchs Schritt für Schritt Pflegra.</p>
+          <p><strong>Stefan und Laura Neu</strong> stehen hinter dem Projekt. Pflegra wurde nicht aus einer abstrakten Produktidee entwickelt, sondern aus Erfahrungen, die viele pflegende Angehörige kennen.</p>
+          <a class="text-link" href="ueber.html">Die ganze Geschichte von Pflegra lesen <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft models-section" id="modelle">
+      <div class="wrap">
+        <div class="section-heading compact-heading">
+          <p class="eyebrow">Ein Pflegra, ein gemeinsamer Core</p>
+          <h2>Der passende Zugang – ohne getrennte Produktwelten.</h2>
+        </div>
+        <div class="model-grid">
+          <article class="model-card"><span class="status">Aktuell verfügbar</span><h3>Community</h3><p>Der Open-Source-Core zum Selbstbetrieb.</p><a class="text-link" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Repository öffnen →</a></article>
+          <article class="model-card"><span class="status status-planned">Geplant</span><h3>Hosted</h3><p>Ein künftig durch Pflegra angebotener Zugang zum selben Core. Noch keine öffentliche Registrierung.</p></article>
+          <article class="model-card"><span class="status status-planned">In Vorbereitung</span><h3>Professional</h3><p>Für Unternehmer in Vorbereitung. Noch nicht buchbar; Preise und Tarife sind nicht festgelegt.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section closing-section" id="community">
+      <div class="wrap closing-card">
+        <div>
+          <p class="eyebrow eyebrow-light">Ein Zuhause für den Pflegealltag</p>
+          <h2>Wichtiges zusammenhalten. Gemeinsam weitergehen.</h2>
+          <p>Pflegra Community ist der aktuell verfügbare, selbst betreibbare Einstieg. Im Repository findest du den offenen Core; die Release-Übersicht zeigt verfügbare Veröffentlichungen.</p>
+        </div>
+        <div class="actions">
+          <a class="button button-accent" href="https://pflegra.tail5e5060.ts.net/login" target="_blank" rel="noopener noreferrer">Living Demo testen</a>
+          <a class="button button-accent" href="https://github.com/Pflegra/core" rel="noopener noreferrer">Community auf GitHub</a>
+          <a class="button button-ghost" href="https://github.com/Pflegra/core/releases" rel="noopener noreferrer">Releases ansehen</a>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand" href="index.html" style="color:#fff">Pflegra<span class="brand-mark">.</span></a><p>Pflege gemeinsam übersichtlicher organisieren.</p></div><div class="footer-links"><a href="index.html">Startseite</a><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a><a href="https://github.com/Pflegra/core" rel="noopener noreferrer">GitHub</a></div></div></footer>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div><a class="brand" href="index.html" aria-label="Pflegra Startseite"><img class="brand-logo brand-logo-footer" src="images/pflegra-logo-white.svg" width="905" height="284" alt="Pflegra"></a><p>Mehr Überblick. Mehr Zeit füreinander.</p></div>
+      <div class="footer-links">
+        <a href="ueber.html">Über Pflegra</a><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a>
+        <a href="https://github.com/Pflegra/core" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+  </footer>
 
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildansicht">
-    <button class="lightbox-close" type="button" aria-label="Bildansicht schließen">×</button><img id="lightbox-image" alt="">
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Produktansicht" hidden>
+    <button class="lightbox-close" type="button" aria-label="Produktansicht schließen">×</button>
+    <img id="lightbox-image" alt="">
   </div>
-  <script>
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-image');
-    function closeLightbox() { lightbox.classList.remove('active'); lightboxImage.removeAttribute('src'); }
-    document.querySelectorAll('[data-lightbox]').forEach((image) => image.addEventListener('click', () => { lightboxImage.src = image.src; lightboxImage.alt = image.alt; lightbox.classList.add('active'); }));
-    lightbox.addEventListener('click', (event) => { if (event.target !== lightboxImage) closeLightbox(); });
-    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeLightbox(); });
-  </script>
 </body>
 </html>
